@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Royal Deluxe Casino - Rocket Crash</title>
+<script src="casino-utils.js"></script>
 <style>
 :root {
   --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
@@ -78,10 +79,8 @@ button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
   <div class="counter-display">Mögl. Auszahlung: <span id="crash-payout-display">0.00 €</span></div>
 </div>
 
-<!-- History der letzten Runden -->
 <div class="history-bar" id="crash-history">
   <span style="font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-right: 5px;">Verlauf:</span>
-  <!-- Dynamische Pillen kommen hier rein -->
 </div>
 
 <div class="crash-container">
@@ -100,7 +99,6 @@ button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
 </div>
 
 <script>
-let casinoBankroll = parseInt(localStorage.getItem('casino_bankroll')) || 1000;
 let crashBet = 10;
 let crashState = 'idle'; // 'idle', 'flying', 'crashed', 'cashed_out'
 let currentMultiplier = 1.00;
@@ -108,7 +106,6 @@ let crashPoint = 0.00;
 let startTime = 0;
 let animationId = null;
 
-// Canvas Setup
 const canvas = document.getElementById('crash-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -119,11 +116,6 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-function syncBankrollDisplays() {
-  localStorage.setItem('casino_bankroll', casinoBankroll.toString());
-  document.querySelectorAll('.shared-bankroll').forEach(el => el.textContent = casinoBankroll + " €");
-}
-
 function crashSetBet(amount) {
   if (crashState === 'flying') return;
   crashBet = amount;
@@ -133,45 +125,36 @@ function crashSetBet(amount) {
   });
 }
 
-// Generiert den realistischen Krypto-Crashpunkt (3% House Edge direkt verrechnet)
 function generateCrashPoint() {
   const e = Math.random();
-  if (e < 0.03) return 1.00; // Sofortiger Crash bei Start (Insta-Bust)
+  if (e < 0.03) return 1.00; 
   return parseFloat((0.97 / (1 - e)).toFixed(2));
 }
 
 function crashTriggerAction() {
   if (crashState === 'idle') {
-    // Start Game
-    if (casinoBankroll < crashBet) {
+    if (getCash() < crashBet) {
       alert("Nicht genug Guthaben!");
       return;
     }
-    casinoBankroll -= crashBet;
-    syncBankrollDisplays();
+    setCash(getCash() - crashBet);
 
     crashPoint = generateCrashPoint();
-    console.log("Crash geplant bei: " + crashPoint + "x"); // Debugging f. Devs
     
     crashState = 'flying';
     currentMultiplier = 1.00;
     startTime = performance.now();
     
-    // UI umstellen
     const btn = document.getElementById('crash-main-btn');
     btn.textContent = "CASH OUT";
     btn.className = "btn-action cashout";
     
     disableBetButtons(true);
-    
-    // Loop starten
     animateFlight();
   } else if (crashState === 'flying') {
-    // Cash Out Triggered
     crashState = 'cashed_out';
     const winAmount = Math.floor(crashBet * currentMultiplier);
-    casinoBankroll += winAmount;
-    syncBankrollDisplays();
+    setCash(getCash() + winAmount);
     
     document.getElementById('crash-live-mult').style.color = '#4cd16b';
     document.getElementById('crash-main-btn').textContent = `+${winAmount} € GEsichert!`;
@@ -188,34 +171,27 @@ function disableBetButtons(status) {
 function animateFlight() {
   if (crashState !== 'flying' && crashState !== 'cashed_out') return;
 
-  const elapsed = (performance.now() - startTime) / 1000; // Sekunden seit Start
-  
-  // Exponentielle Wachstumskurve für echten Casino-Spannungsaufbau
+  const elapsed = (performance.now() - startTime) / 1000; 
   currentMultiplier = parseFloat((Math.pow(1.15, elapsed)).toFixed(2));
 
-  // Prüfen, ob gecrasht
   if (currentMultiplier >= crashPoint) {
-    currentMultiplier = crashPoint; // Exakt am Crashpoint stoppen
+    currentMultiplier = crashPoint;
     handleCrash();
     return;
   }
 
-  // Update Displays
   document.getElementById('crash-live-mult').textContent = currentMultiplier.toFixed(2) + "x";
   if(crashState === 'flying') {
     document.getElementById('crash-payout-display').textContent = (crashBet * currentMultiplier).toFixed(2) + " €";
   }
 
-  // Zeichne Canvas Graph
   drawCanvas(elapsed);
-
   animationId = requestAnimationFrame(animateFlight);
 }
 
 function drawCanvas(elapsed) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Zeichne Raster-Linien im Hintergrund
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
   ctx.lineWidth = 1;
   for(let i=0; i<canvas.width; i+=40) {
@@ -225,14 +201,11 @@ function drawCanvas(elapsed) {
     ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
   }
 
-  // Berechne dynamische Flug-Koordinaten (startet unten links, fliegt nach oben rechts)
   const startX = 40;
   const startY = canvas.height - 40;
-  
   const endX = Math.min(startX + (elapsed * 35), canvas.width - 60);
   const endY = Math.max(startY - (Math.pow(elapsed, 1.5) * 12), 50);
 
-  // Zeichne die glühende Aufstiegskurve (Vektor)
   ctx.strokeStyle = crashState === 'cashed_out' ? '#4cd16b' : 'rgba(229, 193, 88, 0.8)';
   ctx.lineWidth = 4;
   ctx.shadowBlur = 15;
@@ -243,10 +216,8 @@ function drawCanvas(elapsed) {
   ctx.quadraticCurveTo((startX + endX)/1.4, startY, endX, endY);
   ctx.stroke();
   
-  // Reset Shadow f. Performance
   ctx.shadowBlur = 0;
 
-  // Zeichne Raketen-Symbol an die Spitze der Kurve
   ctx.font = "32px serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -257,13 +228,11 @@ function handleCrash() {
   cancelAnimationFrame(animationId);
   
   if (crashState === 'flying') {
-    // Wenn der User noch im Spiel war, hat er verloren
     addHistoryPill(crashPoint, false);
   }
   
   crashState = 'crashed';
   
-  // Rote Crash-Explosion visuell darstellen
   document.getElementById('crash-live-mult').textContent = "💥 BOOM @ " + crashPoint.toFixed(2) + "x";
   document.getElementById('crash-live-mult').style.color = '#ff4d4d';
   document.getElementById('crash-payout-display').textContent = "0.00 €";
@@ -272,7 +241,6 @@ function handleCrash() {
   btn.textContent = "💥 GEBLASEN!";
   btn.disabled = true;
   
-  // Reset nach 3 Sekunden Cooldown
   setTimeout(() => {
     crashState = 'idle';
     btn.textContent = "🚀 FLUG STARTEN";
@@ -291,21 +259,18 @@ function addHistoryPill(value, won) {
   pill.className = `history-pill ${won ? 'pill-good' : 'pill-bad'}`;
   pill.textContent = value.toFixed(2) + "x";
   
-  // Neue Pille vorne einfügen
   if (container.children.length > 1) {
     container.insertBefore(pill, container.children[1]);
   } else {
     container.appendChild(pill);
   }
   
-  // Maximal 8 Einträge im Viewport halten
   if (container.children.length > 9) {
     container.removeChild(container.lastChild);
   }
 }
 
 window.onload = () => {
-  syncBankrollDisplays();
   crashSetBet(10);
 };
 </script>
