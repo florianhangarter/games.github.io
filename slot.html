@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Royal Deluxe Casino - Premium Slots & Free Spins</title>
+<script src="casino-utils.js"></script>
 <style>
 :root {
   --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
@@ -147,10 +148,8 @@ button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
 </div>
 
 <script>
-let casinoBankroll = parseInt(localStorage.getItem('casino_bankroll')) || 1000;
 let slotsBet = 10, slotsIsSpinning = false, slotsAutoMode = false, slotsAutoInterval = null;
 
-// Freispiel-Variablen
 let slotsFreeSpinsLeft = 0;
 let slotsTotalFreeSpinWin = 0;
 let slotsWasInFreeSpins = false;
@@ -161,7 +160,7 @@ const slotsSymbols = [
   { icon: '👑', mult: 5, weight: 3 },   
   { icon: '🔔', mult: 3, weight: 5 },   
   { icon: '🍒', mult: 1.5, weight: 7 },
-  { icon: '⭐', mult: 2, weight: 2 } // Scatter-Symbol für Freispiele
+  { icon: '⭐', mult: 2, weight: 2 } 
 ];
 
 const slotsPool = [];
@@ -176,11 +175,6 @@ const slotsPaylines = [
 ];
 
 let slotsMatrix = [['','',''],['','',''],['','','']];
-
-function syncBankrollDisplays() {
-  localStorage.setItem('casino_bankroll', casinoBankroll.toString());
-  document.querySelectorAll('.shared-bankroll').forEach(el => el.textContent = casinoBankroll + " €");
-}
 
 function slotsSetBet(amount) {
   if (slotsIsSpinning || slotsFreeSpinsLeft > 0) return;
@@ -200,19 +194,17 @@ function slotsSpin() {
 
   const isFreeSpin = slotsFreeSpinsLeft > 0;
 
-  if (!isFreeSpin && casinoBankroll < slotsBet) {
+  if (!isFreeSpin && getCash() < slotsBet) {
     document.getElementById('slots-message').textContent = "Nicht genug Guthaben! 🛑";
     slotsCancelAuto();
     return;
   }
 
-  // Modus prüfen und Geldeinsatz managen
   if (isFreeSpin) {
     slotsFreeSpinsLeft--;
     document.getElementById('slots-fs-left').textContent = slotsFreeSpinsLeft;
   } else {
-    casinoBankroll -= slotsBet;
-    syncBankrollDisplays();
+    setCash(getCash() - slotsBet);
   }
   
   slotsIsSpinning = true;
@@ -221,7 +213,6 @@ function slotsSpin() {
   
   document.getElementById('slots-message').textContent = isFreeSpin ? `Freispiel läuft... (Noch ${slotsFreeSpinsLeft})` : "Walzen drehen...";
 
-  // Reset Highlights & add Blur
   for (let row = 0; row < 3; row++) {
     for (let col = 0; col < 3; col++) {
       const cell = document.getElementById(`cell-${row}-${col}`);
@@ -247,7 +238,6 @@ function slotsSpin() {
 function slotsStopEngine(isFreeSpin) {
   let scatterCells = [];
 
-  // Finale Symbole setzen
   for (let row = 0; row < 3; row++) {
     for (let col = 0; col < 3; col++) {
       const sym = getRandomSymbol();
@@ -263,7 +253,6 @@ function slotsStopEngine(isFreeSpin) {
     }
   }
 
-  // Auswertung Gewinne
   let roundWin = 0;
   let winningCells = [];
 
@@ -281,7 +270,6 @@ function slotsStopEngine(isFreeSpin) {
     }
   });
 
-  // Scatter-Auswertung (Freispiel-Trigger)
   let triggeredFS = false;
   if (scatterCells.length >= 3) {
     triggeredFS = true;
@@ -293,9 +281,8 @@ function slotsStopEngine(isFreeSpin) {
     scatterCells.forEach(id => document.getElementById(`cell-${id}`).classList.add('scatter-hit'));
   }
 
-  // Geld gutschreiben
   if (roundWin > 0) {
-    casinoBankroll += roundWin;
+    setCash(getCash() + roundWin);
     if (slotsWasInFreeSpins) {
       slotsTotalFreeSpinWin += roundWin;
     }
@@ -306,7 +293,6 @@ function slotsStopEngine(isFreeSpin) {
     });
   }
 
-  // UI Aktualisierungen je nach Spielmodus
   const msgEl = document.getElementById('slots-message');
   const caseEl = document.getElementById('slot-machine-case');
   const fsBox = document.getElementById('fs-counter-box');
@@ -322,7 +308,6 @@ function slotsStopEngine(isFreeSpin) {
     document.getElementById('slots-win-display').textContent = roundWin + " €";
   }
 
-  // Nachrichten-Ausgabe steuern
   if (triggeredFS) {
     msgEl.innerHTML = `<span style="color:#bf5fff; text-shadow:0 0 15px #bf5fff;">🔥 10 FREISPIELE GEWONNEN! 🔥</span>`;
   } else if (roundWin > 0) {
@@ -330,13 +315,9 @@ function slotsStopEngine(isFreeSpin) {
   } else {
     msgEl.textContent = slotsWasInFreeSpins ? "Freispiel ohne Treffer..." : "Kein Treffer. Nächster Versuch!";
   }
-
-  syncBankrollDisplays();
   
-  // Zustand aufräumen
   slotsIsSpinning = false;
 
-  // Wenn Freispiele gerade vorbei sind
   if (slotsWasInFreeSpins && slotsFreeSpinsLeft === 0 && !triggeredFS) {
     setTimeout(() => {
       msgEl.innerHTML = `<span style="color:#bf5fff; font-size:20px;">Freespins beendet! Gesamt: +${slotsTotalFreeSpinWin} € 💰</span>`;
@@ -358,12 +339,9 @@ function slotsStopEngine(isFreeSpin) {
   document.getElementById('slots-spin-btn').disabled = false;
   document.getElementById('slots-auto-btn').disabled = false;
 
-  // Automatisches Weiterdrehen triggern
   if (slotsFreeSpinsLeft > 0) {
-    // Während Freispielen wird automatisch immer weitergedreht
     slotsAutoInterval = setTimeout(slotsSpin, 1400);
   } else if (slotsAutoMode) {
-    // Normaler Automodus
     slotsAutoInterval = setTimeout(slotsSpin, 1200);
   }
 }
@@ -384,7 +362,7 @@ function slotsToggleAuto() {
 
 function slotsCancelAuto() {
   slotsAutoMode = false;
-  if(slotsFreeSpinsLeft === 0) { // Freispiele lassen sich nicht abbrechen, bis sie 0 sind
+  if(slotsFreeSpinsLeft === 0) {
     clearTimeout(slotsAutoInterval);
     const btn = document.getElementById('slots-auto-btn');
     btn.textContent = "AUTO";
@@ -393,7 +371,6 @@ function slotsCancelAuto() {
 }
 
 window.onload = () => {
-  syncBankrollDisplays();
   slotsSetBet(10);
 };
 </script>
