@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Royal Deluxe Casino - Premium Slots & Free Spins</title>
+<style>
+:root {
+  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
+  --machine-bg: linear-gradient(135deg, #2b2622 0%, #181513 100%);
+  --gold-glow: 0 0 15px rgba(229,193,88,0.5), inset 0 0 15px rgba(229,193,88,0.2);
+  --purple-glow: 0 0 25px rgba(148,0,211,0.8), inset 0 0 20px rgba(148,0,211,0.3);
+  --transition: all 0.2s ease;
+}
+body {
+  margin: 0; font-family: 'Georgia', serif; background: var(--board-bg);
+  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
+  display: flex; flex-direction: column; align-items: center;
+}
+.topbar { display: flex; gap: 15px; margin-bottom: 25px; align-items: center; background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+button { 
+  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
+  border: 1px solid #1a1411; color: #e5c158; border-radius: 20px; font-weight: bold; font-family: 'Segoe UI';
+  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
+}
+button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
+button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
+.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: white; border: 1px solid #3a0f0f; }
+.counter-display { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; color: #e5c158; background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+.counter-display.fs-active { color: #bf5fff; border-color: rgba(148,0,211,0.4); background: rgba(40,0,60,0.5); }
+
+/* Slots Gehäuse */
+.slot-machine {
+  background: var(--machine-bg); border: 4px solid #e5c158; border-radius: 24px;
+  padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), var(--gold-glow);
+  width: 100%; max-width: 500px; box-sizing: border-box; text-align: center; position: relative;
+  transition: var(--transition);
+}
+/* Gehäuse-Wechsel bei Freispielen */
+.slot-machine.free-spins-mode {
+  border-color: #bf5fff; box-shadow: 0 20px 50px rgba(0,0,0,0.8), var(--purple-glow);
+}
+.slot-machine::before {
+  content: "ROYAL DELUXE SLOTS"; position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: #181513; padding: 2px 20px; font-family: 'Segoe UI'; font-weight: 900; font-size: 13px;
+  color: #e5c158; border: 2px solid #e5c158; border-radius: 10px; letter-spacing: 2px;
+}
+.slot-machine.free-spins-mode::before {
+  content: "🔥 FREE SPINS ACTIVE 🔥"; color: #bf5fff; border-color: #bf5fff;
+}
+
+/* Das 3x3 Sichtfenster */
+.reels-container {
+  display: flex; gap: 15px; background: #0b0908; border-radius: 16px;
+  padding: 20px; border: 3px solid #3a2f27; box-shadow: inset 0 10px 20px rgba(0,0,0,0.9);
+  position: relative; overflow: hidden; justify-content: center;
+}
+
+/* Einzelne Walzenspalte */
+.reel-column { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+/* Slot Zelle */
+.slot-cell {
+  height: 90px; background: linear-gradient(to bottom, #221c18, #14110f);
+  border: 1px solid rgba(229,193,88,0.15); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 42px;
+  transition: filter 0.1s ease; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+.slot-cell.blur { filter: blur(4px); transform: scaleY(1.1); }
+.slot-cell.winning-hit { 
+  background: linear-gradient(to bottom, #534113, #2b2005) !important; 
+  border-color: #ffd700 !important;
+  animation: pulseGlow 0.5s infinite alternate;
+}
+.slot-cell.scatter-hit {
+  background: linear-gradient(to bottom, #4a154b, #220624) !important;
+  border-color: #bf5fff !important;
+  animation: pulsePurpleGlow 0.4s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  from { box-shadow: inset 0 0 10px rgba(255,215,0,0.3), 0 0 10px rgba(255,215,0,0.5); }
+  to { box-shadow: inset 0 0 20px rgba(255,215,0,0.6), 0 0 20px rgba(255,215,0,0.9); }
+}
+@keyframes pulsePurpleGlow {
+  from { box-shadow: inset 0 0 10px rgba(191,95,255,0.3), 0 0 10px rgba(191,95,255,0.5); transform: scale(1.02); }
+  to { box-shadow: inset 0 0 20px rgba(191,95,255,0.6), 0 0 20px rgba(191,95,255,0.9); transform: scale(0.98); }
+}
+
+#slots-message { font-size: 24px; color: #ffd700; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin: 20px 0; min-height: 30px; font-family: 'Segoe UI'; }
+
+.control-panel { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.chip-btn { background: linear-gradient(to bottom, #162a45, #0f1c2e); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; width: 52px; height: 52px; font-size: 14px; font-weight: bold; color: #e5c158; cursor: pointer; }
+.chip-btn.active { border-color: #e5c158; background: #1a385c; box-shadow: 0 0 8px #e5c158; }
+
+.btn-spin { background: linear-gradient(to bottom, #d4af37, #8a6d1c); color: #000; font-size: 16px; padding: 12px 35px; border-radius: 25px; border-color: #ffe89e; }
+.btn-auto { background: linear-gradient(to bottom, #2b5c8f, #163354); color: white; border-color: #407fc4; }
+.btn-auto.active { background: linear-gradient(to bottom, #ff3333, #990000); border-color: #ff6666; animation: pulseRed 1s infinite alternate; }
+
+.paylines-info { margin-top: 20px; font-family: 'Segoe UI'; font-size: 11px; color: rgba(255,255,255,0.4); display: flex; gap: 12px; justify-content: center; text-transform: uppercase; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" style="text-decoration: none;"><button class="btn-lobby">🏰 Lobby</button></a>
+  <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+  <div class="counter-display">Einsatz: <span id="slots-bet-display">10 €</span></div>
+  <div class="counter-display" id="fs-counter-box" style="display: none;">FS Übrig: <span id="slots-fs-left">0</span></div>
+  <div class="counter-display" id="slots-win-box">Letzter Gewinn: <span id="slots-win-display">0 €</span></div>
+</div>
+
+<div class="slot-machine" id="slot-machine-case">
+  <div class="reels-container">
+    <div class="reel-column" id="col-0">
+      <div class="slot-cell" id="cell-0-0">🍒</div>
+      <div class="slot-cell" id="cell-1-0">🔔</div>
+      <div class="slot-cell" id="cell-2-0">💎</div>
+    </div>
+    <div class="reel-column" id="col-1">
+      <div class="slot-cell" id="cell-0-1">⭐</div>
+      <div class="slot-cell" id="cell-1-1">7️⃣</div>
+      <div class="slot-cell" id="cell-2-1">🍒</div>
+    </div>
+    <div class="reel-column" id="col-2">
+      <div class="slot-cell" id="cell-0-2">🔔</div>
+      <div class="slot-cell" id="cell-1-2">💎</div>
+      <div class="slot-cell" id="cell-2-2">⭐</div>
+    </div>
+  </div>
+
+  <div id="slots-message">Fordere dein Glück heraus!</div>
+
+  <div class="control-panel">
+    <button class="chip-btn active" id="bet-10" onclick="slotsSetBet(10)">10</button>
+    <button class="chip-btn" id="bet-50" onclick="slotsSetBet(50)">50</button>
+    <button class="chip-btn" id="bet-100" onclick="slotsSetBet(100)">100</button>
+    
+    <button id="slots-spin-btn" class="btn-spin" onclick="slotsSpin()">SPIN 🎰</button>
+    <button id="slots-auto-btn" class="btn-auto" onclick="slotsToggleAuto()">AUTO</button>
+  </div>
+
+  <div class="paylines-info">
+    <span>↔️ 3 Linien</span>
+    <span>❌ 2 Diagonalen</span>
+    <span>⭐ 3x Scatter = 10 Freispiele</span>
+  </div>
+</div>
+
+<script>
+let casinoBankroll = parseInt(localStorage.getItem('casino_bankroll')) || 1000;
+let slotsBet = 10, slotsIsSpinning = false, slotsAutoMode = false, slotsAutoInterval = null;
+
+// Freispiel-Variablen
+let slotsFreeSpinsLeft = 0;
+let slotsTotalFreeSpinWin = 0;
+let slotsWasInFreeSpins = false;
+
+const slotsSymbols = [
+  { icon: '7️⃣', mult: 15, weight: 1 },  
+  { icon: '💎', mult: 7, weight: 2 },   
+  { icon: '👑', mult: 5, weight: 3 },   
+  { icon: '🔔', mult: 3, weight: 5 },   
+  { icon: '🍒', mult: 1.5, weight: 7 },
+  { icon: '⭐', mult: 2, weight: 2 } // Scatter-Symbol für Freispiele
+];
+
+const slotsPool = [];
+slotsSymbols.forEach(s => { for(let i=0; i<s.weight; i++) slotsPool.push(s); });
+
+const slotsPaylines = [
+  { name: 'Horiz-Top',    cells: [[0,0], [0,1], [0,2]] },
+  { name: 'Horiz-Center', cells: [[1,0], [1,1], [1,2]] },
+  { name: 'Horiz-Bottom', cells: [[2,0], [2,1], [2,2]] },
+  { name: 'Diag-Down',    cells: [[0,0], [1,1], [2,2]] },
+  { name: 'Diag-Up',      cells: [[2,0], [1,1], [0,2]] }
+];
+
+let slotsMatrix = [['','',''],['','',''],['','','']];
+
+function syncBankrollDisplays() {
+  localStorage.setItem('casino_bankroll', casinoBankroll.toString());
+  document.querySelectorAll('.shared-bankroll').forEach(el => el.textContent = casinoBankroll + " €");
+}
+
+function slotsSetBet(amount) {
+  if (slotsIsSpinning || slotsFreeSpinsLeft > 0) return;
+  slotsBet = amount;
+  document.getElementById('slots-bet-display').textContent = slotsBet + " €";
+  [10, 50, 100].forEach(a => {
+    document.getElementById(`bet-${a}`).classList.toggle('active', a === amount);
+  });
+}
+
+function getRandomSymbol() {
+  return slotsPool[Math.floor(Math.random() * slotsPool.length)];
+}
+
+function slotsSpin() {
+  if (slotsIsSpinning) return;
+
+  const isFreeSpin = slotsFreeSpinsLeft > 0;
+
+  if (!isFreeSpin && casinoBankroll < slotsBet) {
+    document.getElementById('slots-message').textContent = "Nicht genug Guthaben! 🛑";
+    slotsCancelAuto();
+    return;
+  }
+
+  // Modus prüfen und Geldeinsatz managen
+  if (isFreeSpin) {
+    slotsFreeSpinsLeft--;
+    document.getElementById('slots-fs-left').textContent = slotsFreeSpinsLeft;
+  } else {
+    casinoBankroll -= slotsBet;
+    syncBankrollDisplays();
+  }
+  
+  slotsIsSpinning = true;
+  document.getElementById('slots-spin-btn').disabled = true;
+  if (!slotsAutoMode) document.getElementById('slots-auto-btn').disabled = true;
+  
+  document.getElementById('slots-message').textContent = isFreeSpin ? `Freispiel läuft... (Noch ${slotsFreeSpinsLeft})` : "Walzen drehen...";
+
+  // Reset Highlights & add Blur
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const cell = document.getElementById(`cell-${row}-${col}`);
+      cell.className = "slot-cell blur";
+    }
+  }
+
+  let spinTicks = 0;
+  const spinInterval = setInterval(() => {
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        document.getElementById(`cell-${row}-${col}`).textContent = getRandomSymbol().icon;
+      }
+    }
+    spinTicks++;
+    if (spinTicks >= 12) {
+      clearInterval(spinInterval);
+      slotsStopEngine(isFreeSpin);
+    }
+  }, 75);
+}
+
+function slotsStopEngine(isFreeSpin) {
+  let scatterCells = [];
+
+  // Finale Symbole setzen
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const sym = getRandomSymbol();
+      slotsMatrix[row][col] = sym.icon;
+      
+      const cell = document.getElementById(`cell-${row}-${col}`);
+      cell.textContent = sym.icon;
+      cell.classList.remove('blur');
+
+      if (sym.icon === '⭐') {
+        scatterCells.push(`${row}-${col}`);
+      }
+    }
+  }
+
+  // Auswertung Gewinne
+  let roundWin = 0;
+  let winningCells = [];
+
+  slotsPaylines.forEach(line => {
+    const sym0 = slotsMatrix[line.cells[0][0]][line.cells[0][1]];
+    const sym1 = slotsMatrix[line.cells[1][0]][line.cells[1][1]];
+    const sym2 = slotsMatrix[line.cells[2][0]][line.cells[2][1]];
+
+    if (sym0 === sym1 && sym1 === sym2) {
+      const matchConfig = slotsSymbols.find(s => s.icon === sym0);
+      if (matchConfig) {
+        roundWin += Math.floor(slotsBet * matchConfig.mult);
+        line.cells.forEach(coord => winningCells.push(`${coord[0]}-${coord[1]}`));
+      }
+    }
+  });
+
+  // Scatter-Auswertung (Freispiel-Trigger)
+  let triggeredFS = false;
+  if (scatterCells.length >= 3) {
+    triggeredFS = true;
+    slotsFreeSpinsLeft += 10;
+    if(!slotsWasInFreeSpins) {
+      slotsTotalFreeSpinWin = 0;
+      slotsWasInFreeSpins = true;
+    }
+    scatterCells.forEach(id => document.getElementById(`cell-${id}`).classList.add('scatter-hit'));
+  }
+
+  // Geld gutschreiben
+  if (roundWin > 0) {
+    casinoBankroll += roundWin;
+    if (slotsWasInFreeSpins) {
+      slotsTotalFreeSpinWin += roundWin;
+    }
+    
+    winningCells.forEach(id => {
+      const el = document.getElementById(`cell-${id}`);
+      if(!el.classList.contains('scatter-hit')) el.classList.add('winning-hit');
+    });
+  }
+
+  // UI Aktualisierungen je nach Spielmodus
+  const msgEl = document.getElementById('slots-message');
+  const caseEl = document.getElementById('slot-machine-case');
+  const fsBox = document.getElementById('fs-counter-box');
+  const winBoxLabel = document.getElementById('slots-win-box');
+
+  if (slotsWasInFreeSpins) {
+    caseEl.classList.add('free-spins-mode');
+    fsBox.style.display = "block";
+    fsBox.classList.add('fs-active');
+    document.getElementById('slots-fs-left').textContent = slotsFreeSpinsLeft;
+    winBoxLabel.innerHTML = `FS-Gesamtgewinn: <span id="slots-win-display" style="color:#bf5fff">${slotsTotalFreeSpinWin} €</span>`;
+  } else {
+    document.getElementById('slots-win-display').textContent = roundWin + " €";
+  }
+
+  // Nachrichten-Ausgabe steuern
+  if (triggeredFS) {
+    msgEl.innerHTML = `<span style="color:#bf5fff; text-shadow:0 0 15px #bf5fff;">🔥 10 FREISPIELE GEWONNEN! 🔥</span>`;
+  } else if (roundWin > 0) {
+    msgEl.innerHTML = `<span style="color:#ffd700; text-shadow:0 0 10px #ffd700;">GEWINN: +${roundWin} €! 🎉</span>`;
+  } else {
+    msgEl.textContent = slotsWasInFreeSpins ? "Freispiel ohne Treffer..." : "Kein Treffer. Nächster Versuch!";
+  }
+
+  syncBankrollDisplays();
+  
+  // Zustand aufräumen
+  slotsIsSpinning = false;
+
+  // Wenn Freispiele gerade vorbei sind
+  if (slotsWasInFreeSpins && slotsFreeSpinsLeft === 0 && !triggeredFS) {
+    setTimeout(() => {
+      msgEl.innerHTML = `<span style="color:#bf5fff; font-size:20px;">Freespins beendet! Gesamt: +${slotsTotalFreeSpinWin} € 💰</span>`;
+      caseEl.classList.remove('free-spins-mode');
+      fsBox.style.display = "none";
+      winBoxLabel.innerHTML = `Letzter Gewinn: <span id="slots-win-display">${slotsTotalFreeSpinWin} €</span>`;
+      slotsWasInFreeSpins = false;
+      
+      document.getElementById('slots-spin-btn').disabled = false;
+      document.getElementById('slots-auto-btn').disabled = false;
+      
+      if (slotsAutoMode) {
+        slotsAutoInterval = setTimeout(slotsSpin, 2000);
+      }
+    }, 1500);
+    return;
+  }
+
+  document.getElementById('slots-spin-btn').disabled = false;
+  document.getElementById('slots-auto-btn').disabled = false;
+
+  // Automatisches Weiterdrehen triggern
+  if (slotsFreeSpinsLeft > 0) {
+    // Während Freispielen wird automatisch immer weitergedreht
+    slotsAutoInterval = setTimeout(slotsSpin, 1400);
+  } else if (slotsAutoMode) {
+    // Normaler Automodus
+    slotsAutoInterval = setTimeout(slotsSpin, 1200);
+  }
+}
+
+function slotsToggleAuto() {
+  if (slotsAutoMode) {
+    slotsCancelAuto();
+  } else {
+    slotsAutoMode = true;
+    const btn = document.getElementById('slots-auto-btn');
+    btn.textContent = "STOP";
+    btn.classList.add('active');
+    if (!slotsIsSpinning) {
+      slotsSpin();
+    }
+  }
+}
+
+function slotsCancelAuto() {
+  slotsAutoMode = false;
+  if(slotsFreeSpinsLeft === 0) { // Freispiele lassen sich nicht abbrechen, bis sie 0 sind
+    clearTimeout(slotsAutoInterval);
+    const btn = document.getElementById('slots-auto-btn');
+    btn.textContent = "AUTO";
+    btn.classList.remove('active');
+  }
+}
+
+window.onload = () => {
+  syncBankrollDisplays();
+  slotsSetBet(10);
+};
+</script>
+</body>
+</html>

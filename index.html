@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Royal Deluxe Casino - Lobby</title>
+<style>
+  :root {
+    --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
+    --transition: all 0.2s cubic-bezier(0.215, 0.610, 0.355, 1);
+  }
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--board-bg);
+    min-height: 100vh;
+    color: white;
+    padding: 25px;
+    box-sizing: border-box;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .topbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 12px 25px;
+    border-radius: 30px;
+    box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .counter-display {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #e5c158;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  h1 {
+    font-size: 48px;
+    color: #e5c158;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+    text-align: center;
+  }
+  .lobby-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+  }
+  .lobby-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .lobby-choice {
+    width: 200px;
+    height: 260px;
+    background: linear-gradient(135deg, #2a221d 0%, #16110e 100%);
+    border: 3px solid #e5c158;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    text-decoration: none;
+  }
+  .lobby-choice:hover {
+    transform: translateY(-15px) scale(1.03);
+    box-shadow: 0 25px 45px rgba(0,0,0,0.9), 0 0 20px rgba(229,193,88,0.4);
+  }
+  .lobby-choice .icon { font-size: 54px; margin-bottom: 15px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+  .lobby-choice .title { font-size: 18px; font-weight: bold; color: #e5c158; letter-spacing: 1px; text-transform: uppercase; text-align: center; }
+  button { 
+    padding: 10px 20px; cursor: pointer;
+    background: linear-gradient(to bottom, #8b2626, #5c1a1a); border: 1px solid #3a0f0f;
+    color: white; border-radius: 20px; font-weight: bold; font-family: 'Segoe UI', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="counter-display">Gesamtguthaben: <span id="lobby-bankroll">1000 €</span></div>
+  <button onclick="resetBankroll()">🔄 Kontostand zurücksetzen</button>
+</div>
+
+<h1>⚜ ROYAL DELUXE CASINO ⚜</h1>
+<div class="lobby-subtitle">Wählen Sie Ihr Spiel</div>
+
+<div class="lobby-cards">
+  <a href="solitaire.html" class="lobby-choice">
+    <div class="icon">♠</div>
+    <div class="title">Solitär XL</div>
+  </a>
+  <a href="blackjack.html" class="lobby-choice">
+    <div class="icon">♦</div>
+    <div class="title">Blackjack</div>
+  </a>
+  <a href="slot.html" class="lobby-choice">
+    <div class="icon">🎰</div>
+    <div class="title">Slot Machine</div>
+  </a>
+  <a href="tower.html" class="lobby-choice">
+    <div class="icon">🏰</div>
+    <div class="title">Tower Crash</div>
+  </a>
+  <a href="rocket.html" class="lobby-choice">
+    <div class="icon">🚀</div>
+    <div class="title">Rocket Blast</div>
+  </a>
+</div>
+
+<script>
+  if (!localStorage.getItem('casino_bankroll')) {
+    localStorage.setItem('casino_bankroll', '1000');
+  }
+  document.getElementById('lobby-bankroll').textContent = localStorage.getItem('casino_bankroll') + " €";
+
+  function resetBankroll() {
+    if(confirm("Möchtest du dein Guthaben wieder auf 1000 € zurücksetzen?")) {
+      localStorage.setItem('casino_bankroll', '1000');
+      document.getElementById('lobby-bankroll').textContent = "1000 €";
+    }
+  }
+</script>
+</body>
+</html>

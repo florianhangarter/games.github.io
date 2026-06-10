@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Royal Deluxe Casino - Rocket Crash</title>
+<style>
+:root {
+  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
+  --panel-bg: linear-gradient(135deg, #2b2622 0%, #181513 100%);
+  --gold: #e5c158;
+  --transition: all 0.2s ease;
+}
+body {
+  margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--board-bg);
+  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
+  display: flex; flex-direction: column; align-items: center;
+}
+.topbar { display: flex; gap: 15px; margin-bottom: 25px; align-items: center; background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+button { 
+  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
+  border: 1px solid #1a1411; color: var(--gold); border-radius: 20px; font-weight: bold;
+  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
+}
+button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
+button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
+.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: white; border: 1px solid #3a0f0f; }
+.counter-display { font-size: 16px; font-weight: bold; color: var(--gold); background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+
+/* Game Layout */
+.crash-container {
+  display: flex; flex-direction: column; width: 100%; max-width: 650px;
+  background: var(--panel-bg); border: 3px solid var(--gold); border-radius: 24px;
+  padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative;
+}
+.crash-container::before {
+  content: "🚀 ROCKET CRASH MULTIPLIER 🚀"; position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: #181513; padding: 2px 20px; font-weight: 900; font-size: 12px; color: var(--gold); border: 2px solid var(--gold); border-radius: 10px; letter-spacing: 2px;
+}
+
+/* Arena & Live Display */
+.canvas-area {
+  position: relative; width: 100%; height: 300px; background: #0b0908; border-radius: 16px;
+  border: 2px solid #3a2f27; overflow: hidden; box-shadow: inset 0 10px 30px rgba(0,0,0,0.9);
+}
+#crash-canvas { width: 100%; height: 100%; display: block; }
+.live-multiplier {
+  position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 55px; font-weight: 800; color: white; text-shadow: 0 4px 15px rgba(0,0,0,0.9);
+  font-family: 'Georgia', serif; pointer-events: none;
+}
+
+/* Steuerung */
+.control-panel { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+.chip-btn { background: linear-gradient(to bottom, #162a45, #0f1c2e); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; width: 55px; height: 55px; font-size: 15px; font-weight: bold; color: var(--gold); cursor: pointer; }
+.chip-btn.active { border-color: var(--gold); background: #1a385c; box-shadow: 0 0 10px var(--gold); }
+
+.btn-action { background: linear-gradient(to bottom, #2b6a3a, #164221); color: white; font-size: 16px; padding: 14px 45px; border-radius: 25px; border-color: #3e8e4f; min-width: 180px; }
+.btn-action.cashout { background: linear-gradient(to bottom, var(--gold), #b08d24); color: black; border-color: #fff; }
+
+/* History Pillen */
+.history-bar {
+  display: flex; gap: 8px; justify-content: flex-start; width: 100%; max-width: 650px;
+  margin-bottom: 12px; overflow-x: hidden; height: 30px; align-items: center;
+}
+.history-pill {
+  padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+}
+.pill-good { color: #4cd16b; border-color: rgba(76,209,107,0.4); }
+.pill-bad { color: #ff4d4d; border-color: rgba(255,77,77,0.4); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" style="text-decoration: none;"><button class="btn-lobby">🏰 Lobby</button></a>
+  <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+  <div class="counter-display">Einsatz: <span id="crash-bet-display">10 €</span></div>
+  <div class="counter-display">Mögl. Auszahlung: <span id="crash-payout-display">0.00 €</span></div>
+</div>
+
+<!-- History der letzten Runden -->
+<div class="history-bar" id="crash-history">
+  <span style="font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-right: 5px;">Verlauf:</span>
+  <!-- Dynamische Pillen kommen hier rein -->
+</div>
+
+<div class="crash-container">
+  <div class="canvas-area">
+    <canvas id="crash-canvas"></canvas>
+    <div class="live-multiplier" id="crash-live-mult">1.00x</div>
+  </div>
+
+  <div class="control-panel">
+    <button class="chip-btn active" id="bet-10" onclick="crashSetBet(10)">10</button>
+    <button class="chip-btn" id="bet-50" onclick="crashSetBet(50)">50</button>
+    <button class="chip-btn" id="bet-100" onclick="crashSetBet(100)">100</button>
+    
+    <button id="crash-main-btn" class="btn-action" onclick="crashTriggerAction()">🚀 FLUG STARTEN</button>
+  </div>
+</div>
+
+<script>
+let casinoBankroll = parseInt(localStorage.getItem('casino_bankroll')) || 1000;
+let crashBet = 10;
+let crashState = 'idle'; // 'idle', 'flying', 'crashed', 'cashed_out'
+let currentMultiplier = 1.00;
+let crashPoint = 0.00;
+let startTime = 0;
+let animationId = null;
+
+// Canvas Setup
+const canvas = document.getElementById('crash-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = canvas.parentElement.clientHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function syncBankrollDisplays() {
+  localStorage.setItem('casino_bankroll', casinoBankroll.toString());
+  document.querySelectorAll('.shared-bankroll').forEach(el => el.textContent = casinoBankroll + " €");
+}
+
+function crashSetBet(amount) {
+  if (crashState === 'flying') return;
+  crashBet = amount;
+  document.getElementById('crash-bet-display').textContent = crashBet + " €";
+  [10, 50, 100].forEach(a => {
+    document.getElementById(`bet-${a}`).classList.toggle('active', a === amount);
+  });
+}
+
+// Generiert den realistischen Krypto-Crashpunkt (3% House Edge direkt verrechnet)
+function generateCrashPoint() {
+  const e = Math.random();
+  if (e < 0.03) return 1.00; // Sofortiger Crash bei Start (Insta-Bust)
+  return parseFloat((0.97 / (1 - e)).toFixed(2));
+}
+
+function crashTriggerAction() {
+  if (crashState === 'idle') {
+    // Start Game
+    if (casinoBankroll < crashBet) {
+      alert("Nicht genug Guthaben!");
+      return;
+    }
+    casinoBankroll -= crashBet;
+    syncBankrollDisplays();
+
+    crashPoint = generateCrashPoint();
+    console.log("Crash geplant bei: " + crashPoint + "x"); // Debugging f. Devs
+    
+    crashState = 'flying';
+    currentMultiplier = 1.00;
+    startTime = performance.now();
+    
+    // UI umstellen
+    const btn = document.getElementById('crash-main-btn');
+    btn.textContent = "CASH OUT";
+    btn.className = "btn-action cashout";
+    
+    disableBetButtons(true);
+    
+    // Loop starten
+    animateFlight();
+  } else if (crashState === 'flying') {
+    // Cash Out Triggered
+    crashState = 'cashed_out';
+    const winAmount = Math.floor(crashBet * currentMultiplier);
+    casinoBankroll += winAmount;
+    syncBankrollDisplays();
+    
+    document.getElementById('crash-live-mult').style.color = '#4cd16b';
+    document.getElementById('crash-main-btn').textContent = `+${winAmount} € GEsichert!`;
+    document.getElementById('crash-main-btn').disabled = true;
+    
+    addHistoryPill(currentMultiplier, true);
+  }
+}
+
+function disableBetButtons(status) {
+  [10, 50, 100].forEach(a => { document.getElementById(`bet-${a}`).disabled = status; });
+}
+
+function animateFlight() {
+  if (crashState !== 'flying' && crashState !== 'cashed_out') return;
+
+  const elapsed = (performance.now() - startTime) / 1000; // Sekunden seit Start
+  
+  // Exponentielle Wachstumskurve für echten Casino-Spannungsaufbau
+  currentMultiplier = parseFloat((Math.pow(1.15, elapsed)).toFixed(2));
+
+  // Prüfen, ob gecrasht
+  if (currentMultiplier >= crashPoint) {
+    currentMultiplier = crashPoint; // Exakt am Crashpoint stoppen
+    handleCrash();
+    return;
+  }
+
+  // Update Displays
+  document.getElementById('crash-live-mult').textContent = currentMultiplier.toFixed(2) + "x";
+  if(crashState === 'flying') {
+    document.getElementById('crash-payout-display').textContent = (crashBet * currentMultiplier).toFixed(2) + " €";
+  }
+
+  // Zeichne Canvas Graph
+  drawCanvas(elapsed);
+
+  animationId = requestAnimationFrame(animateFlight);
+}
+
+function drawCanvas(elapsed) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Zeichne Raster-Linien im Hintergrund
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+  ctx.lineWidth = 1;
+  for(let i=0; i<canvas.width; i+=40) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+  }
+  for(let i=0; i<canvas.height; i+=40) {
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+  }
+
+  // Berechne dynamische Flug-Koordinaten (startet unten links, fliegt nach oben rechts)
+  const startX = 40;
+  const startY = canvas.height - 40;
+  
+  const endX = Math.min(startX + (elapsed * 35), canvas.width - 60);
+  const endY = Math.max(startY - (Math.pow(elapsed, 1.5) * 12), 50);
+
+  // Zeichne die glühende Aufstiegskurve (Vektor)
+  ctx.strokeStyle = crashState === 'cashed_out' ? '#4cd16b' : 'rgba(229, 193, 88, 0.8)';
+  ctx.lineWidth = 4;
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = crashState === 'cashed_out' ? '#4cd16b' : '#e5c158';
+  
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.quadraticCurveTo((startX + endX)/1.4, startY, endX, endY);
+  ctx.stroke();
+  
+  // Reset Shadow f. Performance
+  ctx.shadowBlur = 0;
+
+  // Zeichne Raketen-Symbol an die Spitze der Kurve
+  ctx.font = "32px serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("🚀", endX, endY);
+}
+
+function handleCrash() {
+  cancelAnimationFrame(animationId);
+  
+  if (crashState === 'flying') {
+    // Wenn der User noch im Spiel war, hat er verloren
+    addHistoryPill(crashPoint, false);
+  }
+  
+  crashState = 'crashed';
+  
+  // Rote Crash-Explosion visuell darstellen
+  document.getElementById('crash-live-mult').textContent = "💥 BOOM @ " + crashPoint.toFixed(2) + "x";
+  document.getElementById('crash-live-mult').style.color = '#ff4d4d';
+  document.getElementById('crash-payout-display').textContent = "0.00 €";
+  
+  const btn = document.getElementById('crash-main-btn');
+  btn.textContent = "💥 GEBLASEN!";
+  btn.disabled = true;
+  
+  // Reset nach 3 Sekunden Cooldown
+  setTimeout(() => {
+    crashState = 'idle';
+    btn.textContent = "🚀 FLUG STARTEN";
+    btn.className = "btn-action";
+    btn.disabled = false;
+    document.getElementById('crash-live-mult').style.color = 'white';
+    document.getElementById('crash-live-mult').textContent = "1.00x";
+    disableBetButtons(false);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, 3000);
+}
+
+function addHistoryPill(value, won) {
+  const container = document.getElementById('crash-history');
+  const pill = document.createElement('div');
+  pill.className = `history-pill ${won ? 'pill-good' : 'pill-bad'}`;
+  pill.textContent = value.toFixed(2) + "x";
+  
+  // Neue Pille vorne einfügen
+  if (container.children.length > 1) {
+    container.insertBefore(pill, container.children[1]);
+  } else {
+    container.appendChild(pill);
+  }
+  
+  // Maximal 8 Einträge im Viewport halten
+  if (container.children.length > 9) {
+    container.removeChild(container.lastChild);
+  }
+}
+
+window.onload = () => {
+  syncBankrollDisplays();
+  crashSetBet(10);
+};
+</script>
+</body>
+</html>

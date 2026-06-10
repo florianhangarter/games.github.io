@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Royal Deluxe Casino - Blackjack</title>
+<style>
+:root {
+  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
+  --transition: all 0.2s cubic-bezier(0.215, 0.610, 0.355, 1);
+  --card-width: 110px; --card-height: 160px; --radius: 8px; --shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+body {
+  margin: 0; font-family: 'Georgia', serif; background: var(--board-bg);
+  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
+  display: flex; flex-direction: column; align-items: center;
+}
+.topbar {
+  display: flex; gap: 15px; margin-bottom: 30px; align-items: center;
+  background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px;
+}
+button { 
+  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
+  border: 1px solid #1a1411; color: #e5c158; border-radius: 20px; font-weight: bold; font-family: 'Segoe UI';
+  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
+}
+button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
+button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: white; border: 1px solid #3a0f0f; }
+.counter-display { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; color: #e5c158; background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+.bj-area { width: 100%; max-width: 800px; min-height: 210px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; position: relative; }
+.bj-title { font-size: 22px; color: rgba(255,255,255,0.6); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+.bj-cards-container { display: flex; min-height: var(--card-height); justify-content: center; width: 100%; }
+.card {
+  width: var(--card-width); height: var(--card-height); background: linear-gradient(135deg, #ffffff 0%, #f6f5f0 100%);
+  border-radius: var(--radius); position: relative; margin-right: -50px; box-sizing: border-box; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.15);
+}
+.card:last-child { margin-right: 0; }
+.card.hidden {
+  background-color: #162a45; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cg fill='%23243f65' fill-opacity='0.4'%3E%3Cpath d='M0 0h8v8H0zm8 8h8v8H8z'/%3E%3C/g%3E%3C/svg%3E");
+  border: 3.5px solid #ffffff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+.card.hidden::after { content: "⚜"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d4af37; font-size: 36px; }
+.card-inner { position: relative; width: 100%; height: 100%; padding: 8px; box-sizing: border-box; }
+.corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; line-height: 0.9; }
+.corner.top-left { top: 8px; left: 8px; }
+.corner.bottom-right { bottom: 8px; right: 8px; transform: rotate(180deg); }
+.center-suit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 56px; opacity: 0.9; }
+.red { color: #b71c1c; } .black { color: #1a1a1a; }
+.bj-controls { display: flex; gap: 15px; margin-top: 20px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.chip-btn { background: linear-gradient(to bottom, #162a45, #0f1c2e); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; width: 60px; height: 60px; font-size: 16px; font-weight: bold; color: #e5c158; box-shadow: 0 4px 8px rgba(0,0,0,0.4); cursor: pointer; }
+#bj-message { font-size: 32px; color: #ffd700; font-weight: bold; margin: 20px 0; height: 40px; text-align: center; text-shadow: 0 2px 15px rgba(0,0,0,0.8); }
+.bj-score { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 50%; font-size: 20px; border: 2px solid #e5c158; font-family: 'Segoe UI'; }
+.flip-in { animation: cardFlip 0.2s ease-out forwards; }
+@keyframes cardFlip { from { transform: scaleX(0); opacity: 0.5; } to { transform: scaleX(1); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="btn-lobby" onclick="window.location.href='index.html'">🏰 Lobby</button>
+  <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+  <div class="counter-display">Einsatz: <span id="bj-bet-display">0 €</span></div>
+</div>
+
+<div class="bj-area">
+  <div class="bj-title">Dealer</div>
+  <div class="bj-cards-container" id="bj-dealer-cards"></div>
+  <div class="bj-score" id="bj-dealer-score" style="display:none;">0</div>
+</div>
+
+<div class="bj-area">
+  <div class="bj-title">Spieler</div>
+  <div class="bj-cards-container" id="bj-player-cards"></div>
+  <div class="bj-score" id="bj-player-score" style="display:none;">0</div>
+</div>
+
+<div id="bj-message">Bitte Einsatz wählen</div>
+
+<div class="bj-controls" id="bj-betting-controls">
+  <button class="chip-btn" onclick="bjAddBet(10)">+10</button>
+  <button class="chip-btn" onclick="bjAddBet(50)">+50</button>
+  <button class="chip-btn" onclick="bjAddBet(100)">+100</button>
+  <button onclick="bjClearBet()" style="border-radius: 8px;">Reset</button>
+  <button onclick="bjDeal()" id="bj-btn-deal" disabled style="background: linear-gradient(to bottom, #2b6a3a, #164221);">Geben</button>
+</div>
+
+<div class="bj-controls" id="bj-playing-controls" style="display:none;">
+  <button onclick="bjHit()">Karte (Hit)</button>
+  <button onclick="bjStand()">Halten (Stand)</button>
+</div>
+
+<div class="bj-controls" id="bj-gameover-controls" style="display:none;">
+  <button onclick="bjResetGame()">Nächste Runde</button>
+</div>
+
+<script>
+let casinoBankroll = parseInt(localStorage.getItem('casino_bankroll')) || 1000;
+const solSuits = ["♠", "♥", "♦", "♣"];
+const solColors = { "♠": "black", "♣": "black", "♥": "red", "♦": "red" };
+let bjDeck = [], bjPlayerHand = [], bjDealerHand = [];
+let bjCurrentBet = 0, bjGameState = 'betting';
+
+const bjEls = {
+  bet: document.getElementById('bj-bet-display'), msg: document.getElementById('bj-message'),
+  pCards: document.getElementById('bj-player-cards'), dCards: document.getElementById('bj-dealer-cards'),
+  pScore: document.getElementById('bj-player-score'), dScore: document.getElementById('bj-dealer-score'),
+  betCtrl: document.getElementById('bj-betting-controls'), playCtrl: document.getElementById('bj-playing-controls'),
+  overCtrl: document.getElementById('bj-gameover-controls'), btnDeal: document.getElementById('bj-btn-deal')
+};
+
+function syncBankrollDisplays() {
+  localStorage.setItem('casino_bankroll', casinoBankroll.toString());
+  document.querySelectorAll('.shared-bankroll').forEach(el => el.textContent = casinoBankroll + " €");
+}
+function solGetValLabel(v) { if (v === 1) return "A"; if (v === 11) return "J"; if (v === 12) return "Q"; if (v === 13) return "K"; return v; }
+function bjCreateDeck() {
+  let d = []; for(let i=0; i<4; i++) { for (let s of solSuits) { for (let v = 1; v <= 13; v++) { d.push({ suit: s, value: v, id: `bj-${i}-${s}-${v}` }); } } }
+  return d.sort(() => Math.random() - 0.5);
+}
+function bjGetCardPoints(v) { if (v === 1) return 11; if (v > 10) return 10; return v; }
+function bjCalculateScore(hand) {
+  let score = 0, aces = 0; for (let c of hand) { score += bjGetCardPoints(c.value); if (c.value === 1) aces++; }
+  while (score > 21 && aces > 0) { score -= 10; aces--; } return score;
+}
+function bjMakeCardElement(c, isHidden = false) {
+  const el = document.createElement("div"); el.className = "card flip-in";
+  if (isHidden) { el.classList.add("hidden"); } else {
+    el.classList.add(solColors[c.suit]); const label = solGetValLabel(c.value);
+    el.innerHTML = `<div class="card-inner"><div class="corner top-left"><div>${label}</div><div>${c.suit}</div></div><div class="center-suit">${c.suit}</div><div class="corner bottom-right"><div>${label}</div><div>${c.suit}</div></div></div>`;
+  }
+  return el;
+}
+function bjAddBet(amount) { if (casinoBankroll >= amount) { casinoBankroll -= amount; bjCurrentBet += amount; bjUpdateUI(); } }
+function bjClearBet() { casinoBankroll += bjCurrentBet; bjCurrentBet = 0; bjUpdateUI(); }
+function bjDeal() {
+  if (bjCurrentBet === 0) return; bjDeck = bjCreateDeck();
+  bjPlayerHand = [bjDeck.pop(), bjDeck.pop()]; bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
+  bjGameState = 'playing'; bjEls.msg.textContent = "Ihre Aktion!";
+  if(bjCalculateScore(bjPlayerHand) === 21) { bjStand(); return; } bjUpdateUI();
+}
+function bjHit() {
+  bjPlayerHand.push(bjDeck.pop()); if (bjCalculateScore(bjPlayerHand) > 21) { bjEndGame("Überkauft! Der Dealer gewinnt.", "lose"); } else { bjUpdateUI(); }
+}
+function bjStand() {
+  bjGameState = 'dealer-turn'; bjUpdateUI();
+  const drawDealer = () => {
+    if (bjCalculateScore(bjDealerHand) < 17) { setTimeout(() => { bjDealerHand.push(bjDeck.pop()); bjUpdateUI(); drawDealer(); }, 700); } else { bjEvaluateWinner(); }
+  };
+  setTimeout(drawDealer, 700);
+}
+function bjEvaluateWinner() {
+  const p = bjCalculateScore(bjPlayerHand); const d = bjCalculateScore(bjDealerHand);
+  if (d > 21) bjEndGame("Dealer überkauft! Sie gewinnen!", "win");
+  else if (p > d) (p === 21 && bjPlayerHand.length === 2) ? bjEndGame("BLACKJACK! Gewinn 3:2!", "blackjack") : bjEndGame("Sie gewinnen!", "win");
+  else if (d > p) bjEndGame("Dealer gewinnt!", "lose");
+  else bjEndGame("Unentschieden (Push).", "push");
+}
+function bjEndGame(msg, result) {
+  bjGameState = 'gameover'; bjEls.msg.textContent = msg;
+  if (result === 'win') casinoBankroll += bjCurrentBet * 2;
+  else if (result === 'blackjack') casinoBankroll += bjCurrentBet + (bjCurrentBet * 1.5);
+  else if (result === 'push') casinoBankroll += bjCurrentBet;
+  bjCurrentBet = 0; bjUpdateUI();
+}
+function bjResetGame() { bjPlayerHand = []; bjDealerHand = []; bjGameState = 'betting'; bjEls.msg.textContent = "Bitte Einsatz wählen"; bjUpdateUI(); }
+function bjUpdateUI() {
+  syncBankrollDisplays();
+  bjEls.bet.textContent = bjCurrentBet + " €"; bjEls.btnDeal.disabled = bjCurrentBet === 0;
+  bjEls.betCtrl.style.display = bjGameState === 'betting' ? 'flex' : 'none';
+  bjEls.playCtrl.style.display = bjGameState === 'playing' ? 'flex' : 'none';
+  bjEls.overCtrl.style.display = bjGameState === 'gameover' ? 'flex' : 'none';
+  bjEls.pCards.innerHTML = ''; bjPlayerHand.forEach(c => bjEls.pCards.appendChild(bjMakeCardElement(c)));
+  bjEls.dCards.innerHTML = ''; bjDealerHand.forEach((c, i) => bjEls.dCards.appendChild(bjMakeCardElement(c, (bjGameState === 'playing' && i === 1))));
+  if (bjGameState !== 'betting') {
+    bjEls.pScore.style.display = 'block'; bjEls.pScore.textContent = bjCalculateScore(bjPlayerHand);
+    bjEls.dScore.style.display = 'block'; bjEls.dScore.textContent = (bjGameState === 'playing') ? bjGetCardPoints(bjDealerHand[0].value) : bjCalculateScore(bjDealerHand);
+  } else { bjEls.pScore.style.display = 'none'; bjEls.dScore.style.display = 'none'; }
+}
+
+window.onload = bjResetGame;
+</script>
+</body>
+</html>

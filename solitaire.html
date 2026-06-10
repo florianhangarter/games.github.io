@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Royal Deluxe Casino - Solitär</title>
+<style>
+:root {
+  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
+  --transition: all 0.2s cubic-bezier(0.215, 0.610, 0.355, 1);
+  --card-width: 125px; --card-height: 180px; --radius: 10px; 
+  --shadow: 0 8px 16px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.3);
+}
+body {
+  margin: 0; font-family: 'Georgia', serif; background: var(--board-bg);
+  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
+  display: flex; flex-direction: column; align-items: center;
+}
+.topbar {
+  display: flex; gap: 15px; margin-bottom: 30px; align-items: center;
+  background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px;
+  box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.3);
+}
+button { 
+  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
+  border: 1px solid #1a1411; color: #e5c158; border-radius: 20px; font-weight: bold;
+  font-family: 'Segoe UI', sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
+}
+button:hover { transform: translateY(-2px); filter: brightness(1.2); }
+.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: #ffffff; border: 1px solid #3a0f0f; }
+.counter-display { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; color: #e5c158; background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+.row { display: flex; gap: 25px; margin-bottom: 35px; width: 100%; justify-content: center; }
+.pile {
+  width: var(--card-width); height: var(--card-height); border: 2px solid #142b1b; border-radius: var(--radius);
+  position: relative; box-sizing: border-box; background: rgba(0, 0, 0, 0.3); box-shadow: inset 0 4px 10px rgba(0,0,0,0.6);
+}
+.foundation { border: 2px solid #5a3d28; background: rgba(0, 0, 0, 0.4); box-shadow: inset 0 4px 12px rgba(0,0,0,0.7); }
+.foundation::before { content: attr(data-suit); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 50px; opacity: 0.08; color: #fff; }
+.tableau { display: flex; gap: 25px; width: 100%; justify-content: center; }
+.card {
+  width: var(--card-width); height: var(--card-height); background: linear-gradient(135deg, #ffffff 0%, #f6f5f0 100%);
+  border-radius: var(--radius); position: absolute; top: 0; left: 0; box-sizing: border-box; cursor: pointer; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.15);
+}
+.card.hidden {
+  background-color: #162a45; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cg fill='%23243f65' fill-opacity='0.4'%3E%3Cpath d='M0 0h8v8H0zm8 8h8v8H8z'/%3E%3C/g%3E%3C/svg%3E");
+  border: 3.5px solid #ffffff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5), var(--shadow);
+}
+.card.hidden::after { content: "⚜"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d4af37; font-size: 36px; }
+.card-inner { position: relative; width: 100%; height: 100%; padding: 8px; box-sizing: border-box; }
+.corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; line-height: 0.9; }
+.corner.top-left { top: 8px; left: 8px; }
+.corner.bottom-right { bottom: 8px; right: 8px; transform: rotate(180deg); }
+.center-suit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 56px; opacity: 0.9; }
+.card[draggable="true"]:hover { transform: translateY(-10px); z-index: 9999 !important; }
+.red { color: #b71c1c; } .black { color: #1a1a1a; }
+.flip-in { animation: cardFlip 0.2s ease-out forwards; }
+@keyframes cardFlip { from { transform: scaleX(0); opacity: 0.5; } to { transform: scaleX(1); opacity: 1; } }
+#stock { display: flex; align-items: center; justify-content: center; font-size: 36px; color: rgba(255,255,255,0.2); border: 2px dashed rgba(255,255,255,0.2); }
+.win { font-size: 26px; color: #ffd700; font-weight: bold; text-shadow: 0 2px 12px rgba(255,215,0,0.5); }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal { background: linear-gradient(135deg, #2a221d 0%, #16110e 100%); border: 2px solid #e5c158; border-radius: 15px; padding: 30px; width: 400px; text-align: center; }
+.leaderboard-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
+.leaderboard-table th { color: #e5c158; border-bottom: 2px solid #e5c158; padding: 8px; font-size: 12px; text-transform: uppercase;}
+.leaderboard-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <!-- Hier ist der klicksichere Lobby-Link -->
+  <a href="index.html" style="text-decoration: none;"><button class="btn-lobby">🏰 Lobby</button></a>
+  <button onclick="solUndo()">↩ Zurück</button>
+  <button onclick="solInit()">🔄 Neu</button>
+  <button onclick="toggleSolLeaderboard(true)">🏆 Bestenliste</button>
+  <div class="counter-display">Züge: <span id="sol-move-count">0</span></div>
+  <div id="sol-status" class="win"></div>
+</div>
+
+<div class="row">
+  <div class="pile" id="sol-stock" style="cursor: pointer;"></div>
+  <div class="pile" id="sol-waste"></div>
+  <div style="flex:1"></div>
+  <div class="pile foundation" data-suit="♠"></div>
+  <div class="pile foundation" data-suit="♥"></div>
+  <div class="pile foundation" data-suit="♦"></div>
+  <div class="pile foundation" data-suit="♣"></div>
+</div>
+<div class="tableau" id="sol-tableau"></div>
+
+<div class="modal-overlay" id="sol-leaderboard-modal" onclick="toggleSolLeaderboard(false)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 style="color:#e5c158;">🏆 Hall of Fame</h2>
+    <table class="leaderboard-table">
+      <thead><tr><th>Platz</th><th>Name</th><th>Züge</th></tr></thead>
+      <tbody id="sol-leaderboard-body"></tbody>
+    </table>
+    <button onclick="toggleSolLeaderboard(false)">Schließen</button>
+  </div>
+</div>
+
+<script>
+const solSuits = ["♠", "♥", "♦", "♣"];
+const solColors = { "♠": "black", "♣": "black", "♥": "red", "♦": "red" };
+let solStock = [], solWaste = [], solFoundations = {}, solTableau = [];
+let solDragged = null, solHistory = [];
+let solMoves = 0;
+
+function solSave() { solHistory.push(JSON.stringify({ stock: solStock, waste: solWaste, foundations: solFoundations, tableau: solTableau, moves: solMoves })); }
+function solUndo() {
+  if (!solHistory.length) return;
+  const s = JSON.parse(solHistory.pop());
+  solStock = s.stock; solWaste = s.waste; solFoundations = s.foundations; solTableau = s.tableau; solMoves = s.moves || 0;
+  solCheckWin(); solRender();
+}
+function solDeck() {
+  let d = [];
+  for (let s of solSuits) {
+    for (let v = 1; v <= 13; v++) { d.push({ suit: s, value: v, faceUp: false, id: `sol-${s}-${v}`, isNewFlip: false }); }
+  }
+  return d.sort(() => Math.random() - 0.5);
+}
+function solGetValLabel(v) { if (v === 1) return "A"; if (v === 11) return "J"; if (v === 12) return "Q"; if (v === 13) return "K"; return v; }
+
+function solMakeCard(c) {
+  const el = document.createElement("div"); el.className = "card"; el.dataset.id = c.id;
+  if (!c.faceUp) { el.classList.add("hidden"); } else {
+    el.classList.add(solColors[c.suit]); const label = solGetValLabel(c.value);
+    el.innerHTML = `<div class="card-inner"><div class="corner top-left"><div>${label}</div><div>${c.suit}</div></div><div class="center-suit">${c.suit}</div><div class="corner bottom-right"><div>${label}</div><div>${c.suit}</div></div></div>`;
+    el.draggable = true;
+    el.ondragstart = (e) => { solDragged = solGetStack(c); };
+    el.ondragend = () => solDragged = null;
+    el.onclick = (e) => { e.stopPropagation(); solAutoMove(c); };
+    if (c.isNewFlip) { el.classList.add("flip-in"); c.isNewFlip = false; }
+  }
+  return el;
+}
+function solInit() {
+  const d = solDeck(); solStock = d; solWaste = []; solFoundations = { "♠": [], "♥": [], "♦": [], "♣": [] };
+  solTableau = Array.from({ length: 7 }, () => []); solHistory = []; solMoves = 0;
+  document.getElementById("sol-status").textContent = "";
+  for (let i = 0; i < 7; i++) {
+    for (let j = 0; j <= i; j++) {
+      const c = solStock.pop(); if (j === i) { c.faceUp = true; c.isNewFlip = true; }
+      solTableau[i].push(c);
+    }
+  }
+  solSetup(); solRender();
+}
+function solGetStack(card) {
+  for (let pile of solTableau) { const i = pile.findIndex(c => c.id === card.id); if (i !== -1) return pile.slice(i); }
+  if (solWaste.length && solWaste[solWaste.length - 1].id === card.id) return [solWaste[solWaste.length - 1]];
+  for (let s of solSuits) { const p = solFoundations[s]; if (p.length && p[p.length - 1].id === card.id) return [p[p.length - 1]]; }
+  return [card];
+}
+function solCanTableau(card, pile) {
+  if (!pile.length) return card.value === 13;
+  const t = pile[pile.length - 1]; return solColors[t.suit] !== solColors[card.suit] && t.value === card.value + 1;
+}
+function solCanFoundation(card, s) {
+  const p = solFoundations[s]; if (!p.length) return card.value === 1;
+  return card.suit === s && card.value === p[p.length - 1].value + 1;
+}
+function solAutoMove(card) {
+  const stack = solGetStack(card);
+  if (stack.length === 1) {
+    for (let s of solSuits) {
+      if (card.suit === s && solCanFoundation(card, s)) {
+        solSave(); solMoves++; solRemoveStack(stack); solFoundations[s].push(card); solReveal(); solRender(); solCheckWin(); return;
+      }
+    }
+  }
+  for (let i = 0; i < solTableau.length; i++) {
+    if (solCanTableau(card, solTableau[i])) {
+      solSave(); solMoves++; solRemoveStack(stack); solTableau[i].push(...stack); solReveal(); solRender(); solCheckWin(); return;
+    }
+  }
+}
+function solRemoveStack(cardsToRemove) {
+  const ids = cardsToRemove.map(c => c.id);
+  for (let p of solTableau) { const index = p.findIndex(c => ids.includes(c.id)); if (index !== -1) { p.splice(index); return; } }
+  solWaste = solWaste.filter(c => !ids.includes(c.id));
+  for (let s of solSuits) { solFoundations[s] = solFoundations[s].filter(c => !ids.includes(c.id)); }
+}
+function solDrop(zone, type, index = null) {
+  if (!solDragged) return;
+  if (type === "foundation") {
+    const s = zone.dataset.suit;
+    if (solDragged.length === 1 && solCanFoundation(solDragged[0], s)) {
+      solSave(); solMoves++; solRemoveStack(solDragged); solFoundations[s].push(...solDragged); solReveal(); solRender(); solCheckWin();
+    }
+  } else if (type === "tableau") {
+    if (solCanTableau(solDragged[0], solTableau[index])) {
+      solSave(); solMoves++; solRemoveStack(solDragged); solTableau[index].push(...solDragged); solReveal(); solRender(); solCheckWin();
+    }
+  }
+}
+function solSetup() {
+  document.querySelectorAll(".foundation").forEach(el => { el.ondragover = e => e.preventDefault(); el.ondrop = () => solDrop(el, "foundation"); });
+  document.getElementById("sol-stock").onclick = solDraw;
+}
+function solDraw() {
+  if (solStock.length) {
+    solSave(); solMoves++; const c = solStock.pop(); c.faceUp = true; c.isNewFlip = true; solWaste.push(c); solRender();
+  } else if (solWaste.length) {
+    solSave(); solMoves++; solStock = solWaste.reverse().map(c => ({ ...c, faceUp: false, isNewFlip: false })); solWaste = []; solRender();
+  }
+}
+function solReveal() {
+  for (let p of solTableau) { if (p.length && !p[p.length - 1].faceUp) { p[p.length - 1].faceUp = true; p[p.length - 1].isNewFlip = true; } }
+}
+function getSolLeaderboard() { return JSON.parse(localStorage.getItem('solitaire_board_v1')) || []; }
+function saveToSolLeaderboard(name, finalMoves) {
+  let lb = getSolLeaderboard(); lb.push({ name: name, moves: finalMoves }); lb.sort((a, b) => a.moves - b.moves).splice(10);
+  localStorage.setItem('solitaire_board_v1', JSON.stringify(lb)); updateSolLeaderboardTable();
+}
+function updateSolLeaderboardTable() {
+  const body = document.getElementById("sol-leaderboard-body"); const lb = getSolLeaderboard(); body.innerHTML = "";
+  if(lb.length === 0) { body.innerHTML = `<tr><td colspan="3" style="color:rgba(255,255,255,0.4)">Keine Einträge</td></tr>`; return; }
+  lb.forEach((e, i) => { const r = document.createElement("tr"); r.innerHTML = `<td>${i + 1}</td><td>${e.name}</td><td>${e.moves}</td>`; body.appendChild(r); });
+}
+function toggleSolLeaderboard(show) {
+  const m = document.getElementById("sol-leaderboard-modal"); if (show) { updateSolLeaderboardTable(); m.classList.add("open"); } else { m.classList.remove("open"); }
+}
+function solCheckWin() {
+  if (Object.values(solFoundations).flat().length === 52) {
+    document.getElementById("sol-status").textContent = "🎉 Gewonnen!";
+    setTimeout(() => {
+      const name = prompt(`Gelöst in ${solMoves} Zügen!\nDein Name für die Bestenliste:`);
+      if(name && name.trim() !== "") { saveToSolLeaderboard(name.trim(), solMoves); toggleSolLeaderboard(true); }
+    }, 400);
+  }
+}
+function solRender() {
+  document.getElementById("sol-move-count").textContent = solMoves;
+  const stockEl = document.getElementById("sol-stock"); const wasteEl = document.getElementById("sol-waste"); const tab = document.getElementById("sol-tableau");
+  stockEl.innerHTML = solStock.length ? "" : "🔄";
+  stockEl.style.background = solStock.length ? "linear-gradient(135deg, #162a45 0%, #0f1c2e 100%)" : "rgba(0,0,0,0.2)";
+  stockEl.style.border = solStock.length ? "3.5px solid white" : "2px dashed rgba(255,255,255,0.2)";
+  wasteEl.innerHTML = ""; if (solWaste.length) wasteEl.appendChild(solMakeCard(solWaste[solWaste.length - 1]));
+  tab.innerHTML = "";
+  solTableau.forEach((p, idx) => {
+    const col = document.createElement("div"); col.className = "pile";
+    col.ondragover = e => e.preventDefault(); col.ondrop = () => solDrop(col, "tableau", idx);
+    p.forEach((c, i) => { const el = solMakeCard(c); el.style.top = (i * 35) + "px"; el.style.zIndex = i; col.appendChild(el); });
+    tab.appendChild(col);
+  });
+  document.querySelectorAll(".foundation").forEach(f => {
+    f.innerHTML = ""; const p = solFoundations[f.dataset.suit]; if (p.length) { const el = solMakeCard(p[p.length - 1]); el.style.position = "absolute"; f.appendChild(el); }
+  });
+}
+
+window.onload = solInit;
+</script>
+</body>
+</html>
