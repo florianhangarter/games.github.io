@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Royal Deluxe Casino - Custom Tower Crash</title>
+<script src="casino-utils.js"></script>
 <style>
 :root {
   --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
@@ -86,22 +87,14 @@ button:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 </div>
 
 <script>
-let casinoBankroll = parseInt(localStorage.getItem('casino_bankroll')) || 1000;
 let towerBet = 10, towerActiveLevel = 0, towerGameState = 'setup';
 let towerFieldsPerRow = 3;
 let towerBombsPerRow = 1;
 let towerBombs = []; 
 
-function syncBankrollDisplays() {
-  localStorage.setItem('casino_bankroll', casinoBankroll.toString());
-  document.querySelectorAll('.shared-bankroll').forEach(el => el.textContent = casinoBankroll + " €");
-}
-
-// Berechnet die Multiplikatoren mathematisch exakt basierend auf der Wahrscheinlichkeit
 function calculateMultipliers() {
   const mults = [];
   let acc = 1;
-  // Risiko-Schritt-Multiplikator * 0.97 (3% Hausvorteil pro Etage für Realismus)
   const step = (towerFieldsPerRow / (towerFieldsPerRow - towerBombsPerRow)) * 0.97; 
   
   for (let row = 0; row < 5; row++) {
@@ -113,7 +106,7 @@ function calculateMultipliers() {
     } else if (acc < 1000) {
       mults.push(parseFloat(acc.toFixed(0)));
     } else {
-      mults.push(Math.round(acc)); // Für extrem hohe Multiplikatoren im Hardcore-Modus
+      mults.push(Math.round(acc)); 
     }
   }
   return mults;
@@ -132,7 +125,6 @@ function towerReset() {
   
   towerRenderBombButtons();
   buildTowerUI(); 
-  syncBankrollDisplays();
 }
 
 function towerChangeBet(amount) { 
@@ -149,7 +141,6 @@ function towerSetFields(fields) {
     document.getElementById(`field-${i}`).classList.toggle('active', i === fields);
   }
   
-  // Falls die alte Bombenanzahl beim Verkleinern der Felder ungültig wird, korrigieren
   if (towerBombsPerRow >= fields) {
     towerBombsPerRow = fields - 1;
   }
@@ -162,7 +153,6 @@ function towerRenderBombButtons() {
   const container = document.getElementById('tower-bomb-buttons-container');
   container.innerHTML = '';
   
-  // Es dürfen maximal (Felder - 1) Bomben platziert werden
   for (let b = 1; b < towerFieldsPerRow; b++) {
     const btn = document.createElement('button');
     btn.className = 'diff-btn' + (b === towerBombsPerRow ? ' active' : '');
@@ -191,7 +181,6 @@ function buildTowerUI() {
   for (let row = 4; row >= 0; row--) {
     const rowEl = document.createElement('div'); rowEl.className = 'tower-row'; rowEl.id = `tower-row-${row}`;
     
-    // Generiere exakt so viele Kacheln wie eingestellt
     for (let tile = 0; tile < towerFieldsPerRow; tile++) {
       const tileEl = document.createElement('div'); tileEl.className = 'tower-tile'; tileEl.textContent = '⚜';
       tileEl.onclick = () => towerTileClick(row, tile); rowEl.appendChild(tileEl);
@@ -215,12 +204,11 @@ function updateTowerRowStates() {
 }
 
 function towerStart() {
-  if (casinoBankroll < towerBet) { document.getElementById('tower-message').textContent = "Nicht genug Geld!"; return; }
-  casinoBankroll -= towerBet; syncBankrollDisplays();
+  if (getCash() < towerBet) { document.getElementById('tower-message').textContent = "Nicht genug Geld!"; return; }
+  setCash(getCash() - towerBet);
   
   towerGameState = 'playing'; towerActiveLevel = 0; towerBombs = [];
   
-  // Platziere für jede Zeile die gewählte Anzahl an zufälligen, einzigartigen Bomben-Slots
   for (let i = 0; i < 5; i++) {
     let rowBombs = [];
     while (rowBombs.length < towerBombsPerRow) {
@@ -280,9 +268,9 @@ function towerTileClick(row, tile) {
     towerActiveLevel++;
     if (towerActiveLevel === 5) {
       const totalWin = Math.floor(towerBet * currentMults[4]); 
-      casinoBankroll += totalWin; towerGameState = 'gameover';
+      setCash(getCash() + totalWin); towerGameState = 'gameover';
       document.getElementById('tower-message').innerHTML = `<span style="color:#ffd700;">🏆 TOWER BEZWUNGEN! +${totalWin} €</span>`;
-      revealEntireTower(); syncBankrollDisplays(); setTimeout(towerReset, 3500);
+      revealEntireTower(); setTimeout(towerReset, 3500);
     } else {
       document.getElementById('tower-message').textContent = `Sicher! Nächste Stufe: ${currentMults[towerActiveLevel]}x`;
       updateTowerRowStates(); updateTowerCashoutButton();
@@ -310,9 +298,9 @@ function towerCashOut() {
   if (towerGameState !== 'playing' || towerActiveLevel === 0) return;
   const currentMults = calculateMultipliers();
   const winAmount = Math.floor(towerBet * currentMults[towerActiveLevel - 1]); 
-  casinoBankroll += winAmount; towerGameState = 'gameover';
+  setCash(getCash() + winAmount); towerGameState = 'gameover';
   document.getElementById('tower-message').innerHTML = `<span style="color:#ffd700;">💰 +${winAmount} € gesichert!</span>`;
-  revealEntireTower(); syncBankrollDisplays(); setTimeout(towerReset, 2500);
+  revealEntireTower(); setTimeout(towerReset, 2500);
 }
 
 window.onload = towerReset;
