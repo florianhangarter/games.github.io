@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Royal Deluxe Casino - Lobby</title>
+<script src="casino-utils.js"></script>
 <style>
   :root {
     --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
@@ -94,7 +95,7 @@
 <body>
 
 <div class="topbar">
-  <div class="counter-display">Gesamtguthaben: <span id="lobby-bankroll">1000 €</span></div>
+  <div class="counter-display">Gesamtguthaben: <span class="shared-bankroll">1000 €</span></div>
   <button onclick="resetBankroll()">🔄 Kontostand zurücksetzen</button>
 </div>
 
@@ -124,18 +125,5 @@
   </a>
 </div>
 
-<script>
-  if (!localStorage.getItem('casino_bankroll')) {
-    localStorage.setItem('casino_bankroll', '1000');
-  }
-  document.getElementById('lobby-bankroll').textContent = localStorage.getItem('casino_bankroll') + " €";
-
-  function resetBankroll() {
-    if(confirm("Möchtest du dein Guthaben wieder auf 1000 € zurücksetzen?")) {
-      localStorage.setItem('casino_bankroll', '1000');
-      document.getElementById('lobby-bankroll').textContent = "1000 €";
-    }
-  }
-</script>
 </body>
 </html>
