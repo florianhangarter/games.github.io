@@ -1,278 +1,286 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<title>Royal Deluxe Casino - Rocket Crash</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rocket Blast</title>
+<link rel="stylesheet" href="styles.css">
 <script src="casino-utils.js"></script>
 <style>
-:root {
-  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
-  --panel-bg: linear-gradient(135deg, #2b2622 0%, #181513 100%);
-  --gold: #e5c158;
-  --transition: all 0.2s ease;
-}
-body {
-  margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--board-bg);
-  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
-  display: flex; flex-direction: column; align-items: center;
-}
-.topbar { display: flex; gap: 15px; margin-bottom: 25px; align-items: center; background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-button { 
-  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
-  border: 1px solid #1a1411; color: var(--gold); border-radius: 20px; font-weight: bold;
-  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
-}
-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
-button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
-.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: white; border: 1px solid #3a0f0f; }
-.counter-display { font-size: 16px; font-weight: bold; color: var(--gold); background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+  .rocket-stage{height:310px;background:radial-gradient(circle at 50% 10%,#16243a 0%,#0a1321 45%,#060a12 100%);border-radius:22px;border:2px solid #26344f;position:relative;overflow:hidden;box-shadow:inset 0 0 45px rgba(0,0,0,.55)}
+  #mult{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;font-size:58px;font-weight:900;text-shadow:0 5px 18px #000;padding-top:34px;pointer-events:none;transition:color .18s ease}
+  .rocket-history{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px auto 0;max-width:760px}
+  .rocket-history span{font-size:13px;font-weight:900;border-radius:999px;padding:6px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12)}
+  .rocket-history .good{color:#79e398;border-color:rgba(121,227,152,.45)}
+  .rocket-history .bad{color:#ff8383;border-color:rgba(255,131,131,.45)}
 
-/* Game Layout */
-.crash-container {
-  display: flex; flex-direction: column; width: 100%; max-width: 650px;
-  background: var(--panel-bg); border: 3px solid var(--gold); border-radius: 24px;
-  padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative;
-}
-.crash-container::before {
-  content: "🚀 ROCKET CRASH MULTIPLIER 🚀"; position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-  background: #181513; padding: 2px 20px; font-weight: 900; font-size: 12px; color: var(--gold); border: 2px solid var(--gold); border-radius: 10px; letter-spacing: 2px;
-}
+  /* FINAL rocket viewport fit */
+  .rocket-stage{height:clamp(170px,34vh,310px)}
+  @media(max-height:760px){
+    .rocket-history{margin-top:8px;gap:5px}
+    .rocket-history span{font-size:10px;padding:4px 7px}
+    #mult{font-size:clamp(34px,8vw,48px);padding-top:18px}
+  }
 
-/* Arena & Live Display */
-.canvas-area {
-  position: relative; width: 100%; height: 300px; background: #0b0908; border-radius: 16px;
-  border: 2px solid #3a2f27; overflow: hidden; box-shadow: inset 0 10px 30px rgba(0,0,0,0.9);
-}
-#crash-canvas { width: 100%; height: 100%; display: block; }
-.live-multiplier {
-  position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-  font-size: 55px; font-weight: 800; color: white; text-shadow: 0 4px 15px rgba(0,0,0,0.9);
-  font-family: 'Georgia', serif; pointer-events: none;
-}
-
-/* Steuerung */
-.control-panel { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 20px; }
-.chip-btn { background: linear-gradient(to bottom, #162a45, #0f1c2e); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; width: 55px; height: 55px; font-size: 15px; font-weight: bold; color: var(--gold); cursor: pointer; }
-.chip-btn.active { border-color: var(--gold); background: #1a385c; box-shadow: 0 0 10px var(--gold); }
-
-.btn-action { background: linear-gradient(to bottom, #2b6a3a, #164221); color: white; font-size: 16px; padding: 14px 45px; border-radius: 25px; border-color: #3e8e4f; min-width: 180px; }
-.btn-action.cashout { background: linear-gradient(to bottom, var(--gold), #b08d24); color: black; border-color: #fff; }
-
-/* History Pillen */
-.history-bar {
-  display: flex; gap: 8px; justify-content: flex-start; width: 100%; max-width: 650px;
-  margin-bottom: 12px; overflow-x: hidden; height: 30px; align-items: center;
-}
-.history-pill {
-  padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
-}
-.pill-good { color: #4cd16b; border-color: rgba(76,209,107,0.4); }
-.pill-bad { color: #ff4d4d; border-color: rgba(255,77,77,0.4); }
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <a href="index.html" style="text-decoration: none;"><button class="btn-lobby">🏰 Lobby</button></a>
-  <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
-  <div class="counter-display">Einsatz: <span id="crash-bet-display">10 €</span></div>
-  <div class="counter-display">Mögl. Auszahlung: <span id="crash-payout-display">0.00 €</span></div>
-</div>
-
-<div class="history-bar" id="crash-history">
-  <span style="font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-right: 5px;">Verlauf:</span>
-</div>
-
-<div class="crash-container">
-  <div class="canvas-area">
-    <canvas id="crash-canvas"></canvas>
-    <div class="live-multiplier" id="crash-live-mult">1.00x</div>
+<main class="page">
+  <div class="topbar">
+    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
+    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
+    <div class="counter-display">Auszahlung: <span id="payout">0 €</span></div>
   </div>
-
-  <div class="control-panel">
-    <button class="chip-btn active" id="bet-10" onclick="crashSetBet(10)">10</button>
-    <button class="chip-btn" id="bet-50" onclick="crashSetBet(50)">50</button>
-    <button class="chip-btn" id="bet-100" onclick="crashSetBet(100)">100</button>
-    
-    <button id="crash-main-btn" class="btn-action" onclick="crashTriggerAction()">🚀 FLUG STARTEN</button>
-  </div>
-</div>
-
+  <section class="panel">
+    <h1 class="title" style="font-size:38px">🚀 Rocket Blast</h1>
+    <div class="betbox">
+      <label for="betSlider">Einsatz</label>
+      <b id="betDisplay">10 €</b>
+      <input id="betSlider" type="range">
+    </div>
+    <div class="rocket-stage">
+      <canvas id="cv" style="width:100%;height:100%"></canvas>
+      <div id="mult">1.00x</div>
+    </div>
+    <div class="rocket-history" id="rocketHistory"></div>
+    <div id="msg" class="message"></div>
+    <div class="controls"><button class="success" id="mainBtn" type="button">Start</button></div>
+  </section>
+</main>
 <script>
-let crashBet = 10;
-let crashState = 'idle'; // 'idle', 'flying', 'crashed', 'cashed_out'
-let currentMultiplier = 1.00;
-let crashPoint = 0.00;
-let startTime = 0;
-let animationId = null;
+let getBet;
+let state = 'idle';
+let crash = 1;
+let t0 = 0;
+let m = 1;
+let raf = null;
+let activeBet = 0;
+let cashedOut = false;
+let cashoutMultiplier = 0;
+let securedWin = 0;
+let rocketPos = { x: 70, y: 240 };
+let trail = [];
+let stars = [];
+let explosion = null;
+const c = document.getElementById('cv');
+const ctx = c.getContext('2d');
+const historyItems = [];
 
-const canvas = document.getElementById('crash-canvas');
-const ctx = canvas.getContext('2d');
-
-function resizeCanvas() {
-  canvas.width = canvas.parentElement.clientWidth;
-  canvas.height = canvas.parentElement.clientHeight;
+function size() {
+  c.width = c.clientWidth;
+  c.height = c.clientHeight;
+  makeStars();
+  resetRocketVisuals();
+  draw(0);
 }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-function crashSetBet(amount) {
-  if (crashState === 'flying') return;
-  crashBet = amount;
-  document.getElementById('crash-bet-display').textContent = crashBet + " €";
-  [10, 50, 100].forEach(a => {
-    document.getElementById(`bet-${a}`).classList.toggle('active', a === amount);
-  });
+window.addEventListener('resize', size);
+document.addEventListener('DOMContentLoaded', () => {
+  size();
+  getBet = createBetSlider({ inputId:'betSlider', displayId:'betDisplay', min:1, max:500, value:10, onChange:v => { document.getElementById('betOut').textContent = money(v); } });
+  document.getElementById('mainBtn').addEventListener('click', action);
+  renderHistory();
+});
+function makeStars() {
+  stars = Array.from({ length: 70 }, () => ({
+    x: Math.random() * c.width,
+    y: Math.random() * c.height,
+    s: Math.random() * 2 + .3,
+    a: Math.random() * .8 + .15
+  }));
 }
-
-function generateCrashPoint() {
+function crashPoint() {
   const e = Math.random();
-  if (e < 0.03) return 1.00; 
-  return parseFloat((0.97 / (1 - e)).toFixed(2));
+  return e < 0.04 ? 1 : Math.min(50, Number((0.96 / (1 - e)).toFixed(2)));
 }
-
-function crashTriggerAction() {
-  if (crashState === 'idle') {
-    if (getCash() < crashBet) {
-      alert("Nicht genug Guthaben!");
-      return;
-    }
-    setCash(getCash() - crashBet);
-
-    crashPoint = generateCrashPoint();
-    
-    crashState = 'flying';
-    currentMultiplier = 1.00;
-    startTime = performance.now();
-    
-    const btn = document.getElementById('crash-main-btn');
-    btn.textContent = "CASH OUT";
-    btn.className = "btn-action cashout";
-    
-    disableBetButtons(true);
-    animateFlight();
-  } else if (crashState === 'flying') {
-    crashState = 'cashed_out';
-    const winAmount = Math.floor(crashBet * currentMultiplier);
-    setCash(getCash() + winAmount);
-    
-    document.getElementById('crash-live-mult').style.color = '#4cd16b';
-    document.getElementById('crash-main-btn').textContent = `+${winAmount} € GEsichert!`;
-    document.getElementById('crash-main-btn').disabled = true;
-    
-    addHistoryPill(currentMultiplier, true);
+function addHistory(multiplier, cashed) {
+  historyItems.unshift({ multiplier, cashed });
+  while (historyItems.length > 14) historyItems.pop();
+  renderHistory();
+}
+function renderHistory() {
+  const box = document.getElementById('rocketHistory');
+  box.innerHTML = historyItems.length
+    ? historyItems.map(h => `<span class="${h.cashed ? 'good' : 'bad'}">${h.cashed ? '✓' : '💥'} ${h.multiplier.toFixed(2)}x</span>`).join('')
+    : '<span>Verlauf erscheint nach der ersten Runde</span>';
+}
+function resetRocketVisuals() {
+  rocketPos = { x: 70, y: c.height - 60 };
+  trail = [{ x: rocketPos.x, y: rocketPos.y }];
+  explosion = null;
+}
+function action() {
+  const btn = document.getElementById('mainBtn');
+  if (state === 'idle') {
+    const bet = getBet();
+    if (!canAfford(bet)) return toast('Nicht genug Guthaben.', 'bad');
+    activeBet = bet;
+    changeCash(-activeBet);
+    crash = crashPoint();
+    state = 'fly';
+    t0 = performance.now();
+    resetRocketVisuals();
+    btn.textContent = 'Cash Out';
+    btn.className = 'primary';
+    document.getElementById('msg').textContent = 'Die Rakete hebt ab...';
+    document.getElementById('mult').style.color = '#ffffff';
+    loop();
+  } else if (state === 'fly' && !cashedOut) {
+    securedWin = Math.floor(activeBet * m);
+    cashoutMultiplier = m;
+    cashedOut = true;
+    changeCash(securedWin);
+    recordGame('Rocket', securedWin - activeBet);
+    addHistory(m, true);
+    document.getElementById('msg').textContent = `Gesichert bei ${m.toFixed(2)}x: ${money(securedWin)} — Rakete fliegt weiter...`;
+    document.getElementById('mult').style.color = '#79e398';
+    btn.textContent = 'Gesichert';
+    btn.disabled = true;
   }
 }
-
-function disableBetButtons(status) {
-  [10, 50, 100].forEach(a => { document.getElementById(`bet-${a}`).disabled = status; });
-}
-
-function animateFlight() {
-  if (crashState !== 'flying' && crashState !== 'cashed_out') return;
-
-  const elapsed = (performance.now() - startTime) / 1000; 
-  currentMultiplier = parseFloat((Math.pow(1.15, elapsed)).toFixed(2));
-
-  if (currentMultiplier >= crashPoint) {
-    currentMultiplier = crashPoint;
-    handleCrash();
+function loop() {
+  if (state !== 'fly') return;
+  const elapsed = (performance.now() - t0) / 1000;
+  m = Number(Math.pow(1.19, elapsed).toFixed(2));
+  updateRocket(elapsed);
+  if (m >= crash) {
+    m = crash;
+    state = 'crashed';
+    document.getElementById('mult').textContent = m.toFixed(2) + 'x';
+    document.getElementById('mult').style.color = cashedOut ? '#79e398' : '#ff8a8a';
+    document.getElementById('msg').textContent = cashedOut
+      ? `Crash bei ${m.toFixed(2)}x 💥 — du warst bei ${cashoutMultiplier.toFixed(2)}x draußen.`
+      : `Crash bei ${m.toFixed(2)}x 💥`;
+    if (!cashedOut) {
+      recordGame('Rocket', -activeBet);
+      addHistory(m, false);
+    }
+    explosion = { x: rocketPos.x, y: rocketPos.y, t: performance.now() };
+    document.getElementById('mainBtn').disabled = true;
+    draw(elapsed);
+    setTimeout(reset, 1500);
     return;
   }
-
-  document.getElementById('crash-live-mult').textContent = currentMultiplier.toFixed(2) + "x";
-  if(crashState === 'flying') {
-    document.getElementById('crash-payout-display').textContent = (crashBet * currentMultiplier).toFixed(2) + " €";
-  }
-
-  drawCanvas(elapsed);
-  animationId = requestAnimationFrame(animateFlight);
+  document.getElementById('mult').textContent = m.toFixed(2) + 'x';
+  document.getElementById('payout').textContent = money(activeBet * m);
+  if (!cashedOut) document.getElementById('mult').style.color = m < 2 ? '#fff' : (m < 5 ? '#ffe68f' : '#ffb347');
+  draw(elapsed);
+  raf = requestAnimationFrame(loop);
 }
-
-function drawCanvas(elapsed) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+function updateRocket(elapsed) {
+  const progress = Math.min(1, elapsed / 8);
+  rocketPos.x = 70 + progress * (c.width - 150);
+  rocketPos.y = c.height - 55 - Math.pow(progress, 1.35) * (c.height - 110) - Math.sin(elapsed * 6) * 2;
+  trail.push({ x: rocketPos.x, y: rocketPos.y });
+  if (trail.length > 90) trail.shift();
+}
+function drawBackground(time) {
+  const g = ctx.createLinearGradient(0, 0, 0, c.height);
+  g.addColorStop(0, '#17243a');
+  g.addColorStop(.5, '#0b1221');
+  g.addColorStop(1, '#060a12');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, c.width, c.height);
+  stars.forEach((s, i) => {
+    ctx.globalAlpha = s.a + Math.sin(time * 2 + i) * 0.08;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,.06)';
   ctx.lineWidth = 1;
-  for(let i=0; i<canvas.width; i+=40) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+  for (let i = 1; i < 6; i++) {
+    const y = (c.height / 6) * i;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(c.width, y); ctx.stroke();
   }
-  for(let i=0; i<canvas.height; i+=40) {
-    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+  for (let i = 1; i < 8; i++) {
+    const x = (c.width / 8) * i;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, c.height); ctx.stroke();
   }
-
-  const startX = 40;
-  const startY = canvas.height - 40;
-  const endX = Math.min(startX + (elapsed * 35), canvas.width - 60);
-  const endY = Math.max(startY - (Math.pow(elapsed, 1.5) * 12), 50);
-
-  ctx.strokeStyle = crashState === 'cashed_out' ? '#4cd16b' : 'rgba(229, 193, 88, 0.8)';
-  ctx.lineWidth = 4;
-  ctx.shadowBlur = 15;
-  ctx.shadowColor = crashState === 'cashed_out' ? '#4cd16b' : '#e5c158';
-  
+}
+function drawTrail() {
+  if (trail.length < 2) return;
+  ctx.lineWidth = 5;
+  for (let i = 1; i < trail.length; i++) {
+    const p0 = trail[i - 1], p1 = trail[i];
+    const alpha = i / trail.length;
+    ctx.strokeStyle = `rgba(255, 196, 87, ${alpha * .5})`;
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.y);
+    ctx.lineTo(p1.x, p1.y);
+    ctx.stroke();
+  }
+}
+function drawRocketBody(x, y, flameScale = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.5);
+  ctx.fillStyle = '#dfe8f1';
   ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  ctx.quadraticCurveTo((startX + endX)/1.4, startY, endX, endY);
+  ctx.moveTo(-18, 0); ctx.lineTo(12, -10); ctx.lineTo(22, 0); ctx.lineTo(12, 10); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#d74848';
+  ctx.fillRect(-10, -10, 10, 20);
+  ctx.fillStyle = '#7fc4ff';
+  ctx.beginPath(); ctx.arc(2, 0, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#c73c3c';
+  ctx.beginPath(); ctx.moveTo(-8, -8); ctx.lineTo(-20, -18); ctx.lineTo(-12, -4); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-8, 8); ctx.lineTo(-20, 18); ctx.lineTo(-12, 4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ffb347';
+  ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(-32 - Math.random() * 8 * flameScale, -7 * flameScale); ctx.lineTo(-30 - Math.random() * 8 * flameScale, 7 * flameScale); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,220,120,.7)';
+  ctx.beginPath(); ctx.moveTo(-17, 0); ctx.lineTo(-27 - Math.random() * 5 * flameScale, -4 * flameScale); ctx.lineTo(-25 - Math.random() * 5 * flameScale, 4 * flameScale); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawExplosion() {
+  if (!explosion) return;
+  const age = (performance.now() - explosion.t) / 1000;
+  const radius = 12 + age * 65;
+  ctx.save();
+  ctx.globalAlpha = Math.max(0, 1 - age * .9);
+  const grad = ctx.createRadialGradient(explosion.x, explosion.y, 4, explosion.x, explosion.y, radius);
+  grad.addColorStop(0, 'rgba(255,255,180,.95)');
+  grad.addColorStop(.45, 'rgba(255,170,0,.8)');
+  grad.addColorStop(1, 'rgba(255,50,0,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(explosion.x, explosion.y, radius, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+function draw(time) {
+  drawBackground(time);
+  drawTrail();
+  ctx.strokeStyle = 'rgba(229,193,88,.35)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(30, c.height - 34);
+  for (let x = 0; x < c.width - 60; x += 8) {
+    const y = c.height - 34 - Math.pow(x / (c.width - 60), 1.7) * (c.height - 85);
+    ctx.lineTo(30 + x, y);
+  }
   ctx.stroke();
-  
-  ctx.shadowBlur = 0;
-
-  ctx.font = "32px serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("🚀", endX, endY);
+  if (state !== 'crashed') drawRocketBody(rocketPos.x, rocketPos.y, state === 'fly' ? 1.15 : .7);
+  drawExplosion();
 }
-
-function handleCrash() {
-  cancelAnimationFrame(animationId);
-  
-  if (crashState === 'flying') {
-    addHistoryPill(crashPoint, false);
-  }
-  
-  crashState = 'crashed';
-  
-  document.getElementById('crash-live-mult').textContent = "💥 BOOM @ " + crashPoint.toFixed(2) + "x";
-  document.getElementById('crash-live-mult').style.color = '#ff4d4d';
-  document.getElementById('crash-payout-display').textContent = "0.00 €";
-  
-  const btn = document.getElementById('crash-main-btn');
-  btn.textContent = "💥 GEBLASEN!";
-  btn.disabled = true;
-  
-  setTimeout(() => {
-    crashState = 'idle';
-    btn.textContent = "🚀 FLUG STARTEN";
-    btn.className = "btn-action";
-    btn.disabled = false;
-    document.getElementById('crash-live-mult').style.color = 'white';
-    document.getElementById('crash-live-mult').textContent = "1.00x";
-    disableBetButtons(false);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }, 3000);
+function reset() {
+  cancelAnimationFrame(raf);
+  state = 'idle';
+  m = 1;
+  activeBet = 0;
+  cashedOut = false;
+  cashoutMultiplier = 0;
+  securedWin = 0;
+  document.getElementById('mult').textContent = '1.00x';
+  document.getElementById('mult').style.color = '#fff';
+  document.getElementById('payout').textContent = '0 €';
+  const btn = document.getElementById('mainBtn');
+  btn.textContent = 'Start';
+  btn.className = 'success';
+  btn.disabled = false;
+  document.getElementById('msg').textContent = '';
+  resetRocketVisuals();
+  draw(0);
 }
-
-function addHistoryPill(value, won) {
-  const container = document.getElementById('crash-history');
-  const pill = document.createElement('div');
-  pill.className = `history-pill ${won ? 'pill-good' : 'pill-bad'}`;
-  pill.textContent = value.toFixed(2) + "x";
-  
-  if (container.children.length > 1) {
-    container.insertBefore(pill, container.children[1]);
-  } else {
-    container.appendChild(pill);
-  }
-  
-  if (container.children.length > 9) {
-    container.removeChild(container.lastChild);
-  }
-}
-
-window.onload = () => {
-  crashSetBet(10);
-};
 </script>
 </body>
 </html>

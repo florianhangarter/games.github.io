@@ -1,178 +1,111 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<title>Royal Deluxe Casino - Blackjack</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blackjack</title>
+<link rel="stylesheet" href="styles.css">
 <script src="casino-utils.js"></script>
 <style>
-:root {
-  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
-  --transition: all 0.2s cubic-bezier(0.215, 0.610, 0.355, 1);
-  --card-width: 110px; --card-height: 160px; --radius: 8px; --shadow: 0 6px 12px rgba(0,0,0,0.4);
-}
-body {
-  margin: 0; font-family: 'Georgia', serif; background: var(--board-bg);
-  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
-  display: flex; flex-direction: column; align-items: center;
-}
-.topbar {
-  display: flex; gap: 15px; margin-bottom: 30px; align-items: center;
-  background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px;
-}
-button { 
-  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
-  border: 1px solid #1a1411; color: #e5c158; border-radius: 20px; font-weight: bold; font-family: 'Segoe UI';
-  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
-}
-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
-button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: white; border: 1px solid #3a0f0f; }
-.counter-display { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; color: #e5c158; background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
-.bj-area { width: 100%; max-width: 800px; min-height: 210px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; position: relative; }
-.bj-title { font-size: 22px; color: rgba(255,255,255,0.6); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
-.bj-cards-container { display: flex; min-height: var(--card-height); justify-content: center; width: 100%; }
-.card {
-  width: var(--card-width); height: var(--card-height); background: linear-gradient(135deg, #ffffff 0%, #f6f5f0 100%);
-  border-radius: var(--radius); position: relative; margin-right: -50px; box-sizing: border-box; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.15);
-}
-.card:last-child { margin-right: 0; }
-.card.hidden {
-  background-color: #162a45; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cg fill='%23243f65' fill-opacity='0.4'%3E%3Cpath d='M0 0h8v8H0zm8 8h8v8H8z'/%3E%3C/g%3E%3C/svg%3E");
-  border: 3.5px solid #ffffff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-}
-.card.hidden::after { content: "⚜"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d4af37; font-size: 36px; }
-.card-inner { position: relative; width: 100%; height: 100%; padding: 8px; box-sizing: border-box; }
-.corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; line-height: 0.9; }
-.corner.top-left { top: 8px; left: 8px; }
-.corner.bottom-right { bottom: 8px; right: 8px; transform: rotate(180deg); }
-.center-suit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 56px; opacity: 0.9; }
-.red { color: #b71c1c; } .black { color: #1a1a1a; }
-.bj-controls { display: flex; gap: 15px; margin-top: 20px; align-items: center; flex-wrap: wrap; justify-content: center; }
-.chip-btn { background: linear-gradient(to bottom, #162a45, #0f1c2e); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; width: 60px; height: 60px; font-size: 16px; font-weight: bold; color: #e5c158; box-shadow: 0 4px 8px rgba(0,0,0,0.4); cursor: pointer; }
-#bj-message { font-size: 32px; color: #ffd700; font-weight: bold; margin: 20px 0; height: 40px; text-align: center; text-shadow: 0 2px 15px rgba(0,0,0,0.8); }
-.bj-score { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 50%; font-size: 20px; border: 2px solid #e5c158; font-family: 'Segoe UI'; }
-.flip-in { animation: cardFlip 0.2s ease-out forwards; }
-@keyframes cardFlip { from { transform: scaleX(0); opacity: 0.5; } to { transform: scaleX(1); opacity: 1; } }
+  .blackjack-table{
+    position:relative;
+    background:radial-gradient(ellipse at center, rgba(34,121,73,.98) 0%, rgba(9,64,36,.99) 50%, rgba(71,49,29,.98) 51%, rgba(36,22,13,.99) 67%, rgba(9,7,6,1) 83%);
+    border:4px solid rgba(123,81,40,.95);
+    border-radius:220px 220px 34px 34px;
+    padding:36px 24px 26px;
+    box-shadow:inset 0 0 72px rgba(0,0,0,.52), inset 0 0 0 10px rgba(110,73,38,.72), inset 0 0 0 18px rgba(24,16,10,.92), 0 28px 55px rgba(0,0,0,.46);
+    overflow:hidden;
+  }
+  .blackjack-table:before{content:'BLACKJACK PAYS 3 TO 2';position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:4px;color:rgba(255,240,163,.86);font-weight:900;background:rgba(0,0,0,.25);padding:7px 14px;border-radius:999px;border:1px solid rgba(229,193,88,.35)}
+  .blackjack-table:after{content:'DEALER MUST STAND ON 17';position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;color:rgba(255,240,163,.62);font-weight:800}
+  .blackjack-table .table-arc{position:absolute;left:50%;bottom:88px;transform:translateX(-50%);width:min(88%,680px);height:170px;border:3px solid rgba(229,193,88,.32);border-color:rgba(229,193,88,.32) transparent transparent transparent;border-radius:50% 50% 0 0 / 100% 100% 0 0;pointer-events:none}
+  .blackjack-table .table-arc:before{content:'INSURANCE PAYS 2 TO 1';position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2px;color:rgba(255,240,163,.68);font-weight:800;background:rgba(6,26,15,.9);padding:2px 10px;border-radius:999px;white-space:nowrap}
+  .bj-area{position:relative;background:rgba(5,34,18,.16);border:1px solid rgba(229,193,88,.16);border-radius:30px;padding:18px 14px;margin:16px 0;text-align:center;box-shadow:inset 0 0 24px rgba(0,0,0,.25)}
+  .bj-area.dealer{margin-bottom:22px}
+  .bj-area.player{margin-top:78px}
+  .bj-area.player:before,.bj-area.dealer:before{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;font-weight:900;color:rgba(255,240,163,.82);background:rgba(6,26,15,.95);border:1px solid rgba(229,193,88,.32);padding:4px 12px;border-radius:999px}
+    .bj-area.dealer:before{content:none !important;display:none !important}
+  .bj-label{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;color:var(--gold);font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .bj-area .hand-zone{min-height:150px}
+  .blackjack-table .card{box-shadow:0 10px 22px rgba(0,0,0,.45)}
+  @media(max-width:780px){.blackjack-table{border-radius:50px 50px 24px 24px;padding:28px 16px 20px}.blackjack-table .table-arc{width:90%;bottom:98px;height:148px}.bj-area.player{margin-top:92px}}
+
+  /* Entfernt die PLAYER-Beschriftung am Blackjack-Tisch */
+  .bj-area.player:before{content:none !important;display:none !important}
+
+  /* FINAL blackjack viewport fit */
+  .bj-area.player:before{content:none !important;display:none !important}
+  @media(max-height:820px){
+    .blackjack-table{padding:26px 14px 18px;border-radius:90px 90px 24px 24px}
+    .blackjack-table:before{top:10px;font-size:10px;padding:4px 10px}
+    .blackjack-table:after{bottom:8px;font-size:9px}
+    .blackjack-table .table-arc{bottom:66px;height:118px}
+    .blackjack-table .table-arc:before{top:-22px;font-size:9px}
+    .bj-area{padding:10px 8px;margin:8px 0;border-radius:18px}
+    .bj-area.dealer{margin-bottom:8px}
+    .bj-area.player{margin-top:44px}
+    .bj-area .hand-zone{min-height:90px}
+    .bj-label{font-size:12px;margin-bottom:4px}
+  }
+  @media(max-height:680px){
+    .blackjack-table{padding:22px 8px 14px}
+    .blackjack-table .table-arc{display:none}
+    .blackjack-table:after{display:none}
+    .bj-area.player{margin-top:12px}
+    .bj-area.player:before,.bj-area.dealer:before{display:none}
+  }
+  @media(max-width:760px){
+    .blackjack-table{border-radius:44px 44px 20px 20px}
+    .blackjack-table:before{letter-spacing:2px;white-space:nowrap}
+  }
+
+
+  /* Entfernt nur die extra Tisch-Markierung DEALER, nicht die normale Dealer-Zeile */
+  .bj-area.dealer:before{content:none !important;display:none !important}
+  .bj-area.player:before{content:none !important;display:none !important}
 </style>
 </head>
 <body>
-
+<main class="page">
 <div class="topbar">
-  <button class="btn-lobby" onclick="window.location.href='index.html'">🏰 Lobby</button>
+  <button class="danger" onclick="goLobby()">🏰 Lobby</button>
   <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
-  <div class="counter-display">Einsatz: <span id="bj-bet-display">0 €</span></div>
+  <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
 </div>
-
-<div class="bj-area">
-  <div class="bj-title">Dealer</div>
-  <div class="bj-cards-container" id="bj-dealer-cards"></div>
-  <div class="bj-score" id="bj-dealer-score" style="display:none;">0</div>
+<section class="panel">
+  <h1 class="title" style="font-size:38px">♦ Blackjack</h1>
+  <div class="betbox" id="betbox"><label for="betSlider">Einsatz</label><b id="betDisplay">10 €</b><input id="betSlider" type="range"></div>
+  <div class="chip-rack" id="betChips">
+  <button type="button" class="chip-btn chip-white" data-chip="5">5</button>
+  <button type="button" class="chip-btn chip-red" data-chip="10">10</button>
+  <button type="button" class="chip-btn chip-green" data-chip="25">25</button>
+  <button type="button" class="chip-btn chip-black" data-chip="50">50</button>
+  <button type="button" class="chip-btn chip-gold" data-chip="100">100</button>
 </div>
-
-<div class="bj-area">
-  <div class="bj-title">Spieler</div>
-  <div class="bj-cards-container" id="bj-player-cards"></div>
-  <div class="bj-score" id="bj-player-score" style="display:none;">0</div>
-</div>
-
-<div id="bj-message">Bitte Einsatz wählen</div>
-
-<div class="bj-controls" id="bj-betting-controls">
-  <button class="chip-btn" onclick="bjAddBet(10)">+10</button>
-  <button class="chip-btn" onclick="bjAddBet(50)">+50</button>
-  <button class="chip-btn" onclick="bjAddBet(100)">+100</button>
-  <button onclick="bjClearBet()" style="border-radius: 8px;">Reset</button>
-  <button onclick="bjDeal()" id="bj-btn-deal" disabled style="background: linear-gradient(to bottom, #2b6a3a, #164221);">Geben</button>
-</div>
-
-<div class="bj-controls" id="bj-playing-controls" style="display:none;">
-  <button onclick="bjHit()">Karte (Hit)</button>
-  <button onclick="bjStand()">Halten (Stand)</button>
-</div>
-
-<div class="bj-controls" id="bj-gameover-controls" style="display:none;">
-  <button onclick="bjResetGame()">Nächste Runde</button>
-</div>
-
+  <div class="blackjack-table"><div class="table-arc"></div>
+    <div class="bj-area dealer">
+      <div class="bj-label"><span>Dealer</span><span class="score-badge">Score: <span id="dealerScore">?</span></span></div>
+      <div id="dealerHand" class="hand-zone"></div>
+    </div>
+    <div class="bj-area player">
+      <div class="bj-label"><span>Spieler</span><span class="score-badge">Score: <span id="playerScore">0</span></span></div>
+      <div id="playerHand" class="hand-zone"></div>
+    </div>
+  </div>
+  <div id="msg" class="message"></div>
+  <div class="controls"><button id="dealBtn" class="success" onclick="deal()">Geben</button><button id="hitBtn" onclick="hit()" disabled>Hit</button><button id="standBtn" onclick="stand()" disabled>Stand</button><button id="doubleBtn" class="primary" onclick="doubleDown()" disabled>Verdoppeln</button></div>
+</section></main>
 <script>
-const solSuits = ["♠", "♥", "♦", "♣"];
-const solColors = { "♠": "black", "♣": "black", "♥": "red", "♦": "red" };
-let bjDeck = [], bjPlayerHand = [], bjDealerHand = [];
-let bjCurrentBet = 0, bjGameState = 'betting';
-
-const bjEls = {
-  bet: document.getElementById('bj-bet-display'), msg: document.getElementById('bj-message'),
-  pCards: document.getElementById('bj-player-cards'), dCards: document.getElementById('bj-dealer-cards'),
-  pScore: document.getElementById('bj-player-score'), dScore: document.getElementById('bj-dealer-score'),
-  betCtrl: document.getElementById('bj-betting-controls'), playCtrl: document.getElementById('bj-playing-controls'),
-  overCtrl: document.getElementById('bj-gameover-controls'), btnDeal: document.getElementById('bj-btn-deal')
-};
-
-function solGetValLabel(v) { if (v === 1) return "A"; if (v === 11) return "J"; if (v === 12) return "Q"; if (v === 13) return "K"; return v; }
-function bjCreateDeck() {
-  let d = []; for(let i=0; i<4; i++) { for (let s of solSuits) { for (let v = 1; v <= 13; v++) { d.push({ suit: s, value: v, id: `bj-${i}-${s}-${v}` }); } } }
-  return d.sort(() => Math.random() - 0.5);
-}
-function bjGetCardPoints(v) { if (v === 1) return 11; if (v > 10) return 10; return v; }
-function bjCalculateScore(hand) {
-  let score = 0, aces = 0; for (let c of hand) { score += bjGetCardPoints(c.value); if (c.value === 1) aces++; }
-  while (score > 21 && aces > 0) { score -= 10; aces--; } return score;
-}
-function bjMakeCardElement(c, isHidden = false) {
-  const el = document.createElement("div"); el.className = "card flip-in";
-  if (isHidden) { el.classList.add("hidden"); } else {
-    el.classList.add(solColors[c.suit]); const label = solGetValLabel(c.value);
-    el.innerHTML = `<div class="card-inner"><div class="corner top-left"><div>${label}</div><div>${c.suit}</div></div><div class="center-suit">${c.suit}</div><div class="corner bottom-right"><div>${label}</div><div>${c.suit}</div></div></div>`;
-  }
-  return el;
-}
-function bjAddBet(amount) { if (getCash() >= amount) { setCash(getCash() - amount); bjCurrentBet += amount; bjUpdateUI(); } }
-function bjClearBet() { setCash(getCash() + bjCurrentBet); bjCurrentBet = 0; bjUpdateUI(); }
-function bjDeal() {
-  if (bjCurrentBet === 0) return; bjDeck = bjCreateDeck();
-  bjPlayerHand = [bjDeck.pop(), bjDeck.pop()]; bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
-  bjGameState = 'playing'; bjEls.msg.textContent = "Ihre Aktion!";
-  if(bjCalculateScore(bjPlayerHand) === 21) { bjStand(); return; } bjUpdateUI();
-}
-function bjHit() {
-  bjPlayerHand.push(bjDeck.pop()); if (bjCalculateScore(bjPlayerHand) > 21) { bjEndGame("Überkauft! Der Dealer gewinnt.", "lose"); } else { bjUpdateUI(); }
-}
-function bjStand() {
-  bjGameState = 'dealer-turn'; bjUpdateUI();
-  const drawDealer = () => {
-    if (bjCalculateScore(bjDealerHand) < 17) { setTimeout(() => { bjDealerHand.push(bjDeck.pop()); bjUpdateUI(); drawDealer(); }, 700); } else { bjEvaluateWinner(); }
-  };
-  setTimeout(drawDealer, 700);
-}
-function bjEvaluateWinner() {
-  const p = bjCalculateScore(bjPlayerHand); const d = bjCalculateScore(bjDealerHand);
-  if (d > 21) bjEndGame("Dealer überkauft! Sie gewinnen!", "win");
-  else if (p > d) (p === 21 && bjPlayerHand.length === 2) ? bjEndGame("BLACKJACK! Gewinn 3:2!", "blackjack") : bjEndGame("Sie gewinnen!", "win");
-  else if (d > p) bjEndGame("Dealer gewinnt!", "lose");
-  else bjEndGame("Unentschieden (Push).", "push");
-}
-function bjEndGame(msg, result) {
-  bjGameState = 'gameover'; bjEls.msg.textContent = msg;
-  if (result === 'win') setCash(getCash() + bjCurrentBet * 2);
-  else if (result === 'blackjack') setCash(getCash() + bjCurrentBet + (bjCurrentBet * 1.5));
-  else if (result === 'push') setCash(getCash() + bjCurrentBet);
-  bjCurrentBet = 0; bjUpdateUI();
-}
-function bjResetGame() { bjPlayerHand = []; bjDealerHand = []; bjGameState = 'betting'; bjEls.msg.textContent = "Bitte Einsatz wählen"; bjUpdateUI(); }
-function bjUpdateUI() {
-  bjEls.bet.textContent = bjCurrentBet + " €"; bjEls.btnDeal.disabled = bjCurrentBet === 0;
-  bjEls.betCtrl.style.display = bjGameState === 'betting' ? 'flex' : 'none';
-  bjEls.playCtrl.style.display = bjGameState === 'playing' ? 'flex' : 'none';
-  bjEls.overCtrl.style.display = bjGameState === 'gameover' ? 'flex' : 'none';
-  bjEls.pCards.innerHTML = ''; bjPlayerHand.forEach(c => bjEls.pCards.appendChild(bjMakeCardElement(c)));
-  bjEls.dCards.innerHTML = ''; bjDealerHand.forEach((c, i) => bjEls.dCards.appendChild(bjMakeCardElement(c, (bjGameState === 'playing' && i === 1))));
-  if (bjGameState !== 'betting') {
-    bjEls.pScore.style.display = 'block'; bjEls.pScore.textContent = bjCalculateScore(bjPlayerHand);
-    bjEls.dScore.style.display = 'block'; bjEls.dScore.textContent = (bjGameState === 'playing') ? bjGetCardPoints(bjDealerHand[0].value) : bjCalculateScore(bjDealerHand);
-  } else { bjEls.pScore.style.display = 'none'; bjEls.dScore.style.display = 'none'; }
-}
-
-window.onload = bjResetGame;
+let deck=[], player=[], dealer=[], state='betting', getBet, roundBet=0;
+document.addEventListener('DOMContentLoaded',()=>{const betSlider=document.getElementById('betSlider');getBet=createBetSlider({inputId:'betSlider',displayId:'betDisplay',min:1,max:500,value:10,onChange:v=>betOut.textContent=money(v)});document.getElementById('betChips').addEventListener('click',e=>{const b=e.target.closest('button[data-chip]');if(!b||state==='playing')return;betSlider.value=Math.max(Number(betSlider.min||1),Math.min(Number(betSlider.max||500),Number(betSlider.value||0)+Number(b.dataset.chip)));betSlider.dispatchEvent(new Event('input'));}); render();});
+function points(c){return c.value===1?11:c.value>10?10:c.value}
+function score(hand){let s=0,a=0;hand.forEach(c=>{s+=points(c);if(c.value===1)a++});while(s>21&&a>0){s-=10;a--}return s}
+function render(hideDealer=true){playerHand.innerHTML=player.map(c=>cardHTML(c)).join('');dealerHand.innerHTML=dealer.map((c,i)=>cardHTML(c,hideDealer&&state==='playing'&&i===1)).join('');playerScore.textContent=score(player);dealerScore.textContent=(state==='playing'&&hideDealer)?points(dealer[0]):score(dealer);syncUI();dealBtn.disabled=state==='playing';dealBtn.textContent=state==='done'?'Nächste Runde':'Geben';hitBtn.disabled=state!=='playing';standBtn.disabled=state!=='playing';if(typeof doubleBtn!=="undefined")doubleBtn.disabled=!(state==='playing'&&player.length===2&&canAfford(roundBet));}
+function deal(){const bet=getBet();if(!canAfford(bet))return toast('Nicht genug Guthaben.','bad');player=[];dealer=[];roundBet=bet;betOut.textContent=money(roundBet);changeCash(-roundBet);deck=makeDeck(4);player=[deck.pop(),deck.pop()];dealer=[deck.pop(),deck.pop()];state='playing';msg.textContent='Hit oder Stand?';render();if(score(player)===21)stand();}
+function hit(){player.push(deck.pop());if(score(player)>21)return finish('Bust! Du verlierst.',-roundBet);render();}
+function doubleDown(){if(state!=='playing'||player.length!==2)return;if(!canAfford(roundBet))return toast('Nicht genug Guthaben zum Verdoppeln.','bad');changeCash(-roundBet);roundBet*=2;betOut.textContent=money(roundBet);player.push(deck.pop());if(score(player)>21)return finish('Double Down Bust! Du verlierst.',-roundBet);render(false);stand();}
+function stand(){while(score(dealer)<17)dealer.push(deck.pop());const ps=score(player),ds=score(dealer),bet=roundBet;if(ds>21||ps>ds)finish(`Gewonnen! +${money(bet*2)}`,bet);else if(ps===ds){changeCash(bet);finish('Push - Einsatz zurück.',0,true)}else finish('Dealer gewinnt.',-bet);}
+function finish(text,profit,push=false){if(!push&&profit>0)changeCash(roundBet*2);state='done';msg.textContent=text;recordGame('Blackjack',profit);render(false)}
 </script>
 </body>
 </html>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La Dolce Spin</title>
+<link rel="stylesheet" href="styles.css">
+<script src="casino-utils.js"></script>
+<style>
+  body{background:
+    radial-gradient(circle at 50% 8%, #ffe4b8 0%, #b93d3d 26%, #7a1f1f 54%, #143225 100%)}
+  .slot-shell{
+    max-width:920px;margin:auto;position:relative;overflow:hidden;
+    background:
+      linear-gradient(180deg,rgba(255,248,234,.96),rgba(255,239,214,.95)),
+      linear-gradient(145deg,#fff4de,#f4d6a9);
+    border:2px solid #d6a152;
+    box-shadow:0 25px 60px rgba(0,0,0,.45),0 0 35px rgba(214,161,82,.18)
+  }
+  .slot-shell:before{
+    content:"LA DOLCE VITA";
+    position:absolute;top:10px;left:50%;transform:translateX(-50%);
+    font-size:12px;letter-spacing:4px;color:#9f3a30;opacity:.9;font-weight:900
+  }
+  .slot-shell:after{
+    content:"";
+    position:absolute;left:0;right:0;top:0;height:8px;
+    background:linear-gradient(90deg,#1f6b45 0 33%,#f8f1de 33% 66%,#b93d3d 66% 100%);
+    opacity:.9
+  }
+  .slot-title{
+    margin-top:18px;
+    background:linear-gradient(#bf352f,#8f231f,#dfb46b);
+    -webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none
+  }
+  .slot-sub{color:rgba(133,49,39,.75);text-align:center;letter-spacing:3px;text-transform:uppercase;margin-top:-2px;font-size:12px}
+  .slot-board{
+    position:relative;margin:18px auto 10px;max-width:720px;
+    background:linear-gradient(180deg,#7e1d1d,#4f0f10 58%,#260708 100%);
+    border:3px solid #d9aa5f;border-radius:20px;padding:18px;
+    box-shadow:inset 0 0 30px rgba(0,0,0,.55),0 0 18px rgba(217,170,95,.18);
+    min-height:352px;display:flex;align-items:center;justify-content:center
+  }
+  .reels{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;position:relative;z-index:2;width:100%}
+  .slot-board.risk-mode .reels{display:none}
+  .reel{
+    display:grid;grid-template-rows:repeat(3,96px);gap:10px;
+    background:linear-gradient(#fff4de,#f1dfbd);
+    padding:8px;border-radius:14px;border:1px solid rgba(122,31,31,.16);
+    box-shadow:inset 0 0 18px rgba(255,255,255,.55), inset 0 -10px 12px rgba(0,0,0,.10)
+  }
+  .slot-cell{
+    display:flex;align-items:center;justify-content:center;
+    font-size:44px;border-radius:12px;
+    background:radial-gradient(circle at 50% 25%,#fffaf2,#f6e6c5 72%);
+    border:1px solid rgba(150,87,47,.16);
+    box-shadow:inset 0 2px 10px rgba(255,255,255,.55),inset 0 -8px 12px rgba(0,0,0,.08);
+    transition:transform .12s,filter .12s,background .12s,border-color .12s;
+    position:relative;color:#7b271f
+  }
+  .slot-cell.spin{filter:blur(3px) brightness(1.08);transform:scaleY(1.06)}
+  .slot-cell.win{
+    background:radial-gradient(circle,#ffe6a7,#efc96d 72%);
+    border-color:#cc9346;animation:goldPulse .48s infinite alternate
+  }
+  .slot-cell.scatter{border-color:#ffcc7d;background:radial-gradient(circle,#fff2b9,#efc868 72%)}
+  .slot-cell.wild{border-color:#c85d6c;background:radial-gradient(circle,#ffd1dc,#f0aab8 72%)}
+  .slot-cell.cash{border-color:#6da86f;background:radial-gradient(circle,#def8df,#b8e1ba 72%)}
+  .cash-tag{
+    position:absolute;top:5px;right:5px;padding:2px 6px;border-radius:999px;
+    background:rgba(122,31,31,.75);font-size:11px;font-weight:900;color:#fff4db;line-height:1
+  }
+  @keyframes goldPulse{from{box-shadow:0 0 6px rgba(226,176,84,.25)}to{box-shadow:0 0 20px rgba(226,176,84,.75)}}
+
+  .status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px auto;max-width:720px}
+  .status-grid .counter-display{text-align:center;border-radius:16px}
+  .paytable{max-width:720px;margin:14px auto 0;display:none;padding:0}
+  .paygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;font-size:12px;color:rgba(86,35,28,.82)}
+  .payitem{
+    background:rgba(255,248,238,.76);border:1px solid rgba(191,141,76,.28);
+    border-radius:12px;padding:8px;text-align:center
+  }
+  .payitem b{color:#9c372f;font-size:18px;display:block}
+  .payitem .icon{display:block;font-size:30px;margin-bottom:4px}
+  .fs-banner{
+    display:none;max-width:720px;margin:12px auto;padding:12px;border-radius:16px;
+    background:linear-gradient(90deg,rgba(255,245,221,.92),rgba(246,216,159,.88));
+    border:1px solid rgba(193,143,63,.55);text-align:center;font-weight:900;color:#96342d
+  }
+  .fs-banner.on{display:block}
+  .history{display:flex;gap:8px;overflow:hidden;justify-content:center;max-width:720px;margin:10px auto;flex-wrap:wrap}
+  .history span{
+    padding:5px 9px;background:rgba(255,248,238,.7);border-radius:999px;font-size:12px;
+    color:#9b372f;border:1px solid rgba(191,141,76,.25)
+  }
+
+  .risk-ladder{display:none;width:100%;height:100%;padding:0;border-radius:18px;background:transparent;border:none;box-shadow:none}
+  .slot-board.risk-mode .risk-ladder.on{display:grid;grid-template-columns:190px 1fr;gap:16px;align-items:start}
+  .ladder-rail{position:relative;padding:6px 0;max-width:190px;margin:0 auto}
+  .ladder-rail:before{
+    content:"";position:absolute;left:50%;top:8px;bottom:8px;width:5px;transform:translateX(-50%);
+    border-radius:999px;background:linear-gradient(180deg,#ffe6a7,#cc9346);box-shadow:0 0 12px rgba(255,230,167,.24)
+  }
+  .ladder-title{text-align:center;text-transform:uppercase;letter-spacing:3px;color:#fff0cd;font-weight:950;font-size:13px;margin-bottom:8px}
+  .ladder-steps{display:grid;grid-template-columns:1fr;gap:7px;position:relative;z-index:1}
+  .ladder-step{
+    position:relative;text-align:center;padding:8px 8px;border-radius:13px;
+    background:linear-gradient(180deg,rgba(255,246,228,.96),rgba(244,224,188,.96));
+    border:1px solid rgba(214,161,82,.22);
+    box-shadow:inset 0 0 12px rgba(255,255,255,.28);
+    color:rgba(126,29,29,.76);font-size:11px;font-weight:900;min-height:48px
+  }
+  .ladder-step span{display:block;letter-spacing:1px}
+  .ladder-step b{display:block;color:#9f3a30;font-size:15px;margin-top:2px}
+  .ladder-step.current{
+    background:linear-gradient(180deg,#ffe6a7,#efc96d);
+    border-color:#cc9346;color:#7c1f1f;box-shadow:0 0 18px rgba(239,201,109,.45), 0 0 0 2px rgba(204,147,70,.22), inset 0 0 10px rgba(255,255,255,.2)
+  }
+  .ladder-step.option-up{
+    border-color:rgba(72,156,91,.62);
+    box-shadow:0 0 0 2px rgba(72,156,91,.15), inset 0 0 12px rgba(255,255,255,.28)
+  }
+  .ladder-step.option-down{
+    border-color:rgba(196,87,87,.62);
+    box-shadow:0 0 0 2px rgba(196,87,87,.12), inset 0 0 12px rgba(255,255,255,.28)
+  }
+  .ladder-step.blink-up{
+    border-color:#57b96a;
+    animation:ladderBorderBlinkUp .34s infinite alternate;
+  }
+  .ladder-step.blink-up b{
+    animation:ladderBlink .34s infinite alternate;
+    color:#1f7b35
+  }
+  .ladder-step.blink-down{
+    border-color:#dd5b5b;
+    animation:ladderBorderBlinkDown .34s infinite alternate;
+  }
+  .ladder-step.blink-down b{
+    animation:ladderBlink .34s infinite alternate;
+    color:#b12626
+  }
+  @keyframes ladderBlink{
+    from{opacity:.65;transform:scale(1);text-shadow:none}
+    to{opacity:1;transform:scale(1.08);text-shadow:0 0 12px rgba(255,245,180,.72)}
+  }
+  @keyframes ladderBorderBlinkUp{
+    from{
+      box-shadow:0 0 0 2px rgba(87,185,106,.18), 0 0 6px rgba(87,185,106,.18), inset 0 0 10px rgba(255,255,255,.20);
+      filter:brightness(1)
+    }
+    to{
+      box-shadow:0 0 0 2px rgba(87,185,106,.42), 0 0 18px rgba(87,185,106,.72), inset 0 0 12px rgba(255,255,255,.34);
+      filter:brightness(1.08)
+    }
+  }
+  @keyframes ladderBorderBlinkDown{
+    from{
+      box-shadow:0 0 0 2px rgba(221,91,91,.16), 0 0 6px rgba(221,91,91,.16), inset 0 0 10px rgba(255,255,255,.20);
+      filter:brightness(1)
+    }
+    to{
+      box-shadow:0 0 0 2px rgba(221,91,91,.38), 0 0 18px rgba(221,91,91,.66), inset 0 0 12px rgba(255,255,255,.30);
+      filter:brightness(1.08)
+    }
+  }
+  .ladder-side{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100%;height:100%;padding-top:6px}
+  .ladder-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;min-height:48px}
+  .ladder-actions button{min-width:150px;width:150px;flex:0 0 150px}
+  .risk-ready{animation:riskGlow .75s infinite alternate;border-color:#cc9346!important;box-shadow:0 0 16px rgba(239,201,109,.35)!important}
+  @keyframes riskGlow{from{filter:brightness(1)}to{filter:brightness(1.12)}}
+
+  @media(max-width:760px){
+    .slot-board.risk-mode .risk-ladder.on{grid-template-columns:1fr;gap:14px}
+    .ladder-rail{max-width:180px;margin:0 auto}
+    .ladder-actions{justify-content:center}
+  }
+  @media(max-width:680px){
+    .reel{grid-template-rows:repeat(3,68px);gap:7px;padding:6px}
+    .slot-cell{font-size:34px}
+    .slot-board{padding:10px;min-height:300px}
+    .reels{gap:7px}
+    .slot-title{font-size:34px}
+    .ladder-step{min-height:42px;padding:7px 7px}
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
+    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
+    <div class="counter-display">Freispiele: <span id="fsOut">0</span></div>
+    <div class="counter-display">FS Gewinn: <span id="fsTotalOut">0 €</span></div>
+    <div class="counter-display">Letzter Gewinn: <span id="lastWinOut">0 €</span></div>
+  </div>
+
+  <section class="panel slot-shell">
+    <h1 class="title slot-title">🍋 La Dolce Spin 🍷</h1>
+
+    <div class="betbox">
+      <label for="betSlider">Gesamteinsatz pro Spin</label>
+      <b id="betDisplay">10 €</b>
+      <input id="betSlider" type="range">
+    </div>
+
+    <div class="status-grid">
+      <div class="counter-display">Linien: <span>10 aktiv</span></div>
+      <div class="counter-display">Linieneinsatz: <span id="lineBetOut">1.00 €</span></div>
+      <div class="counter-display">Feature: <span id="featureOut">Basis</span></div>
+    </div>
+
+    <div id="fsBanner" class="fs-banner">🌹 Freispiele bereit — drücke Spin, um jedes Freispiel selbst zu starten!</div>
+
+    
+    <div class="slot-board" id="slotBoard">
+      <div class="reels" id="reels"></div>
+      <div class="risk-ladder" id="riskLadder">
+        <div class="ladder-rail">
+          <div class="ladder-title" id="ladderTitle">Risikoleiter</div>
+          <div class="ladder-steps" id="ladderSteps"></div>
+        </div>
+        <div class="ladder-side">
+          <div class="ladder-actions">
+            <button id="ladderPanelBtn" onclick="ladderUp()">Drücken</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="msg" class="message"></div>
+
+    <div class="controls">
+      <button class="primary" id="spinBtn" onclick="spin()">Spin</button>
+      <button id="autoBtn" onclick="toggleAuto()">Auto</button>
+      <button id="ladderBtn" onclick="openRiskLadder()" disabled>Leiter</button>
+      <button onclick="togglePaytable()">Gewinntabelle</button>
+    </div>
+
+    <div class="history" id="history"></div>
+
+    <div class="paytable" id="paytable"><div class="paygrid" id="paygrid"></div></div>
+  </section>
+</main>
+
+<script>
+
+const ROWS = 3, REELS = 5;
+const PAYLINES = [
+  [[0,0],[0,1],[0,2],[0,3],[0,4]], [[1,0],[1,1],[1,2],[1,3],[1,4]], [[2,0],[2,1],[2,2],[2,3],[2,4]],
+  [[0,0],[1,1],[2,2],[1,3],[0,4]], [[2,0],[1,1],[0,2],[1,3],[2,4]],
+  [[0,0],[0,1],[1,2],[2,3],[2,4]], [[2,0],[2,1],[1,2],[0,3],[0,4]],
+  [[1,0],[0,1],[1,2],[2,3],[1,4]], [[1,0],[2,1],[1,2],[0,3],[1,4]], [[0,0],[1,1],[1,2],[1,3],[2,4]]
+];
+const SYMBOLS = [
+  { icon:'10', name:'10', weight:12, pay:{3:4,4:10,5:30} },
+  { icon:'J', name:'Bube', weight:11, pay:{3:5,4:12,5:36} },
+  { icon:'Q', name:'Dame', weight:10, pay:{3:6,4:16,5:46} },
+  { icon:'K', name:'König', weight:9, pay:{3:8,4:22,5:65} },
+  { icon:'A', name:'Ass', weight:8, pay:{3:10,4:30,5:90} },
+  { icon:'🛵', name:'Vespa', weight:7, pay:{3:12,4:38,5:120} },
+  { icon:'🍷', name:'Chianti', weight:6, pay:{3:14,4:48,5:145} },
+  { icon:'🎻', name:'Mandoline', weight:5, pay:{3:18,4:62,5:190} },
+  { icon:'💃', name:'Bella', weight:4, pay:{3:22,4:78,5:240} },
+  { icon:'🤵', name:'Signore', weight:3, pay:{3:28,4:100,5:300} },
+  { icon:'🌹', name:'Rose', weight:3, wild:true, collector:true, pay:{3:20,4:100,5:350} },
+  { icon:'🌞', name:'Scatter', weight:3, scatter:true, pay:{3:2,4:10,5:50} }
+];
+const CASH_VALUES = [1,1,2,2,3,4,5,8,10,15,20,30,50];
+const CASH_SYMBOL = { icon:'🪙', name:'Cash', cash:true, value:1, pay:{} };
+const POOL = [];
+SYMBOLS.forEach(s => { for(let i=0;i<s.weight;i++) POOL.push(s); });
+let getBet, spinning = false, auto = false, autoTimer = null;
+const LADDER_STEPS = [2,4,6,8,10,15,20,30,40,50,60,80,100,120,140];
+const LADDER_PLUS_STEPS = [160,200,250,300];
+const ALL_LADDER_STEPS = [2,4,6,8,10,15,20,30,40,50,60,80,100,120,140,160,200,250,300];
+const LOSS_STEP = 'LOSS';
+let freeSpins = 0, totalFsWin = 0, lastWin = 0, ladderLevel = -1, riskOpen = false, riskScale = 1, blinkTimer = null, blinkTarget = 'up';
+const el = id => document.getElementById(id);
+
+function cloneSym(s){ return {...s}; }
+function randSym(isFree = false){
+  if(isFree && Math.random() < 0.18) return {...CASH_SYMBOL, value: CASH_VALUES[Math.floor(Math.random()*CASH_VALUES.length)]};
+  return cloneSym(POOL[Math.floor(Math.random() * POOL.length)]);
+}
+function randomMatrix(isFree = false){ return Array.from({length: ROWS}, () => Array.from({length: REELS}, () => randSym(isFree))); }
+function symbolByIcon(icon){ return SYMBOLS.find(s => s.icon === icon); }
+function updateBet(v){ el('betOut').textContent = money(v); el('lineBetOut').textContent = (v / PAYLINES.length).toFixed(2) + ' €'; }
+function togglePaytable(){ const p = el('paytable'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
+function buildPaytable(){
+  const extras = [{icon:'🪙',name:'Cash im Bonus',pay:{}, text:'1x bis 50x Einsatz'}, {icon:'🪜',name:'Risikoleiter',pay:{}, text:'Hauptleiter bis 140 · Plus-Leiter bis 300 · skaliert mit Gewinn'}];
+  el('paygrid').innerHTML = SYMBOLS.concat(extras).map(s => `<div class="payitem"><span class="icon">${s.icon}</span><div>${s.name}</div><b>${s.text || Object.entries(s.pay).map(([k,v])=>`${k}: ${v}x`).join(' · ')}</b></div>`).join('');
+}
+function draw(matrix, highlights = [], collected = []){
+  const hi = new Set(highlights.map(([r,c]) => `${r}-${c}`));
+  const co = new Set(collected.map(([r,c]) => `${r}-${c}`));
+  const reels = el('reels'); reels.innerHTML = '';
+  for(let c=0;c<REELS;c++){
+    const reel = document.createElement('div'); reel.className = 'reel';
+    for(let r=0;r<ROWS;r++){
+      const sym = matrix[r][c];
+      const cell = document.createElement('div');
+      cell.className = 'slot-cell' + (hi.has(`${r}-${c}`) || co.has(`${r}-${c}`) ? ' win' : '') + (sym.scatter ? ' scatter' : '') + (sym.wild ? ' wild' : '') + (sym.cash ? ' cash' : '');
+      cell.textContent = sym.icon;
+      if(sym.cash){ const tag = document.createElement('span'); tag.className = 'cash-tag'; tag.textContent = `${sym.value}x`; cell.appendChild(tag); }
+      reel.appendChild(cell);
+    }
+    reels.appendChild(reel);
+  }
+}
+function setSpinning(on){ document.querySelectorAll('.slot-cell').forEach(c => c.classList.toggle('spin', on)); }
+function chooseLineSymbol(line, matrix){
+  for(const [r,c] of line){ const s = matrix[r][c]; if(!s.wild && !s.scatter && !s.cash) return s; }
+  return symbolByIcon('🌹');
+}
+function evaluateLines(matrix, bet){
+  const lineBet = bet / PAYLINES.length;
+  let win = 0; const cells = [];
+  for(const line of PAYLINES){
+    const target = chooseLineSymbol(line, matrix);
+    if(!target) continue;
+    let count = 0;
+    for(const [r,c] of line){
+      const s = matrix[r][c];
+      if(s.scatter || s.cash) break;
+      if(s.icon === target.icon || s.wild) count++; else break;
+    }
+    const pay = target.pay[count] || 0;
+    if(pay > 0){ win += Math.floor(pay * lineBet); cells.push(...line.slice(0,count)); }
+  }
+  return {win,cells};
+}
+function evaluateScatter(matrix, bet){
+  let count = 0, cells = [];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<REELS;c++) if(matrix[r][c].scatter){ count++; cells.push([r,c]); }
+  const scatter = symbolByIcon('🌞');
+  return {count, win: Math.floor((scatter.pay[count] || 0) * bet), cells};
+}
+function collectFeature(matrix, bet){
+  let collectors = 0, cashSum = 0, cells = [];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<REELS;c++){
+    if(matrix[r][c].collector) collectors++;
+    if(matrix[r][c].cash){ cashSum += matrix[r][c].value; cells.push([r,c]); }
+  }
+  if(collectors && cashSum){ 
+    for(let r=0;r<ROWS;r++) for(let c=0;c<REELS;c++) if(matrix[r][c].collector) cells.push([r,c]);
+    return {win: Math.floor(bet * cashSum * collectors), collectors, cashSum, cells};
+  }
+  return {win:0, collectors, cashSum, cells:[]};
+}
+function spin(){
+  if(spinning) return;
+  const bet = getBet();
+  const isFree = freeSpins > 0;
+  if(!isFree && !canAfford(bet)){ auto=false; syncAuto(); return toast('Nicht genug Guthaben.','bad'); }
+  if(isFree){ freeSpins--; el('fsOut').textContent = freeSpins; }
+  else { changeCash(-bet); totalFsWin=0; el('fsTotalOut').textContent=money(0); clearRisk(false); }
+  spinning = true; el('spinBtn').disabled = true; el('msg').textContent = isFree ? 'Free Game läuft...' : 'La Dolce Spin dreht...';
+  let matrix = randomMatrix(isFree), ticks = 0;
+  const timer = setInterval(() => {
+    matrix = randomMatrix(isFree); draw(matrix); setSpinning(true);
+    if(++ticks >= 14){ clearInterval(timer); setSpinning(false); finishSpin(matrix, bet, isFree); }
+  }, 70);
+}
+function finishSpin(matrix, bet, isFree){
+  const line = evaluateLines(matrix, bet);
+  const scat = evaluateScatter(matrix, bet);
+  const collect = isFree ? collectFeature(matrix, bet) : {win:0,cells:[]};
+  let win = line.win + scat.win + collect.win;
+  let highlights = [...line.cells, ...scat.cells, ...collect.cells];
+
+  if(scat.count >= 3){
+    const extra = 8;
+    freeSpins += extra;
+    if(!isFree){ auto=false; syncAuto(); totalFsWin = 0; el('fsTotalOut').textContent = money(0); }
+    el('featureOut').textContent = 'Collect Free Games';
+    el('msg').textContent = `🌞 ${scat.count} Scatter! +${extra} Free Games mit Collect-Feature.`;
+  } else if(collect.win > 0){
+    el('msg').textContent = `🌹 Collect: ${collect.collectors}x Rose × ${collect.cashSum}x Cash = ${money(collect.win)}`;
+  } else if(win > 0) {
+    el('msg').textContent = `Gewinn: ${money(win)}`;
+  } else {
+    el('msg').textContent = isFree ? 'Free Game ohne Gewinn.' : 'Kein Gewinn.';
+  }
+
+  if(win > 0) changeCash(win);
+  if(isFree){ totalFsWin += win; el('fsTotalOut').textContent = money(totalFsWin); }
+  if(isFree && freeSpins === 0){ el('msg').textContent = `Free Games beendet · Gesamtgewinn: ${money(totalFsWin)}`; el('featureOut').textContent = 'Basis'; auto=false; syncAuto(); syncLadder(); }
+
+  draw(matrix, highlights, collect.cells);
+  el('lastWinOut').textContent = money(win);
+  el('fsOut').textContent = freeSpins;
+  el('fsBanner').classList.toggle('on', freeSpins > 0);
+  el('spinBtn').textContent = freeSpins > 0 ? (auto ? 'Auto läuft' : 'Freispiel starten') : 'Spin';
+  if(!isFree && win > 0 && freeSpins === 0) startRisk(win);
+  else if(!isFree) clearRisk(false);
+  addHistory(win, isFree);
+  recordGame('La Dolce Spin', win - (isFree ? 0 : bet));
+  spinning = false; el('spinBtn').disabled = false;
+  if(auto && canContinue()) autoTimer = setTimeout(spin, 780);
+}
+function chooseStartLevel(win){
+  let index = 0;
+  for(let i = 0; i < ALL_LADDER_STEPS.length; i++){
+    if(ALL_LADDER_STEPS[i] <= 140 && win >= ALL_LADDER_STEPS[i]) index = i;
+  }
+  return index;
+}
+function currentRiskLabel(){
+  return ALL_LADDER_STEPS[Math.max(0, ladderLevel)] || ALL_LADDER_STEPS[0];
+}
+function upRiskLabel(){
+  return ALL_LADDER_STEPS[ladderLevel + 1] || null;
+}
+function downRiskLabel(){
+  if(ladderLevel <= 0) return LOSS_STEP;
+  return ALL_LADDER_STEPS[ladderLevel - 1] || LOSS_STEP;
+}
+function scaledRiskWin(label){
+  return Math.max(1, Math.floor(riskScale * label));
+}
+function startRisk(win){
+  lastWin = win;
+  ladderLevel = chooseStartLevel(win);
+  riskScale = win / currentRiskLabel();
+  riskOpen = false;
+  blinkTarget = 'up';
+  stopBlink();
+  syncLadder();
+  el('msg').textContent = `Gewinn: ${money(win)} · Risikoleiter verfügbar.`;
+}
+function clearRisk(resetMessage = true){
+  lastWin = 0;
+  ladderLevel = -1;
+  riskOpen = false;
+  riskScale = 1;
+  blinkTarget = 'up';
+  stopBlink();
+  syncLadder();
+  if(resetMessage) el('msg').textContent = '';
+}
+function getBlinkInterval(){
+  const total = Math.max(1, ALL_LADDER_STEPS.length - 1);
+  const progress = ladderLevel <= 0 ? 0 : Math.min(1, ladderLevel / total);
+
+  // weiter oben = im Mittel schneller
+  const base = 280 - Math.floor(progress * 115);
+
+  // Zufallsanteil, damit es nicht leicht rhythmisch spielbar ist
+  const jitter = Math.floor(Math.random() * 150) - 55; // -55 bis +94 ms
+
+  // gelegentliche Tempo-Spitzen / kurze Bremser
+  const spike = Math.random() < 0.18 ? (Math.random() < 0.5 ? -45 : 60) : 0;
+
+  return Math.max(95, base + jitter + spike);
+}
+function queueBlinkTick(){
+  if(!riskOpen || lastWin <= 0 || freeSpins > 0){
+    blinkTimer = null;
+    return;
+  }
+
+  const delay = getBlinkInterval();
+  blinkTimer = setTimeout(() => {
+    const hasUp = !!upRiskLabel();
+    const hasDown = !!downRiskLabel();
+
+    if(hasUp && hasDown){
+      // meistens Wechsel, manchmal bleibt die Seite bewusst kurz gleich
+      if(Math.random() < 0.82){
+        blinkTarget = blinkTarget === 'up' ? 'down' : 'up';
+      }
+    } else if(hasUp){
+      blinkTarget = 'up';
+    } else {
+      blinkTarget = 'down';
+    }
+
+    syncLadder();
+    queueBlinkTick();
+  }, delay);
+}
+function startBlink(){
+  if(blinkTimer || !riskOpen || lastWin <= 0 || freeSpins > 0) return;
+  queueBlinkTick();
+}
+function stopBlink(){
+  if(blinkTimer){
+    clearTimeout(blinkTimer);
+    blinkTimer = null;
+  }
+}
+function openRiskLadder(){
+  if(lastWin <= 0 || freeSpins > 0) return;
+  riskOpen = !riskOpen;
+  if(riskOpen){
+    const hasUp = !!upRiskLabel();
+    const hasDown = !!downRiskLabel();
+    if(hasUp && hasDown) blinkTarget = Math.random() < 0.5 ? 'up' : 'down';
+    else if(hasUp) blinkTarget = 'up';
+    else blinkTarget = 'down';
+    startBlink();
+  } else {
+    stopBlink();
+  }
+  syncLadder();
+}
+function ladderUp(){
+  if(spinning || lastWin <= 0 || freeSpins > 0 || !riskOpen) return;
+
+  const currentWin = lastWin;
+  const currentLabel = currentRiskLabel();
+  const upLabel = upRiskLabel();
+  const downLabel = downRiskLabel();
+
+  stopBlink();
+  changeCash(-currentWin);
+
+  if(blinkTarget === 'up' && upLabel){
+    ladderLevel += 1;
+    lastWin = scaledRiskWin(upLabel);
+    changeCash(lastWin);
+    el('lastWinOut').textContent = money(lastWin);
+    el('msg').textContent = `🪜 Hochgedrückt auf Stufe ${upLabel} · ${money(lastWin)}`;
+  } else if(blinkTarget === 'down') {
+    if(downLabel === LOSS_STEP){
+      lastWin = 0;
+      ladderLevel = -1;
+      riskOpen = false;
+      riskScale = 1;
+      el('lastWinOut').textContent = money(0);
+      el('msg').textContent = '🪜 Verloren.';
+      syncLadder();
+      return;
+    } else if(downLabel){
+      ladderLevel -= 1;
+      lastWin = scaledRiskWin(downLabel);
+      changeCash(lastWin);
+      el('lastWinOut').textContent = money(lastWin);
+      el('msg').textContent = `🪜 Runter auf Stufe ${downLabel} · ${money(lastWin)}`;
+    }
+  } else {
+    // fallback if no valid upper step exists, keep current amount
+    lastWin = currentWin;
+    changeCash(lastWin);
+    el('lastWinOut').textContent = money(lastWin);
+    el('msg').textContent = `🪜 Keine höhere Stufe verfügbar.`;
+  }
+
+  if(lastWin > 0 && ladderLevel === ALL_LADDER_STEPS.length - 1){
+    el('msg').textContent = `🪜 Oberste Stufe erreicht! Gewinn automatisch genommen: ${money(lastWin)}`;
+    riskOpen = false;
+    stopBlink();
+    clearRisk(false);
+    syncLadder();
+    return;
+  }
+
+  if(riskOpen && lastWin > 0){
+    const hasUp = !!upRiskLabel();
+    const hasDown = !!downRiskLabel();
+    if(hasUp && hasDown) blinkTarget = Math.random() < 0.5 ? 'up' : 'down';
+    else if(hasUp) blinkTarget = 'up';
+    else blinkTarget = 'down';
+    startBlink();
+  }
+  syncLadder();
+}
+function syncLadder(){
+  const active = lastWin > 0 && freeSpins === 0;
+  const ladder = el('riskLadder');
+  const board = el('slotBoard');
+  const stepsEl = el('ladderSteps');
+  const title = el('ladderTitle');
+  const ladderBtn = el('ladderBtn');
+  const panelBtn = el('ladderPanelBtn');
+
+  if(ladder) ladder.classList.toggle('on', active && riskOpen);
+  if(board) board.classList.toggle('risk-mode', active && riskOpen);
+  if(active && riskOpen) startBlink(); else stopBlink();
+
+  if(ladderBtn){
+    ladderBtn.disabled = !active;
+    ladderBtn.classList.toggle('risk-ready', active);
+    ladderBtn.textContent = active ? (riskOpen ? 'Leiter schließen' : 'Leiter öffnen') : 'Leiter';
+  }
+
+  if(panelBtn){
+    panelBtn.disabled = !active || !riskOpen;
+    panelBtn.textContent = 'Drücken';
+  }
+
+  if(title) title.textContent = 'Risikoleiter';
+
+  if(stepsEl){
+    stepsEl.innerHTML = '';
+    const current = active ? currentRiskLabel() : null;
+    const up = active ? upRiskLabel() : null;
+    const down = active ? downRiskLabel() : null;
+    let displaySteps = ALL_LADDER_STEPS.slice();
+    const visibleCount = 6;
+    if(active && ladderLevel >= 0){
+      const maxStart = Math.max(0, ALL_LADDER_STEPS.length - visibleCount);
+      const start = Math.max(0, Math.min(ladderLevel - 2, maxStart));
+      const end = Math.min(ALL_LADDER_STEPS.length, start + visibleCount);
+      displaySteps = ALL_LADDER_STEPS.slice(start, end);
+    } else {
+      displaySteps = ALL_LADDER_STEPS.slice(0, visibleCount);
+    }
+    displaySteps = displaySteps.concat([LOSS_STEP]).slice().reverse();
+
+    displaySteps.forEach((label) => {
+      const step = document.createElement('div');
+      const isLoss = label === LOSS_STEP;
+      const isCurrent = active && !isLoss && label === current;
+      const isUp = active && !isLoss && label === up;
+      const isDown = active && label === down;
+      const isBlinkUp = isUp && riskOpen && blinkTarget === 'up';
+      const isBlinkDown = isDown && riskOpen && blinkTarget === 'down';
+      step.className = 'ladder-step'
+        + (isCurrent ? ' current' : '')
+        + (isUp ? ' option-up' : '')
+        + (isDown ? ' option-down' : '')
+        + (isBlinkUp ? ' blink-up' : '')
+        + (isBlinkDown ? ' blink-down' : '');
+      const amount = isLoss ? '0 €' : (active ? money(scaledRiskWin(label)) : '–');
+      step.innerHTML = isLoss ? `<span>Verloren</span><b>${amount}</b>` : `<span>Stufe ${label}</span><b>${amount}</b>`;
+      stepsEl.appendChild(step);
+    });
+  }
+}
+function addHistory(win,isFree){ const h=el('history'); const item=document.createElement('span'); item.textContent=`${isFree?'FG':'Spin'} · ${money(win)}`; h.prepend(item); while(h.children.length>12) h.removeChild(h.lastChild); }
+function canContinue(){ return freeSpins > 0 || canAfford(getBet()); }
+function toggleAuto(){ auto=!auto; syncAuto(); if(auto && !spinning) spin(); if(!auto && autoTimer) clearTimeout(autoTimer); }
+function syncAuto(){ el('autoBtn').textContent = auto ? 'Auto an' : 'Auto'; }
+window.addEventListener('DOMContentLoaded',()=>{ getBet=createBetSlider({inputId:'betSlider',displayId:'betDisplay',min:1,max:500,value:10,onChange:updateBet}); updateBet(getBet()); buildPaytable(); syncAuto(); syncLadder(); draw(randomMatrix()); });
+
+</script>
+</body>
+</html>

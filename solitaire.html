@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <title>Royal Deluxe Casino - Solitär</title>
-<script src="casino-utils.js"></script>
+<link rel="stylesheet" href="styles.css"><script src="casino-utils.js"></script>
 <style>
 :root {
   --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
   --transition: all 0.2s cubic-bezier(0.215, 0.610, 0.355, 1);
-  --card-width: 125px; --card-height: 180px; --radius: 10px; 
+  --card-width: 138px; --card-height: 198px; --radius: 12px; 
   --shadow: 0 8px 16px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.3);
 }
 body {
@@ -17,7 +17,7 @@ body {
   display: flex; flex-direction: column; align-items: center;
 }
 .topbar {
-  display: flex; gap: 15px; margin-bottom: 30px; align-items: center;
+  display: flex; gap: 12px; margin-bottom: 18px; align-items: center;
   background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px;
   box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.3);
 }
@@ -30,17 +30,18 @@ button {
 button:hover { transform: translateY(-2px); filter: brightness(1.2); }
 .btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: #ffffff; border: 1px solid #3a0f0f; }
 .counter-display { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; color: #e5c158; background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
-.row { display: flex; gap: 25px; margin-bottom: 35px; width: 100%; justify-content: center; }
+.row { display: flex; gap: 18px; margin-bottom: 24px; width: 100%; justify-content: center; }
 .pile {
   width: var(--card-width); height: var(--card-height); border: 2px solid #142b1b; border-radius: var(--radius);
   position: relative; box-sizing: border-box; background: rgba(0, 0, 0, 0.3); box-shadow: inset 0 4px 10px rgba(0,0,0,0.6);
 }
 .foundation { border: 2px solid #5a3d28; background: rgba(0, 0, 0, 0.4); box-shadow: inset 0 4px 12px rgba(0,0,0,0.7); }
 .foundation::before { content: attr(data-suit); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 50px; opacity: 0.08; color: #fff; }
-.tableau { display: flex; gap: 25px; width: 100%; justify-content: center; }
+.tableau { display: flex; gap: 18px; width: 100%; justify-content: center; }
 .card {
   width: var(--card-width); height: var(--card-height); background: linear-gradient(135deg, #ffffff 0%, #f6f5f0 100%);
   border-radius: var(--radius); position: absolute; top: 0; left: 0; box-sizing: border-box; cursor: pointer; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.15);
+  animation: none; /* verhindert Pop-Flackern aus styles.css bei jedem Solitaer-Render */
 }
 .card.hidden {
   background-color: #162a45; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cg fill='%23243f65' fill-opacity='0.4'%3E%3Cpath d='M0 0h8v8H0zm8 8h8v8H8z'/%3E%3C/g%3E%3C/svg%3E");
@@ -48,11 +49,60 @@ button:hover { transform: translateY(-2px); filter: brightness(1.2); }
 }
 .card.hidden::after { content: "⚜"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d4af37; font-size: 36px; }
 .card-inner { position: relative; width: 100%; height: 100%; padding: 8px; box-sizing: border-box; }
-.corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; line-height: 0.9; }
+.corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; line-height: 0.9; }
 .corner.top-left { top: 8px; left: 8px; }
 .corner.bottom-right { bottom: 8px; right: 8px; transform: rotate(180deg); }
-.center-suit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 56px; opacity: 0.9; }
-.card[draggable="true"]:hover { transform: translateY(-10px); z-index: 9999 !important; }
+.center-suit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; opacity: 0.9; }
+.face-center{
+  position:absolute; inset:24px 12px 20px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  gap:6px;
+}
+.face-center .portrait{
+  font-size:56px; line-height:1; filter:drop-shadow(0 2px 2px rgba(0,0,0,.15));
+}
+.face-center .crown{
+  font-size:24px; line-height:1; opacity:.72;
+}
+.face-center .ribbon{
+  font:900 14px 'Segoe UI', sans-serif;
+  letter-spacing:1px;
+  padding:4px 10px; border-radius:999px;
+  background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08);
+}
+.ace-center{
+  position:absolute; inset:24px 12px 20px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+}
+.ace-center .ace-letter{font-size:44px; font-weight:950; line-height:1}
+.ace-center .ace-suit{font-size:54px; line-height:1}
+.card.red .face-center .ribbon{background:rgba(183,28,28,.07); border-color:rgba(183,28,28,.14)}
+.card.red .face-center .crown,.card.red .ace-center .ace-letter,.card.red .ace-center .ace-suit{color:#b71c1c}
+.card.black .face-center .crown,.card.black .ace-center .ace-letter,.card.black .ace-center .ace-suit{color:#1a1a1a}
+@media(max-height:900px){
+  .face-center .portrait{font-size:46px}
+  .face-center .crown{font-size:20px}
+  .face-center .ribbon{font-size:12px}
+  .ace-center .ace-letter{font-size:36px}
+  .ace-center .ace-suit{font-size:46px}
+}
+@media(max-height:760px){
+  .face-center .portrait{font-size:40px}
+  .face-center .crown{font-size:18px}
+  .face-center .ribbon{font-size:11px;padding:3px 8px}
+  .ace-center .ace-letter{font-size:32px}
+  .ace-center .ace-suit{font-size:40px}
+}
+@media(max-width:760px){
+  .face-center{inset:18px 8px 16px;gap:4px}
+  .face-center .portrait{font-size:28px}
+  .face-center .crown{font-size:14px}
+  .face-center .ribbon{font-size:8px;padding:2px 6px}
+  .ace-center .ace-letter{font-size:22px}
+  .ace-center .ace-suit{font-size:28px}
+}
+
+.card[draggable="true"]:hover { transform: translateY(-6px); z-index: 9999 !important; }
 .red { color: #b71c1c; } .black { color: #1a1a1a; }
 .flip-in { animation: cardFlip 0.2s ease-out forwards; }
 @keyframes cardFlip { from { transform: scaleX(0); opacity: 0.5; } to { transform: scaleX(1); opacity: 1; } }
@@ -64,15 +114,131 @@ button:hover { transform: translateY(-2px); filter: brightness(1.2); }
 .leaderboard-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
 .leaderboard-table th { color: #e5c158; border-bottom: 2px solid #e5c158; padding: 8px; font-size: 12px; text-transform: uppercase;}
 .leaderboard-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+  /* FINAL solitaire viewport fit */
+  @media(max-height:900px){
+    :root{--card-width:116px;--card-height:166px}
+    body{padding:14px}
+    .topbar{margin-bottom:12px;padding:9px 18px}
+    .row{gap:14px;margin-bottom:18px}
+    .tableau{gap:14px}
+    .pile{width:116px;height:166px}
+    .card{width:116px;height:166px}
+    .corner{font-size:18px}
+    .center-suit{font-size:50px}
+  }
+  @media(max-height:760px){
+    :root{--card-width:104px;--card-height:150px}
+    body{padding:10px}
+    .topbar{margin-bottom:9px;padding:7px 14px}
+    .row{gap:11px;margin-bottom:13px}
+    .tableau{gap:11px}
+    .pile{width:104px;height:150px}
+    .card{width:104px;height:150px}
+    .corner{font-size:16px}
+    .center-suit{font-size:44px}
+  }
+  @media(max-height:680px){
+    :root{--card-width:96px;--card-height:138px}
+    body{padding:8px}
+    .row{gap:9px;margin-bottom:10px}
+    .tableau{gap:9px}
+    .pile{width:96px;height:138px}
+    .card{width:96px;height:138px}
+    .corner{font-size:15px}
+    .center-suit{font-size:40px}
+  }
+  @media(max-width:760px){
+    :root{--card-width:82px;--card-height:118px}
+    .row{gap:7px;margin-bottom:10px}
+    .tableau{gap:7px}
+    .pile{width:82px;height:118px}
+    .card{width:82px;height:118px}
+    .corner{font-size:13px}
+    .center-suit{font-size:34px}
+  }
+
+
+.sol-hint{outline:4px solid #ffd76a !important; box-shadow:0 0 0 4px rgba(255,215,106,.25),0 0 28px rgba(255,215,106,.75),var(--shadow) !important; transform:translateY(-6px)}
+.sol-dest-hint{outline:4px dashed #7dff9e !important; box-shadow:0 0 28px rgba(125,255,158,.45),inset 0 0 18px rgba(125,255,158,.18) !important}
+.pile-count{position:absolute;right:6px;bottom:5px;font:800 11px 'Segoe UI',sans-serif;color:rgba(255,255,255,.68);background:rgba(0,0,0,.35);border-radius:999px;padding:2px 6px;pointer-events:none}
+.sol-help{font:600 12px 'Segoe UI',sans-serif;color:rgba(255,255,255,.58);text-align:center;margin-top:-18px;margin-bottom:16px}
+@media(max-height:820px){.sol-help{display:none}.pile-count{font-size:9px;padding:1px 5px}}
+
+
+@media(max-height:900px){
+  .solitaire-page .royal-face{inset:22px 12px 18px}
+  .solitaire-page .royal-crown{font-size:24px}
+  .solitaire-page .royal-head{width:34px;height:36px;margin-top:22px}
+  .solitaire-page .royal-collar{width:48px;height:12px}
+  .solitaire-page .royal-robe{width:68px;height:52px}
+  .solitaire-page .royal-robe i{font-size:24px}
+  .solitaire-page .royal-name{font-size:11px}
+  .solitaire-page .ace-medallion{width:74px;height:96px}
+  .solitaire-page .ace-medallion span{font-size:40px}
+  .solitaire-page .ace-medallion b{font-size:46px}
+}
+@media(max-width:760px){
+  .solitaire-page .royal-face{inset:16px 8px 12px}
+  .solitaire-page .royal-crown{font-size:16px;top:6px}
+  .solitaire-page .royal-head{width:22px;height:24px;margin-top:13px}
+  .solitaire-page .royal-collar{width:32px;height:8px}
+  .solitaire-page .royal-robe{width:44px;height:34px}
+  .solitaire-page .royal-robe i{font-size:16px;top:6px}
+  .solitaire-page .royal-robe em{font-size:9px}
+  .solitaire-page .royal-name{font-size:7px}
+  .solitaire-page .ace-medallion{width:46px;height:60px}
+  .solitaire-page .ace-medallion span{font-size:24px}
+  .solitaire-page .ace-medallion b{font-size:28px}
+  .solitaire-page .pip-layout{inset:22px 16px}
+  .solitaire-page .pip-layout .pip{font-size:15px;width:16px;height:16px}
+}
+
+
+
+/* Solitaire realistic playing cards */
+.solitaire-page .card .corner{font-family:"Georgia","Times New Roman",serif}
+.solitaire-page .card-center{inset:14px 10px}
+.solitaire-page .pip-layout{inset:28px 21px}
+.solitaire-page .pip-layout .pip{font-size:26px;width:28px;height:28px}
+.solitaire-page .ace-mark{font-size:42px}
+.solitaire-page .ace-suit{font-size:52px}
+.solitaire-page .court-card{inset:14px 10px}
+@media(max-height:900px){
+  .solitaire-page .card-center{inset:12px 9px}
+  .solitaire-page .pip-layout{inset:24px 18px}
+  .solitaire-page .pip-layout .pip{font-size:22px;width:24px;height:24px}
+  .solitaire-page .ace-mark{font-size:34px}
+  .solitaire-page .ace-suit{font-size:42px}
+  .solitaire-page .court-card{inset:12px 8px}
+}
+@media(max-height:760px){
+  .solitaire-page .card-center{inset:10px 8px}
+  .solitaire-page .pip-layout{inset:20px 14px}
+  .solitaire-page .pip-layout .pip{font-size:16px;width:18px;height:18px}
+  .solitaire-page .ace-mark{font-size:24px}
+  .solitaire-page .ace-suit{font-size:30px}
+  .solitaire-page .court-card{inset:10px 7px}
+}
+@media(max-width:760px){
+  .solitaire-page .card-center{inset:8px 6px}
+  .solitaire-page .pip-layout{inset:16px 11px}
+  .solitaire-page .pip-layout .pip{font-size:13px;width:14px;height:14px}
+  .solitaire-page .ace-mark{font-size:18px}
+  .solitaire-page .ace-suit{font-size:22px}
+  .solitaire-page .court-card{inset:8px 5px}
+}
+
 </style>
 </head>
-<body>
+<body class="solitaire-page">
 
 <div class="topbar">
   <a href="index.html" style="text-decoration: none;"><button class="btn-lobby">🏰 Lobby</button></a>
   <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
   <button onclick="solUndo()">↩ Zurück</button>
   <button onclick="solInit()">🔄 Neu</button>
+  <button onclick="solShowHint()">💡 Tipp</button>
   <button onclick="toggleSolLeaderboard(true)">🏆 Bestenliste</button>
   <div class="counter-display">Züge: <span id="sol-move-count">0</span></div>
   <div id="sol-status" class="win"></div>
@@ -87,6 +253,7 @@ button:hover { transform: translateY(-2px); filter: brightness(1.2); }
   <div class="pile foundation" data-suit="♦"></div>
   <div class="pile foundation" data-suit="♣"></div>
 </div>
+<div class="sol-help">Tastenkürzel: Leertaste = Karte ziehen · H = Tipp · U = Zurück · Auto-Ende startet, wenn alles aufgedeckt ist</div>
 <div class="tableau" id="sol-tableau"></div>
 
 <div class="modal-overlay" id="sol-leaderboard-modal" onclick="toggleSolLeaderboard(false)">
@@ -106,6 +273,8 @@ const solColors = { "♠": "black", "♣": "black", "♥": "red", "♦": "red" }
 let solStock = [], solWaste = [], solFoundations = {}, solTableau = [];
 let solDragged = null, solHistory = [];
 let solMoves = 0;
+let solClickLocked = false;
+let solAutoFinishRunning = false;
 
 function solSave() { solHistory.push(JSON.stringify({ stock: solStock, waste: solWaste, foundations: solFoundations, tableau: solTableau, moves: solMoves })); }
 function solUndo() {
@@ -123,11 +292,83 @@ function solDeck() {
 }
 function solGetValLabel(v) { if (v === 1) return "A"; if (v === 11) return "J"; if (v === 12) return "Q"; if (v === 13) return "K"; return v; }
 
+function solPipPositions(value) {
+  const map = {
+    2: [[50,27],[50,73]],
+    3: [[50,24],[50,50],[50,76]],
+    4: [[35,25],[65,25],[35,75],[65,75]],
+    5: [[35,24],[65,24],[50,50],[35,76],[65,76]],
+    6: [[35,22],[65,22],[35,50],[65,50],[35,78],[65,78]],
+    7: [[35,20],[65,20],[50,36],[35,52],[65,52],[35,80],[65,80]],
+    8: [[35,19],[65,19],[50,34],[35,48],[65,48],[50,63],[35,81],[65,81]],
+    9: [[35,18],[65,18],[35,34],[65,34],[50,50],[35,66],[65,66],[35,82],[65,82]],
+    10:[[35,16],[65,16],[35,31],[65,31],[35,46],[65,46],[35,61],[65,61],[35,78],[65,78]]
+  };
+  return map[value] || [[50,50]];
+}
+function solPipHTML(value, suit) {
+  return `<div class="card-center pip-layout pips-${value}">${solPipPositions(value).map(([x,y],i)=>`<span class="pip pip-${i}" style="left:${x}%;top:${y}%">${suit}</span>`).join("")}</div>`;
+}
+function solCourtSVG(card, label) {
+  const themes = {
+    K: { crown: '♔', primary: '#2e5ea7', secondary: '#d4a43a', accent: '#b22a2a' },
+    Q: { crown: '♕', primary: '#8a2f6b', secondary: '#d4a43a', accent: '#b22a2a' },
+    J: { crown: '♞', primary: '#2f7a5d', secondary: '#d4a43a', accent: '#b22a2a' }
+  }[label];
+  const suitColor = (card.suit === '♥' || card.suit === '♦') ? '#b22222' : '#111111';
+  const torso = themes.primary;
+  const gold = themes.secondary;
+  const accent = themes.accent;
+  return `
+    <svg class="court-svg" viewBox="0 0 120 180" aria-hidden="true">
+      <rect x="6" y="6" width="108" height="168" rx="12" fill="#fffdf8" stroke="#c9b187" stroke-width="1.5"/>
+      <rect x="12" y="12" width="96" height="156" rx="10" fill="none" stroke="${gold}" stroke-width="1" opacity="0.6"/>
+      <line x1="18" y1="90" x2="102" y2="90" stroke="${gold}" stroke-width="1.2" opacity="0.7"/>
+      <circle cx="60" cy="90" r="10" fill="#fff" stroke="${gold}" stroke-width="1.2"/>
+      <text x="60" y="94" text-anchor="middle" font-size="12" fill="${suitColor}" font-family="Georgia,serif">${card.suit}</text>
+
+      <g transform="translate(60 44)">
+        <text x="0" y="-22" text-anchor="middle" font-size="16" fill="${gold}" font-family="Georgia,serif">${themes.crown}</text>
+        <circle cx="0" cy="-2" r="10" fill="#f0c8a2" stroke="#9a6a46" stroke-width="1"/>
+        <path d="M -10 0 Q 0 -10 10 0" fill="${accent}" opacity="0.95"/>
+        <circle cx="-4" cy="-3" r="1.2" fill="#333"/>
+        <circle cx="4" cy="-3" r="1.2" fill="#333"/>
+        <path d="M -4 3 Q 0 6 4 3" fill="none" stroke="#6c4936" stroke-width="1.1" stroke-linecap="round"/>
+        <path d="M -18 18 Q 0 4 18 18 L 13 38 Q 0 34 -13 38 Z" fill="${torso}" stroke="#2f2f2f" stroke-width="0.8"/>
+        <path d="M -8 11 L 0 19 L 8 11" fill="#f9f1de" stroke="#cab48a" stroke-width="0.7"/>
+        <circle cx="0" cy="27" r="6" fill="#f7f2e6" stroke="${gold}" stroke-width="0.8"/>
+        <text x="0" y="30" text-anchor="middle" font-size="9" fill="${suitColor}" font-family="Georgia,serif">${card.suit}</text>
+        <text x="-22" y="40" font-size="10" fill="${gold}" font-weight="700" font-family="Georgia,serif">${label}</text>
+        <text x="16" y="40" font-size="10" fill="${gold}" font-weight="700" font-family="Georgia,serif">${label}</text>
+      </g>
+
+      <g transform="translate(60 136) rotate(180)">
+        <text x="0" y="-22" text-anchor="middle" font-size="16" fill="${gold}" font-family="Georgia,serif">${themes.crown}</text>
+        <circle cx="0" cy="-2" r="10" fill="#f0c8a2" stroke="#9a6a46" stroke-width="1"/>
+        <path d="M -10 0 Q 0 -10 10 0" fill="${accent}" opacity="0.95"/>
+        <circle cx="-4" cy="-3" r="1.2" fill="#333"/>
+        <circle cx="4" cy="-3" r="1.2" fill="#333"/>
+        <path d="M -4 3 Q 0 6 4 3" fill="none" stroke="#6c4936" stroke-width="1.1" stroke-linecap="round"/>
+        <path d="M -18 18 Q 0 4 18 18 L 13 38 Q 0 34 -13 38 Z" fill="${torso}" stroke="#2f2f2f" stroke-width="0.8"/>
+        <path d="M -8 11 L 0 19 L 8 11" fill="#f9f1de" stroke="#cab48a" stroke-width="0.7"/>
+        <circle cx="0" cy="27" r="6" fill="#f7f2e6" stroke="${gold}" stroke-width="0.8"/>
+        <text x="0" y="30" text-anchor="middle" font-size="9" fill="${suitColor}" font-family="Georgia,serif">${card.suit}</text>
+        <text x="-22" y="40" font-size="10" fill="${gold}" font-weight="700" font-family="Georgia,serif">${label}</text>
+        <text x="16" y="40" font-size="10" fill="${gold}" font-weight="700" font-family="Georgia,serif">${label}</text>
+      </g>
+    </svg>`;
+}
+function solCenterHTML(card, label) {
+  if (card.value === 13 || card.value === 12 || card.value === 11) return `<div class="card-center court-card">${solCourtSVG(card, label)}</div>`;
+  if (card.value === 1) return `<div class="card-center ace-card"><div class="ace-mark">A</div><div class="ace-suit">${card.suit}</div></div>`;
+  return solPipHTML(Math.min(10, card.value), card.suit);
+}
+
 function solMakeCard(c) {
   const el = document.createElement("div"); el.className = "card"; el.dataset.id = c.id;
   if (!c.faceUp) { el.classList.add("hidden"); } else {
     el.classList.add(solColors[c.suit]); const label = solGetValLabel(c.value);
-    el.innerHTML = `<div class="card-inner"><div class="corner top-left"><div>${label}</div><div>${c.suit}</div></div><div class="center-suit">${c.suit}</div><div class="corner bottom-right"><div>${label}</div><div>${c.suit}</div></div></div>`;
+    el.innerHTML = `<div class="card-inner"><div class="corner top-left"><div>${label}</div><div>${c.suit}</div></div>${solCenterHTML(c, label)}<div class="corner bottom-right"><div>${label}</div><div>${c.suit}</div></div></div>`;
     el.draggable = true;
     el.ondragstart = (e) => { solDragged = solGetStack(c); };
     el.ondragend = () => solDragged = null;
@@ -162,18 +403,173 @@ function solCanFoundation(card, s) {
   const p = solFoundations[s]; if (!p.length) return card.value === 1;
   return card.suit === s && card.value === p[p.length - 1].value + 1;
 }
+
+function solSetStatus(text, timeout = 1800) {
+  const el = document.getElementById("sol-status");
+  el.textContent = text || "";
+  if (timeout) {
+    clearTimeout(window.__solStatusTimer);
+    window.__solStatusTimer = setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, timeout);
+  }
+}
+function solClearHints() {
+  document.querySelectorAll(".sol-hint,.sol-dest-hint").forEach(el => el.classList.remove("sol-hint","sol-dest-hint"));
+}
+function solTopWaste() { return solWaste.length ? solWaste[solWaste.length - 1] : null; }
+function solTopCards() { return solTableau.map((p, index) => ({ pile: p, index, card: p.length ? p[p.length - 1] : null })).filter(x => x.card && x.card.faceUp); }
+function solMoveStackToTableau(stack, index) {
+  solSave(); solMoves++; solRemoveStack(stack); solTableau[index].push(...stack); solReveal();
+  if (!solAutoFinishIfReady()) { solRender(); solCheckWin(); }
+  return true;
+}
+function solMoveCardToFoundation(card, suit) {
+  solSave(); solMoves++; solRemoveStack([card]); solFoundations[suit].push(card); solReveal();
+  if (!solAutoFinishIfReady()) { solRender(); solCheckWin(); }
+  return true;
+}
+function solFindFoundationMove() {
+  const candidates = [];
+  const waste = solTopWaste();
+  if (waste) candidates.push({ card: waste, source: "waste" });
+  solTopCards().forEach(x => candidates.push({ card: x.card, source: "tableau", index: x.index }));
+  for (const item of candidates) {
+    for (let s of solSuits) {
+      if (item.card.suit === s && solCanFoundation(item.card, s)) return { ...item, type: "foundation", suit: s };
+    }
+  }
+  return null;
+}
+function solFindTableauMove() {
+  const sources = [];
+  const waste = solTopWaste();
+  if (waste) sources.push({ stack: [waste], card: waste, source: "waste", cardIndex: -1 });
+  solTableau.forEach((pile, pileIndex) => {
+    pile.forEach((card, cardIndex) => {
+      if (card.faceUp) sources.push({ stack: pile.slice(cardIndex), card, source: "tableau", pileIndex, cardIndex });
+    });
+  });
+
+  const revealsHiddenCard = item =>
+    item.source === "tableau" &&
+    item.cardIndex > 0 &&
+    solTableau[item.pileIndex][item.cardIndex - 1] &&
+    !solTableau[item.pileIndex][item.cardIndex - 1].faceUp;
+
+  const isUsefulTableauHint = (item, targetIndex) => {
+    // Karten aus dem Ablagestapel sind echte Fortschritts-Tipps.
+    if (item.source === "waste") return true;
+
+    // Tableau-zu-Tableau nur vorschlagen, wenn dadurch eine verdeckte Karte frei wird.
+    // Dadurch werden sinnlose Ping-Pong-Tipps wie Bube zwischen zwei Damen verhindert.
+    if (revealsHiddenCard(item)) return true;
+
+    // König auf leerem Feld ist ebenfalls nur sinnvoll, wenn er etwas freilegt.
+    if (!solTableau[targetIndex].length && item.card.value === 13) return false;
+
+    return false;
+  };
+
+  for (const item of sources) {
+    for (let i = 0; i < solTableau.length; i++) {
+      if (item.source === "tableau" && item.pileIndex === i) continue;
+      if (!solCanTableau(item.card, solTableau[i])) continue;
+      if (!isUsefulTableauHint(item, i)) continue;
+
+      return { ...item, type: "tableau", targetIndex: i };
+    }
+  }
+  return null;
+}
+function solHighlightMove(move) {
+  solClearHints();
+  const cardEl = document.querySelector(`[data-id="${move.card.id}"]`);
+  if (cardEl) cardEl.classList.add("sol-hint");
+  if (move.type === "foundation") {
+    const dest = document.querySelector(`.foundation[data-suit="${move.suit}"]`);
+    if (dest) dest.classList.add("sol-dest-hint");
+  } else if (move.type === "tableau") {
+    const dest = document.querySelectorAll("#sol-tableau .pile")[move.targetIndex];
+    if (dest) dest.classList.add("sol-dest-hint");
+  }
+}
+function solShowHint() {
+  const move = solFindFoundationMove() || solFindTableauMove();
+  if (!move) {
+    solSetStatus("Kein direkter Zug gefunden.");
+    return;
+  }
+  solHighlightMove(move);
+  const target = move.type === "foundation" ? `Fundament ${move.suit}` : `Spalte ${move.targetIndex + 1}`;
+  solSetStatus(`Tipp: ${solGetValLabel(move.card.value)}${move.card.suit} → ${target}`, 2600);
+}
+
+function solAllCardsOpenForFinish() {
+  return solStock.length === 0 && solTableau.every(pile => pile.every(card => card.faceUp));
+}
+function solRemoveAnyOpenCardForFinish(suit, value) {
+  const wasteIndex = solWaste.findIndex(card => card.suit === suit && card.value === value);
+  if (wasteIndex !== -1) return solWaste.splice(wasteIndex, 1)[0];
+
+  for (const pile of solTableau) {
+    const index = pile.findIndex(card => card.faceUp && card.suit === suit && card.value === value);
+    if (index !== -1) return pile.splice(index, 1)[0];
+  }
+  return null;
+}
+function solAutoFinishIfReady() {
+  if (solAutoFinishRunning || !solAllCardsOpenForFinish()) return false;
+  if (Object.values(solFoundations).flat().length === 52) return false;
+
+  solAutoFinishRunning = true;
+  solSave();
+
+  let moved = 0;
+  let guard = 0;
+  while (guard++ < 80) {
+    let didMove = false;
+    for (const suit of solSuits) {
+      const foundation = solFoundations[suit];
+      const nextValue = foundation.length ? foundation[foundation.length - 1].value + 1 : 1;
+      if (nextValue > 13) continue;
+
+      const card = solRemoveAnyOpenCardForFinish(suit, nextValue);
+      if (!card) continue;
+
+      card.faceUp = true;
+      card.isNewFlip = false;
+      foundation.push(card);
+      moved++;
+      didMove = true;
+    }
+    if (!didMove) break;
+  }
+
+  if (moved) {
+    solMoves++;
+    solRender();
+    solSetStatus(`Auto-Ende: ${moved} Karte${moved === 1 ? "" : "n"} abgeschlossen.`, 2600);
+    solCheckWin();
+  }
+
+  solAutoFinishRunning = false;
+  return moved > 0;
+}
+
 function solAutoMove(card) {
+  if (solClickLocked) return;
+  solClickLocked = true;
+  setTimeout(() => { solClickLocked = false; }, 120);
   const stack = solGetStack(card);
   if (stack.length === 1) {
     for (let s of solSuits) {
       if (card.suit === s && solCanFoundation(card, s)) {
-        solSave(); solMoves++; solRemoveStack(stack); solFoundations[s].push(card); solReveal(); solRender(); solCheckWin(); return;
+        solMoveCardToFoundation(card, s); return;
       }
     }
   }
   for (let i = 0; i < solTableau.length; i++) {
     if (solCanTableau(card, solTableau[i])) {
-      solSave(); solMoves++; solRemoveStack(stack); solTableau[i].push(...stack); solReveal(); solRender(); solCheckWin(); return;
+      solMoveStackToTableau(stack, i); return;
     }
   }
 }
@@ -188,11 +584,11 @@ function solDrop(zone, type, index = null) {
   if (type === "foundation") {
     const s = zone.dataset.suit;
     if (solDragged.length === 1 && solCanFoundation(solDragged[0], s)) {
-      solSave(); solMoves++; solRemoveStack(solDragged); solFoundations[s].push(...solDragged); solReveal(); solRender(); solCheckWin();
+      solMoveCardToFoundation(solDragged[0], s);
     }
   } else if (type === "tableau") {
     if (solCanTableau(solDragged[0], solTableau[index])) {
-      solSave(); solMoves++; solRemoveStack(solDragged); solTableau[index].push(...solDragged); solReveal(); solRender(); solCheckWin();
+      solMoveStackToTableau(solDragged, index);
     }
   }
 }
@@ -202,7 +598,8 @@ function solSetup() {
 }
 function solDraw() {
   if (solStock.length) {
-    solSave(); solMoves++; const c = solStock.pop(); c.faceUp = true; c.isNewFlip = true; solWaste.push(c); solRender();
+    solSave(); solMoves++; const c = solStock.pop(); c.faceUp = true; c.isNewFlip = true; solWaste.push(c);
+    if (!solAutoFinishIfReady()) { solRender(); solCheckWin(); }
   } else if (solWaste.length) {
     solSave(); solMoves++; solStock = solWaste.reverse().map(c => ({ ...c, faceUp: false, isNewFlip: false })); solWaste = []; solRender();
   }
@@ -233,23 +630,33 @@ function solCheckWin() {
   }
 }
 function solRender() {
+  solClearHints();
   document.getElementById("sol-move-count").textContent = solMoves;
   const stockEl = document.getElementById("sol-stock"); const wasteEl = document.getElementById("sol-waste"); const tab = document.getElementById("sol-tableau");
-  stockEl.innerHTML = solStock.length ? "" : "🔄";
+  stockEl.innerHTML = solStock.length ? `<span class="pile-count">${solStock.length}</span>` : "🔄";
   stockEl.style.background = solStock.length ? "linear-gradient(135deg, #162a45 0%, #0f1c2e 100%)" : "rgba(0,0,0,0.2)";
   stockEl.style.border = solStock.length ? "3.5px solid white" : "2px dashed rgba(255,255,255,0.2)";
-  wasteEl.innerHTML = ""; if (solWaste.length) wasteEl.appendChild(solMakeCard(solWaste[solWaste.length - 1]));
+  wasteEl.innerHTML = ""; if (solWaste.length) { wasteEl.appendChild(solMakeCard(solWaste[solWaste.length - 1])); wasteEl.insertAdjacentHTML("beforeend", `<span class="pile-count">${solWaste.length}</span>`); }
   tab.innerHTML = "";
   solTableau.forEach((p, idx) => {
     const col = document.createElement("div"); col.className = "pile";
     col.ondragover = e => e.preventDefault(); col.ondrop = () => solDrop(col, "tableau", idx);
-    p.forEach((c, i) => { const el = solMakeCard(c); el.style.top = (i * 35) + "px"; el.style.zIndex = i; col.appendChild(el); });
+    p.forEach((c, i) => { const el = solMakeCard(c); el.style.top = (i * Math.max(28, Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--card-height")) * 0.20))) + "px"; el.style.zIndex = i; col.appendChild(el); });
     tab.appendChild(col);
   });
   document.querySelectorAll(".foundation").forEach(f => {
     f.innerHTML = ""; const p = solFoundations[f.dataset.suit]; if (p.length) { const el = solMakeCard(p[p.length - 1]); el.style.position = "absolute"; f.appendChild(el); }
   });
 }
+
+
+document.addEventListener("keydown", e => {
+  if (document.querySelector(".modal-overlay.open")) return;
+  const key = e.key.toLowerCase();
+  if (key === " "){ e.preventDefault(); solDraw(); }
+  if (key === "h"){ e.preventDefault(); solShowHint(); }
+  if (key === "u"){ e.preventDefault(); solUndo(); }
+});
 
 window.onload = solInit;
 </script>

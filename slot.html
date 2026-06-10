@@ -1,378 +1,567 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<title>Royal Deluxe Casino - Premium Slots & Free Spins</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tomb of Fortune Slots</title>
+<link rel="stylesheet" href="styles.css">
 <script src="casino-utils.js"></script>
 <style>
-:root {
-  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
-  --machine-bg: linear-gradient(135deg, #2b2622 0%, #181513 100%);
-  --gold-glow: 0 0 15px rgba(229,193,88,0.5), inset 0 0 15px rgba(229,193,88,0.2);
-  --purple-glow: 0 0 25px rgba(148,0,211,0.8), inset 0 0 20px rgba(148,0,211,0.3);
-  --transition: all 0.2s ease;
-}
-body {
-  margin: 0; font-family: 'Georgia', serif; background: var(--board-bg);
-  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
-  display: flex; flex-direction: column; align-items: center;
-}
-.topbar { display: flex; gap: 15px; margin-bottom: 25px; align-items: center; background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-button { 
-  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
-  border: 1px solid #1a1411; color: #e5c158; border-radius: 20px; font-weight: bold; font-family: 'Segoe UI';
-  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
-}
-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
-button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
-.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: white; border: 1px solid #3a0f0f; }
-.counter-display { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; color: #e5c158; background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
-.counter-display.fs-active { color: #bf5fff; border-color: rgba(148,0,211,0.4); background: rgba(40,0,60,0.5); }
-
-/* Slots Gehäuse */
-.slot-machine {
-  background: var(--machine-bg); border: 4px solid #e5c158; border-radius: 24px;
-  padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), var(--gold-glow);
-  width: 100%; max-width: 500px; box-sizing: border-box; text-align: center; position: relative;
-  transition: var(--transition);
-}
-/* Gehäuse-Wechsel bei Freispielen */
-.slot-machine.free-spins-mode {
-  border-color: #bf5fff; box-shadow: 0 20px 50px rgba(0,0,0,0.8), var(--purple-glow);
-}
-.slot-machine::before {
-  content: "ROYAL DELUXE SLOTS"; position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-  background: #181513; padding: 2px 20px; font-family: 'Segoe UI'; font-weight: 900; font-size: 13px;
-  color: #e5c158; border: 2px solid #e5c158; border-radius: 10px; letter-spacing: 2px;
-}
-.slot-machine.free-spins-mode::before {
-  content: "🔥 FREE SPINS ACTIVE 🔥"; color: #bf5fff; border-color: #bf5fff;
-}
-
-/* Das 3x3 Sichtfenster */
-.reels-container {
-  display: flex; gap: 15px; background: #0b0908; border-radius: 16px;
-  padding: 20px; border: 3px solid #3a2f27; box-shadow: inset 0 10px 20px rgba(0,0,0,0.9);
-  position: relative; overflow: hidden; justify-content: center;
-}
-
-/* Einzelne Walzenspalte */
-.reel-column { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-
-/* Slot Zelle */
-.slot-cell {
-  height: 90px; background: linear-gradient(to bottom, #221c18, #14110f);
-  border: 1px solid rgba(229,193,88,0.15); border-radius: 10px;
-  display: flex; align-items: center; justify-content: center; font-size: 42px;
-  transition: filter 0.1s ease; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-}
-.slot-cell.blur { filter: blur(4px); transform: scaleY(1.1); }
-.slot-cell.winning-hit { 
-  background: linear-gradient(to bottom, #534113, #2b2005) !important; 
-  border-color: #ffd700 !important;
-  animation: pulseGlow 0.5s infinite alternate;
-}
-.slot-cell.scatter-hit {
-  background: linear-gradient(to bottom, #4a154b, #220624) !important;
-  border-color: #bf5fff !important;
-  animation: pulsePurpleGlow 0.4s infinite alternate;
-}
-
-@keyframes pulseGlow {
-  from { box-shadow: inset 0 0 10px rgba(255,215,0,0.3), 0 0 10px rgba(255,215,0,0.5); }
-  to { box-shadow: inset 0 0 20px rgba(255,215,0,0.6), 0 0 20px rgba(255,215,0,0.9); }
-}
-@keyframes pulsePurpleGlow {
-  from { box-shadow: inset 0 0 10px rgba(191,95,255,0.3), 0 0 10px rgba(191,95,255,0.5); transform: scale(1.02); }
-  to { box-shadow: inset 0 0 20px rgba(191,95,255,0.6), 0 0 20px rgba(191,95,255,0.9); transform: scale(0.98); }
-}
-
-#slots-message { font-size: 24px; color: #ffd700; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin: 20px 0; min-height: 30px; font-family: 'Segoe UI'; }
-
-.control-panel { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 10px; }
-.chip-btn { background: linear-gradient(to bottom, #162a45, #0f1c2e); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; width: 52px; height: 52px; font-size: 14px; font-weight: bold; color: #e5c158; cursor: pointer; }
-.chip-btn.active { border-color: #e5c158; background: #1a385c; box-shadow: 0 0 8px #e5c158; }
-
-.btn-spin { background: linear-gradient(to bottom, #d4af37, #8a6d1c); color: #000; font-size: 16px; padding: 12px 35px; border-radius: 25px; border-color: #ffe89e; }
-.btn-auto { background: linear-gradient(to bottom, #2b5c8f, #163354); color: white; border-color: #407fc4; }
-.btn-auto.active { background: linear-gradient(to bottom, #ff3333, #990000); border-color: #ff6666; animation: pulseRed 1s infinite alternate; }
-
-.paylines-info { margin-top: 20px; font-family: 'Segoe UI'; font-size: 11px; color: rgba(255,255,255,0.4); display: flex; gap: 12px; justify-content: center; text-transform: uppercase; letter-spacing: 1px; }
+  body{background:radial-gradient(circle at 50% 8%,#8ccfc6 0%,#285e63 28%,#16363f 52%,#0a171c 100%)}
+  .slot-shell{max-width:920px;margin:auto;position:relative;overflow:hidden;background:linear-gradient(145deg,#1f2f33,#0d171a);border-color:#d8b15f;box-shadow:0 25px 60px rgba(0,0,0,.72),0 0 35px rgba(216,177,95,.16)}
+  .slot-shell:before{content:"ANCIENT TREASURE";position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:4px;color:#f3ddb0;opacity:.72;font-weight:900}
+  .slot-title{margin-top:18px;background:linear-gradient(#f6e3b0,#d8b15f,#8c6320);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+  .slot-sub{color:rgba(230,217,180,.72);text-align:center;letter-spacing:3px;text-transform:uppercase;margin-top:-2px;font-size:12px}
+  .slot-board{position:relative;margin:18px auto 10px;max-width:720px;background:linear-gradient(180deg,#0a1214,#12262c 58%,#081012 100%);border:3px solid #9d7a34;border-radius:20px;padding:18px;box-shadow:inset 0 0 30px rgba(0,0,0,.82),0 0 18px rgba(216,177,95,.10);min-height:352px;display:flex;align-items:center;justify-content:center}
+  .reels{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;position:relative;z-index:2;width:100%}
+  .slot-board.risk-mode .reels{display:none}
+  .reel{display:grid;grid-template-rows:repeat(3,96px);gap:10px;background:linear-gradient(#173038,#0c1a1f);padding:8px;border-radius:14px;border:1px solid rgba(174,216,206,.12);box-shadow:inset 0 0 18px rgba(0,0,0,.7)}
+  .slot-cell{display:flex;align-items:center;justify-content:center;font-size:48px;border-radius:12px;background:radial-gradient(circle at 50% 25%,#4f665f,#263936 72%);border:1px solid rgba(216,177,95,.14);box-shadow:inset 0 2px 10px rgba(255,255,255,.05),inset 0 -8px 12px rgba(0,0,0,.35);transition:transform .12s,filter .12s,background .12s,border-color .12s;color:#f2e4bd}
+  .slot-cell.spin{filter:blur(3px) brightness(1.3);transform:scaleY(1.06)}
+  .slot-cell.win{background:radial-gradient(circle,#8b6a24,#3d2c0d 72%);border-color:#f0cc77;animation:goldPulse .48s infinite alternate}
+  .slot-cell.scatter{border-color:#8be4e2;background:radial-gradient(circle,#3b7f86,#173238 72%)}
+  .slot-cell.expand{background:radial-gradient(circle,#8c4e21,#351809 72%);border-color:#f59a52;animation:expandPulse .45s infinite alternate}
+  @keyframes goldPulse{from{box-shadow:0 0 6px rgba(240,204,119,.35)}to{box-shadow:0 0 20px rgba(240,204,119,.88)}}
+  @keyframes expandPulse{from{transform:scale(.98);box-shadow:0 0 8px rgba(245,154,82,.35)}to{transform:scale(1.04);box-shadow:0 0 24px rgba(245,154,82,.9)}}
+  .status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px auto;max-width:720px}
+  .status-grid .counter-display{text-align:center;border-radius:16px}
+  .paytable{max-width:720px;margin:14px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;font-size:12px;color:rgba(236,231,212,.76)}
+  .payitem{background:rgba(8,16,18,.34);border:1px solid rgba(216,177,95,.14);border-radius:12px;padding:8px;text-align:center}
+  .payitem b{color:#f0cc77;font-size:18px;display:block}
+  .fs-banner{display:none;max-width:720px;margin:12px auto;padding:12px;border-radius:16px;background:linear-gradient(90deg,rgba(18,63,66,.82),rgba(120,88,24,.58));border:1px solid rgba(240,204,119,.42);text-align:center;font-weight:900;color:#f6e4b2}
+  .fs-banner.on{display:block}
+  .history{display:flex;gap:8px;overflow:hidden;justify-content:center;max-width:720px;margin:10px auto}
+  .history span{padding:5px 9px;background:rgba(0,0,0,.28);border-radius:999px;font-size:12px;color:#f0cc77;border:1px solid rgba(240,204,119,.18)}
+  .risk-ladder{display:none;width:100%;height:100%;padding:0;border-radius:18px;background:transparent;border:none;box-shadow:none}
+  .slot-board.risk-mode .risk-ladder.on{display:grid;grid-template-columns:190px 1fr;gap:16px;align-items:start}
+  .ladder-rail{position:relative;padding:6px 0;max-width:190px;margin:0 auto}
+  .ladder-rail:before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:5px;transform:translateX(-50%);border-radius:999px;background:linear-gradient(180deg,#b99343,#4c3610);box-shadow:0 0 12px rgba(240,204,119,.18)}
+  .ladder-title{text-align:center;text-transform:uppercase;letter-spacing:3px;color:#f3ddb0;font-weight:950;font-size:13px;margin-bottom:8px}
+  .ladder-steps{display:grid;grid-template-columns:1fr;gap:7px;position:relative;z-index:1}
+  .ladder-step{position:relative;text-align:center;padding:8px 8px;border-radius:13px;background:linear-gradient(180deg,rgba(21,43,47,.96),rgba(10,21,24,.96));border:1px solid rgba(216,177,95,.16);box-shadow:inset 0 0 12px rgba(255,255,255,.02);color:rgba(232,219,186,.60);font-size:11px;font-weight:900;min-height:48px}
+  .ladder-step span{display:block;letter-spacing:1px}
+  .ladder-step b{display:block;color:#ebc66d;font-size:15px;margin-top:2px}
+  .ladder-step.current{background:linear-gradient(180deg,#8a6424,#3a260a);border-color:#f0cc77;color:#fff4cc;box-shadow:0 0 18px rgba(240,204,119,.42), inset 0 0 10px rgba(255,255,255,.06)}
+  .ladder-step.option-up{border-color:rgba(135,232,211,.44)}
+  .ladder-step.option-down{border-color:rgba(255,170,122,.42)}
+  .ladder-step.blink-up{border-color:#8be4e2;box-shadow:0 0 20px rgba(139,228,226,.42)}
+  .ladder-step.blink-up b{animation:ladderBlink .36s infinite alternate;color:#d6ffff}
+  .ladder-step.blink-down{border-color:#ffae7a;box-shadow:0 0 20px rgba(255,174,122,.42)}
+  .ladder-step.blink-down b{animation:ladderBlink .36s infinite alternate;color:#ffe4d3}
+  @keyframes ladderBlink{from{opacity:.55;transform:scale(1)}to{opacity:1;transform:scale(1.06);text-shadow:0 0 10px rgba(255,235,150,.65)}}
+  .ladder-side{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100%;height:100%;padding-top:6px}
+  .ladder-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;min-height:48px}
+  .ladder-actions button{min-width:150px;width:150px;flex:0 0 150px}
+  .risk-ready{animation:riskGlow .75s infinite alternate;border-color:#f0cc77!important;box-shadow:0 0 16px rgba(240,204,119,.35)!important}
+  @keyframes riskGlow{from{filter:brightness(1)}to{filter:brightness(1.18)}}
+  @media(max-width:760px){.slot-board.risk-mode .risk-ladder.on{grid-template-columns:1fr;gap:14px}.ladder-rail{max-width:180px;margin:0 auto}.ladder-actions{justify-content:center}}
+  @media(max-width:680px){.reel{grid-template-rows:repeat(3,68px);gap:7px;padding:6px}.slot-cell{font-size:34px}.slot-board{padding:10px;min-height:300px}.reels{gap:7px}.slot-title{font-size:34px}.ladder-step{min-height:42px;padding:7px 7px}}
+  @media(max-height:820px){
+    .slot-machine{padding:16px;max-width:560px}
+    .reels-container{padding:12px;gap:8px}
+    .reel-column{gap:6px}
+    .slot-cell{height:clamp(46px,12vh,72px);font-size:clamp(26px,5vw,38px)}
+    #slots-message{font-size:18px;margin:10px 0}
+    .paylines-info{margin-top:10px}
+  }
+  @media(max-width:680px){
+    .slot-machine{padding:14px}
+    .reels-container{gap:6px;padding:10px}
+    .slot-cell{height:64px;font-size:30px}
+  }
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <a href="index.html" style="text-decoration: none;"><button class="btn-lobby">🏰 Lobby</button></a>
-  <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
-  <div class="counter-display">Einsatz: <span id="slots-bet-display">10 €</span></div>
-  <div class="counter-display" id="fs-counter-box" style="display: none;">FS Übrig: <span id="slots-fs-left">0</span></div>
-  <div class="counter-display" id="slots-win-box">Letzter Gewinn: <span id="slots-win-display">0 €</span></div>
-</div>
-
-<div class="slot-machine" id="slot-machine-case">
-  <div class="reels-container">
-    <div class="reel-column" id="col-0">
-      <div class="slot-cell" id="cell-0-0">🍒</div>
-      <div class="slot-cell" id="cell-1-0">🔔</div>
-      <div class="slot-cell" id="cell-2-0">💎</div>
-    </div>
-    <div class="reel-column" id="col-1">
-      <div class="slot-cell" id="cell-0-1">⭐</div>
-      <div class="slot-cell" id="cell-1-1">7️⃣</div>
-      <div class="slot-cell" id="cell-2-1">🍒</div>
-    </div>
-    <div class="reel-column" id="col-2">
-      <div class="slot-cell" id="cell-0-2">🔔</div>
-      <div class="slot-cell" id="cell-1-2">💎</div>
-      <div class="slot-cell" id="cell-2-2">⭐</div>
-    </div>
+<main class="page">
+  <div class="topbar">
+    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
+    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
+    <div class="counter-display">Freispiele: <span id="fsOut">0</span></div>
+    <div class="counter-display">FS Gewinn: <span id="fsTotalOut">0 €</span></div>
+    <div class="counter-display">Letzter Gewinn: <span id="lastWinOut">0 €</span></div>
   </div>
 
-  <div id="slots-message">Fordere dein Glück heraus!</div>
+  <section class="panel slot-shell">
+    <h1 class="title slot-title">🏺 Tomb of Fortune 🏺</h1>
 
-  <div class="control-panel">
-    <button class="chip-btn active" id="bet-10" onclick="slotsSetBet(10)">10</button>
-    <button class="chip-btn" id="bet-50" onclick="slotsSetBet(50)">50</button>
-    <button class="chip-btn" id="bet-100" onclick="slotsSetBet(100)">100</button>
-    
-    <button id="slots-spin-btn" class="btn-spin" onclick="slotsSpin()">SPIN 🎰</button>
-    <button id="slots-auto-btn" class="btn-auto" onclick="slotsToggleAuto()">AUTO</button>
-  </div>
+    <div class="betbox">
+      <label for="betSlider">Gesamteinsatz pro Spin</label>
+      <b id="betDisplay">10 €</b>
+      <input id="betSlider" type="range">
+    </div>
 
-  <div class="paylines-info">
-    <span>↔️ 3 Linien</span>
-    <span>❌ 2 Diagonalen</span>
-    <span>⭐ 3x Scatter = 10 Freispiele</span>
-  </div>
-</div>
+    <div class="status-grid">
+      <div class="counter-display">Linien: <span>9 aktiv</span></div>
+      <div class="counter-display">Linieneinsatz: <span id="lineBetOut">1.11 €</span></div>
+      <div class="counter-display">Bonus-Symbol: <span id="bonusOut">–</span></div>
+    </div>
+
+    <div id="fsBanner" class="fs-banner">🔥 Freispiele bereit — drücke Spin, um jedes Freispiel selbst zu starten!</div>
+
+    <div class="slot-board" id="slotBoard">
+      <div class="reels" id="reels"></div>
+      <div class="risk-ladder" id="riskLadder">
+        <div class="ladder-rail">
+          <div class="ladder-title" id="ladderTitle">Risikoleiter</div>
+          <div class="ladder-steps" id="ladderSteps"></div>
+        </div>
+        <div class="ladder-side">
+          <div class="ladder-actions">
+            <button id="ladderPanelBtn" onclick="ladderUp()">Drücken</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="msg" class="message"></div>
+
+    <div class="controls">
+      <button class="primary" id="spinBtn" onclick="spin()">Spin</button>
+      <button id="autoBtn" onclick="toggleAuto()">Auto</button>
+      <button id="ladderBtn" onclick="openRiskLadder()" disabled>Leiter</button>
+      <button onclick="showPaytable()">Gewinntabelle</button>
+    </div>
+
+    <div class="history" id="history"></div>
+    <div class="paytable" id="paytable" style="display:none"></div>
+  </section>
+</main>
 
 <script>
-let slotsBet = 10, slotsIsSpinning = false, slotsAutoMode = false, slotsAutoInterval = null;
-
-let slotsFreeSpinsLeft = 0;
-let slotsTotalFreeSpinWin = 0;
-let slotsWasInFreeSpins = false;
-
-const slotsSymbols = [
-  { icon: '7️⃣', mult: 15, weight: 1 },  
-  { icon: '💎', mult: 7, weight: 2 },   
-  { icon: '👑', mult: 5, weight: 3 },   
-  { icon: '🔔', mult: 3, weight: 5 },   
-  { icon: '🍒', mult: 1.5, weight: 7 },
-  { icon: '⭐', mult: 2, weight: 2 } 
+const ROWS = 3, REELS = 5;
+const PAYLINES = [
+  [[1,0],[1,1],[1,2],[1,3],[1,4]],
+  [[0,0],[0,1],[0,2],[0,3],[0,4]],
+  [[2,0],[2,1],[2,2],[2,3],[2,4]],
+  [[0,0],[1,1],[2,2],[1,3],[0,4]],
+  [[2,0],[1,1],[0,2],[1,3],[2,4]],
+  [[0,0],[0,1],[1,2],[2,3],[2,4]],
+  [[2,0],[2,1],[1,2],[0,3],[0,4]],
+  [[1,0],[0,1],[0,2],[0,3],[1,4]],
+  [[1,0],[2,1],[2,2],[2,3],[1,4]]
 ];
-
-const slotsPool = [];
-slotsSymbols.forEach(s => { for(let i=0; i<s.weight; i++) slotsPool.push(s); });
-
-const slotsPaylines = [
-  { name: 'Horiz-Top',    cells: [[0,0], [0,1], [0,2]] },
-  { name: 'Horiz-Center', cells: [[1,0], [1,1], [1,2]] },
-  { name: 'Horiz-Bottom', cells: [[2,0], [2,1], [2,2]] },
-  { name: 'Diag-Down',    cells: [[0,0], [1,1], [2,2]] },
-  { name: 'Diag-Up',      cells: [[2,0], [1,1], [0,2]] }
+const SYMBOLS = [
+  { icon:'🏺', name:'Urne', weight:11, pay:{3:5,4:20,5:80} },
+  { icon:'🦂', name:'Skorpion', weight:10, pay:{3:6,4:25,5:100} },
+  { icon:'🐈', name:'Tempelkatze', weight:9, pay:{3:8,4:35,5:140} },
+  { icon:'🪙', name:'Goldmünze', weight:8, pay:{3:10,4:45,5:180} },
+  { icon:'🔱', name:'Relikt', weight:6, pay:{3:14,4:70,5:260} },
+  { icon:'👑', name:'Krone', weight:4, pay:{3:20,4:100,5:400} },
+  { icon:'💎', name:'Edelstein', weight:3, pay:{2:5,3:30,4:160,5:650} },
+  { icon:'📖', name:'Journal', weight:3, scatter:true, pay:{3:2,4:20,5:200} }
 ];
+const NORMAL_SYMBOLS = SYMBOLS.filter(s => !s.scatter);
+const POOL = [];
+SYMBOLS.forEach(s => { for (let i = 0; i < s.weight; i++) POOL.push(s); });
 
-let slotsMatrix = [['','',''],['','',''],['','','']];
+let getBet, spinning = false, auto = false, autoTimer = null;
+const ALL_LADDER_STEPS = [2,4,6,8,10,15,20,30,40,50,60,80,100,120,140,160,200,250,300];
+const LOSS_STEP = 'LOSS';
+let freeSpins = 0, totalFsWin = 0, bonusSymbol = null, currentMatrix = [];
+let lastWin = 0, ladderLevel = -1, riskOpen = false, riskScale = 1, blinkTimer = null, blinkTarget = 'up';
 
-function slotsSetBet(amount) {
-  if (slotsIsSpinning || slotsFreeSpinsLeft > 0) return;
-  slotsBet = amount;
-  document.getElementById('slots-bet-display').textContent = slotsBet + " €";
-  [10, 50, 100].forEach(a => {
-    document.getElementById(`bet-${a}`).classList.toggle('active', a === amount);
+const el = id => document.getElementById(id);
+
+document.addEventListener('DOMContentLoaded', () => {
+  getBet = createBetSlider({ inputId:'betSlider', displayId:'betDisplay', min:1, max:500, value:10, onChange:updateBetUI });
+  updateBetUI(getBet());
+  buildPaytable();
+  currentMatrix = randomMatrix();
+  draw(currentMatrix);
+  syncLadder();
+});
+
+function updateBetUI(v) {
+  el('betOut').textContent = money(v);
+  el('lineBetOut').textContent = (v / PAYLINES.length).toFixed(2) + ' €';
+}
+function randSym() { return POOL[Math.floor(Math.random() * POOL.length)]; }
+function randomMatrix() { return Array.from({ length: ROWS }, () => Array.from({ length: REELS }, randSym)); }
+function symbolByIcon(icon) { return SYMBOLS.find(s => s.icon === icon); }
+function draw(matrix, highlights = [], expandCells = []) {
+  const hi = new Set(highlights.map(([r,c]) => `${r}-${c}`));
+  const ex = new Set(expandCells.map(([r,c]) => `${r}-${c}`));
+  el('reels').innerHTML = '';
+  for (let c = 0; c < REELS; c++) {
+    const reel = document.createElement('div');
+    reel.className = 'reel';
+    for (let r = 0; r < ROWS; r++) {
+      const s = matrix[r][c];
+      const cell = document.createElement('div');
+      cell.className = 'slot-cell' + (hi.has(`${r}-${c}`) ? ' win' : '') + (s.scatter ? ' scatter' : '') + (ex.has(`${r}-${c}`) ? ' expand' : '');
+      cell.textContent = s.icon;
+      reel.appendChild(cell);
+    }
+    el('reels').appendChild(reel);
+  }
+}
+function setSpinBlur(on) { document.querySelectorAll('.slot-cell').forEach(c => c.classList.toggle('spin', on)); }
+
+function spin() {
+  if (spinning) return;
+  const bet = getBet();
+  const isFree = freeSpins > 0;
+  if (!isFree && !canAfford(bet)) { auto = false; syncAutoButton(); return toast('Nicht genug Guthaben.'); }
+  if (isFree) { freeSpins--; el('fsOut').textContent = freeSpins; }
+  else { changeCash(-bet); totalFsWin = 0; el('fsTotalOut').textContent = money(0); bonusSymbol = null; el('bonusOut').textContent = '–'; clearRisk(false); }
+
+  spinning = true;
+  el('spinBtn').disabled = true;
+  el('msg').textContent = isFree ? 'Freispiel dreht...' : 'Die Expedition beginnt...';
+
+  let ticks = 0;
+  const timer = setInterval(() => {
+    currentMatrix = randomMatrix();
+    draw(currentMatrix);
+    setSpinBlur(true);
+    if (++ticks >= 14) {
+      clearInterval(timer);
+      setSpinBlur(false);
+      finishSpin(currentMatrix, isFree, bet);
+    }
+  }, 65);
+}
+
+function finishSpin(matrix, isFree, bet) {
+  if (isFree && !bonusSymbol) {
+    bonusSymbol = NORMAL_SYMBOLS[Math.floor(Math.random() * NORMAL_SYMBOLS.length)];
+    el('bonusOut').textContent = bonusSymbol.icon + ' ' + bonusSymbol.name;
+  }
+
+  let expandedCells = [];
+  if (isFree && bonusSymbol) {
+    for (let c = 0; c < REELS; c++) {
+      let hasBonus = false;
+      for (let r = 0; r < ROWS; r++) if (matrix[r][c].icon === bonusSymbol.icon) hasBonus = true;
+      if (hasBonus) for (let r = 0; r < ROWS; r++) { matrix[r][c] = bonusSymbol; expandedCells.push([r,c]); }
+    }
+  }
+
+  const result = evaluate(matrix, bet);
+  const freeReelResult = isFree ? evaluateFreeSpinReelHits(matrix, bet) : { win: 0, cells: [] };
+  const scatterResult = evaluateScatters(matrix, bet);
+  let win = result.win + freeReelResult.win + scatterResult.win;
+  let highlights = result.cells.concat(freeReelResult.cells, scatterResult.cells);
+
+  if (scatterResult.count >= 3) {
+    const awarded = scatterResult.count === 3 ? 10 : scatterResult.count === 4 ? 15 : 20;
+    freeSpins += awarded;
+    if (!isFree) { auto = false; syncAutoButton(); }
+    bonusSymbol = NORMAL_SYMBOLS[Math.floor(Math.random() * NORMAL_SYMBOLS.length)];
+    el('bonusOut').textContent = bonusSymbol.icon + ' ' + bonusSymbol.name;
+    el('msg').textContent = `📖 ${scatterResult.count} Journale! +${awarded} Freispiele. Bonus: ${bonusSymbol.icon}`;
+  } else if (win > 0) {
+    const waysText = freeReelResult.win > 0 ? ' · 3+ gleiche Symbole auf verschiedenen Walzen' : '';
+    el('msg').textContent = `Gewinn: ${money(win)}${expandedCells.length ? ' · Bonus-Symbol expandiert!' : ''}${waysText}`;
+  } else {
+    el('msg').textContent = isFree ? 'Freispiel ohne Gewinn.' : 'Kein Fund in dieser Kammer.';
+  }
+
+  if (win > 0) changeCash(win);
+  if (isFree) totalFsWin += win;
+  el('fsTotalOut').textContent = money(totalFsWin);
+  if (isFree && freeSpins === 0) el('msg').textContent = `Freispiele beendet · Gesamtgewinn: ${money(totalFsWin)}`;
+  el('lastWinOut').textContent = money(win);
+  el('fsOut').textContent = freeSpins;
+  el('fsBanner').classList.toggle('on', freeSpins > 0);
+  if (freeSpins > 0) { el('spinBtn').textContent = auto ? 'Auto läuft' : 'Freispiel starten'; }
+  else { if (isFree) { auto = false; syncAutoButton(); } el('spinBtn').textContent = 'Spin'; }
+  draw(matrix, highlights, expandedCells);
+  if (!isFree && win > 0 && freeSpins === 0) startRisk(win);
+  else if (!isFree) clearRisk(false);
+  addHistory(win, isFree);
+  recordGame('Tomb of Fortune Slots', win - (isFree ? 0 : bet));
+
+  spinning = false;
+  el('spinBtn').disabled = false;
+  if (auto && canContinue()) autoTimer = setTimeout(spin, 780);
+}
+
+function evaluate(matrix, bet) {
+  const lineBet = bet / PAYLINES.length;
+  let win = 0, cells = [];
+  PAYLINES.forEach(line => {
+    const first = matrix[line[0][0]][line[0][1]];
+    if (first.scatter) return;
+    let count = 1;
+    for (let i = 1; i < line.length; i++) {
+      const s = matrix[line[i][0]][line[i][1]];
+      if (s.icon === first.icon) count++; else break;
+    }
+    const pay = first.pay[count] || 0;
+    if (pay > 0) {
+      win += Math.floor(lineBet * pay);
+      cells.push(...line.slice(0, count));
+    }
   });
+  return { win, cells };
+}
+function evaluateFreeSpinReelHits(matrix, bet) {
+  // In Freispielen reicht es jetzt, wenn ein normales Symbol auf mindestens 3 verschiedenen Walzen vorkommt.
+  // Das ist absichtlich zusaetzlich zur klassischen Linienwertung.
+  let win = 0;
+  const cells = [];
+  for (const sym of NORMAL_SYMBOLS) {
+    const reels = new Map();
+    for (let c = 0; c < REELS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        if (matrix[r][c].icon === sym.icon) {
+          if (!reels.has(c)) reels.set(c, []);
+          reels.get(c).push([r, c]);
+        }
+      }
+    }
+    const reelCount = reels.size;
+    if (reelCount >= 3) {
+      const pay = sym.pay[Math.min(5, reelCount)] || 0;
+      if (pay > 0) {
+        win += Math.floor((bet / 3) * pay);
+        [...reels.values()].forEach(list => cells.push(...list));
+      }
+    }
+  }
+  return { win, cells };
+}
+function evaluateScatters(matrix, bet) {
+  const cells = [];
+  matrix.forEach((row,r) => row.forEach((s,c) => { if (s.scatter) cells.push([r,c]); }));
+  const scatter = SYMBOLS.find(s => s.scatter);
+  const pay = scatter.pay[cells.length] || 0;
+  return { count: cells.length, win: Math.floor(bet * pay), cells: pay ? cells : [] };
+}
+function canContinue() { return freeSpins > 0 || canAfford(getBet()); }
+function toggleAuto() { auto = !auto; syncAutoButton(); if (auto && !spinning) spin(); else clearTimeout(autoTimer); }
+function syncAutoButton() { el('autoBtn').classList.toggle('active', auto); el('autoBtn').textContent = auto ? 'Stop Auto' : 'Auto'; }
+function addHistory(win, isFree) {
+  const h = el('history');
+  const item = document.createElement('span');
+  item.textContent = (isFree ? 'FS ' : '') + (win > 0 ? '+' + money(win) : '0 €');
+  h.prepend(item);
+  while (h.children.length > 10) h.removeChild(h.lastChild);
 }
 
-function getRandomSymbol() {
-  return slotsPool[Math.floor(Math.random() * slotsPool.length)];
+function chooseStartLevel(win) {
+  let index = 0;
+  for (let i = 0; i < ALL_LADDER_STEPS.length; i++) {
+    if (ALL_LADDER_STEPS[i] <= 140 && win >= ALL_LADDER_STEPS[i]) index = i;
+  }
+  return index;
 }
+function currentRiskLabel() {
+  return ALL_LADDER_STEPS[Math.max(0, ladderLevel)] || ALL_LADDER_STEPS[0];
+}
+function upRiskLabel() {
+  return ALL_LADDER_STEPS[ladderLevel + 1] || null;
+}
+function downRiskLabel() {
+  if (ladderLevel <= 0) return LOSS_STEP;
+  return ALL_LADDER_STEPS[ladderLevel - 1] || LOSS_STEP;
+}
+function scaledRiskWin(label) {
+  return Math.max(1, Math.floor(riskScale * label));
+}
+function startRisk(win) {
+  lastWin = win;
+  ladderLevel = chooseStartLevel(win);
+  riskScale = win / currentRiskLabel();
+  riskOpen = false;
+  blinkTarget = 'up';
+  stopBlink();
+  syncLadder();
+  el('msg').textContent = `Gewinn: ${money(win)} · Risikoleiter verfügbar.`;
+}
+function clearRisk(resetMessage = true) {
+  lastWin = 0;
+  ladderLevel = -1;
+  riskOpen = false;
+  riskScale = 1;
+  blinkTarget = 'up';
+  stopBlink();
+  syncLadder();
+  if (resetMessage) el('msg').textContent = '';
+}
+function getBlinkInterval() {
+  const total = Math.max(1, ALL_LADDER_STEPS.length - 1);
+  const progress = ladderLevel <= 0 ? 0 : Math.min(1, ladderLevel / total);
+  const base = 280 - Math.floor(progress * 115);
+  const jitter = Math.floor(Math.random() * 150) - 55;
+  const spike = Math.random() < 0.18 ? (Math.random() < 0.5 ? -45 : 60) : 0;
+  return Math.max(95, base + jitter + spike);
+}
+function queueBlinkTick() {
+  if (!riskOpen || lastWin <= 0 || freeSpins > 0) {
+    blinkTimer = null;
+    return;
+  }
+  const delay = getBlinkInterval();
+  blinkTimer = setTimeout(() => {
+    const hasUp = !!upRiskLabel();
+    const hasDown = !!downRiskLabel();
+    if (hasUp && hasDown) {
+      if (Math.random() < 0.82) blinkTarget = blinkTarget === 'up' ? 'down' : 'up';
+    } else if (hasUp) blinkTarget = 'up';
+    else blinkTarget = 'down';
+    syncLadder();
+    queueBlinkTick();
+  }, delay);
+}
+function startBlink() {
+  if (blinkTimer || !riskOpen || lastWin <= 0 || freeSpins > 0) return;
+  queueBlinkTick();
+}
+function stopBlink() {
+  if (blinkTimer) {
+    clearTimeout(blinkTimer);
+    blinkTimer = null;
+  }
+}
+function openRiskLadder() {
+  if (lastWin <= 0 || freeSpins > 0) return;
+  riskOpen = !riskOpen;
+  if (riskOpen) {
+    const hasUp = !!upRiskLabel();
+    const hasDown = !!downRiskLabel();
+    if (hasUp && hasDown) blinkTarget = Math.random() < 0.5 ? 'up' : 'down';
+    else if (hasUp) blinkTarget = 'up';
+    else blinkTarget = 'down';
+    startBlink();
+  } else {
+    stopBlink();
+  }
+  syncLadder();
+}
+function ladderUp() {
+  if (spinning || lastWin <= 0 || freeSpins > 0 || !riskOpen) return;
+  const currentWin = lastWin;
+  const upLabel = upRiskLabel();
+  const downLabel = downRiskLabel();
 
-function slotsSpin() {
-  if (slotsIsSpinning) return;
+  stopBlink();
+  changeCash(-currentWin);
 
-  const isFreeSpin = slotsFreeSpinsLeft > 0;
+  if (blinkTarget === 'up' && upLabel) {
+    ladderLevel += 1;
+    lastWin = scaledRiskWin(upLabel);
+    changeCash(lastWin);
+    el('lastWinOut').textContent = money(lastWin);
+    el('msg').textContent = `🪜 Hochgedrückt auf Stufe ${upLabel} · ${money(lastWin)}`;
+  } else if (blinkTarget === 'down') {
+    if (downLabel === LOSS_STEP) {
+      lastWin = 0;
+      ladderLevel = -1;
+      riskOpen = false;
+      riskScale = 1;
+      el('lastWinOut').textContent = money(0);
+      el('msg').textContent = '🪜 Verloren.';
+      syncLadder();
+      return;
+    } else if (downLabel) {
+      ladderLevel -= 1;
+      lastWin = scaledRiskWin(downLabel);
+      changeCash(lastWin);
+      el('lastWinOut').textContent = money(lastWin);
+      el('msg').textContent = `🪜 Runter auf Stufe ${downLabel} · ${money(lastWin)}`;
+    }
+  } else {
+    lastWin = currentWin;
+    changeCash(lastWin);
+    el('lastWinOut').textContent = money(lastWin);
+    el('msg').textContent = '🪜 Keine höhere Stufe verfügbar.';
+  }
 
-  if (!isFreeSpin && getCash() < slotsBet) {
-    document.getElementById('slots-message').textContent = "Nicht genug Guthaben! 🛑";
-    slotsCancelAuto();
+  if (lastWin > 0 && ladderLevel === ALL_LADDER_STEPS.length - 1) {
+    el('msg').textContent = `🪜 Oberste Stufe erreicht! Gewinn automatisch genommen: ${money(lastWin)}`;
+    riskOpen = false;
+    stopBlink();
+    clearRisk(false);
+    syncLadder();
     return;
   }
 
-  if (isFreeSpin) {
-    slotsFreeSpinsLeft--;
-    document.getElementById('slots-fs-left').textContent = slotsFreeSpinsLeft;
-  } else {
-    setCash(getCash() - slotsBet);
+  if (riskOpen && lastWin > 0) {
+    const hasUp = !!upRiskLabel();
+    const hasDown = !!downRiskLabel();
+    if (hasUp && hasDown) blinkTarget = Math.random() < 0.5 ? 'up' : 'down';
+    else if (hasUp) blinkTarget = 'up';
+    else blinkTarget = 'down';
+    startBlink();
   }
-  
-  slotsIsSpinning = true;
-  document.getElementById('slots-spin-btn').disabled = true;
-  if (!slotsAutoMode) document.getElementById('slots-auto-btn').disabled = true;
-  
-  document.getElementById('slots-message').textContent = isFreeSpin ? `Freispiel läuft... (Noch ${slotsFreeSpinsLeft})` : "Walzen drehen...";
-
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      const cell = document.getElementById(`cell-${row}-${col}`);
-      cell.className = "slot-cell blur";
-    }
-  }
-
-  let spinTicks = 0;
-  const spinInterval = setInterval(() => {
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 3; col++) {
-        document.getElementById(`cell-${row}-${col}`).textContent = getRandomSymbol().icon;
-      }
-    }
-    spinTicks++;
-    if (spinTicks >= 12) {
-      clearInterval(spinInterval);
-      slotsStopEngine(isFreeSpin);
-    }
-  }, 75);
+  syncLadder();
 }
+function syncLadder() {
+  const active = lastWin > 0 && freeSpins === 0;
+  const ladder = el('riskLadder');
+  const board = el('slotBoard');
+  const stepsEl = el('ladderSteps');
+  const title = el('ladderTitle');
+  const ladderBtn = el('ladderBtn');
+  const panelBtn = el('ladderPanelBtn');
 
-function slotsStopEngine(isFreeSpin) {
-  let scatterCells = [];
+  if (ladder) ladder.classList.toggle('on', active && riskOpen);
+  if (board) board.classList.toggle('risk-mode', active && riskOpen);
+  if (active && riskOpen) startBlink(); else stopBlink();
 
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      const sym = getRandomSymbol();
-      slotsMatrix[row][col] = sym.icon;
-      
-      const cell = document.getElementById(`cell-${row}-${col}`);
-      cell.textContent = sym.icon;
-      cell.classList.remove('blur');
-
-      if (sym.icon === '⭐') {
-        scatterCells.push(`${row}-${col}`);
-      }
-    }
+  if (ladderBtn) {
+    ladderBtn.disabled = !active;
+    ladderBtn.classList.toggle('risk-ready', active);
+    ladderBtn.textContent = active ? (riskOpen ? 'Leiter schließen' : 'Leiter öffnen') : 'Leiter';
   }
-
-  let roundWin = 0;
-  let winningCells = [];
-
-  slotsPaylines.forEach(line => {
-    const sym0 = slotsMatrix[line.cells[0][0]][line.cells[0][1]];
-    const sym1 = slotsMatrix[line.cells[1][0]][line.cells[1][1]];
-    const sym2 = slotsMatrix[line.cells[2][0]][line.cells[2][1]];
-
-    if (sym0 === sym1 && sym1 === sym2) {
-      const matchConfig = slotsSymbols.find(s => s.icon === sym0);
-      if (matchConfig) {
-        roundWin += Math.floor(slotsBet * matchConfig.mult);
-        line.cells.forEach(coord => winningCells.push(`${coord[0]}-${coord[1]}`));
-      }
-    }
-  });
-
-  let triggeredFS = false;
-  if (scatterCells.length >= 3) {
-    triggeredFS = true;
-    slotsFreeSpinsLeft += 10;
-    if(!slotsWasInFreeSpins) {
-      slotsTotalFreeSpinWin = 0;
-      slotsWasInFreeSpins = true;
-    }
-    scatterCells.forEach(id => document.getElementById(`cell-${id}`).classList.add('scatter-hit'));
+  if (panelBtn) {
+    panelBtn.disabled = !active || !riskOpen;
+    panelBtn.textContent = 'Drücken';
   }
+  if (title) title.textContent = 'Risikoleiter';
 
-  if (roundWin > 0) {
-    setCash(getCash() + roundWin);
-    if (slotsWasInFreeSpins) {
-      slotsTotalFreeSpinWin += roundWin;
+  if (stepsEl) {
+    stepsEl.innerHTML = '';
+    const current = active ? currentRiskLabel() : null;
+    const up = active ? upRiskLabel() : null;
+    const down = active ? downRiskLabel() : null;
+    const visibleCount = 6;
+    let displaySteps = ALL_LADDER_STEPS.slice();
+    if (active && ladderLevel >= 0) {
+      const maxStart = Math.max(0, ALL_LADDER_STEPS.length - visibleCount);
+      const start = Math.max(0, Math.min(ladderLevel - 2, maxStart));
+      const end = Math.min(ALL_LADDER_STEPS.length, start + visibleCount);
+      displaySteps = ALL_LADDER_STEPS.slice(start, end);
+    } else {
+      displaySteps = ALL_LADDER_STEPS.slice(0, visibleCount);
     }
-    
-    winningCells.forEach(id => {
-      const el = document.getElementById(`cell-${id}`);
-      if(!el.classList.contains('scatter-hit')) el.classList.add('winning-hit');
+    displaySteps = displaySteps.concat([LOSS_STEP]).slice().reverse();
+
+    displaySteps.forEach((label) => {
+      const step = document.createElement('div');
+      const isLoss = label === LOSS_STEP;
+      const isCurrent = active && !isLoss && label === current;
+      const isUp = active && !isLoss && label === up;
+      const isDown = active && label === down;
+      const isBlinkUp = isUp && riskOpen && blinkTarget === 'up';
+      const isBlinkDown = isDown && riskOpen && blinkTarget === 'down';
+      step.className = 'ladder-step'
+        + (isCurrent ? ' current' : '')
+        + (isUp ? ' option-up' : '')
+        + (isDown ? ' option-down' : '')
+        + (isBlinkUp ? ' blink-up' : '')
+        + (isBlinkDown ? ' blink-down' : '');
+      const amount = isLoss ? '0 €' : (active ? money(scaledRiskWin(label)) : '–');
+      step.innerHTML = isLoss ? `<span>Verloren</span><b>${amount}</b>` : `<span>Stufe ${label}</span><b>${amount}</b>`;
+      stepsEl.appendChild(step);
     });
   }
-
-  const msgEl = document.getElementById('slots-message');
-  const caseEl = document.getElementById('slot-machine-case');
-  const fsBox = document.getElementById('fs-counter-box');
-  const winBoxLabel = document.getElementById('slots-win-box');
-
-  if (slotsWasInFreeSpins) {
-    caseEl.classList.add('free-spins-mode');
-    fsBox.style.display = "block";
-    fsBox.classList.add('fs-active');
-    document.getElementById('slots-fs-left').textContent = slotsFreeSpinsLeft;
-    winBoxLabel.innerHTML = `FS-Gesamtgewinn: <span id="slots-win-display" style="color:#bf5fff">${slotsTotalFreeSpinWin} €</span>`;
-  } else {
-    document.getElementById('slots-win-display').textContent = roundWin + " €";
-  }
-
-  if (triggeredFS) {
-    msgEl.innerHTML = `<span style="color:#bf5fff; text-shadow:0 0 15px #bf5fff;">🔥 10 FREISPIELE GEWONNEN! 🔥</span>`;
-  } else if (roundWin > 0) {
-    msgEl.innerHTML = `<span style="color:#ffd700; text-shadow:0 0 10px #ffd700;">GEWINN: +${roundWin} €! 🎉</span>`;
-  } else {
-    msgEl.textContent = slotsWasInFreeSpins ? "Freispiel ohne Treffer..." : "Kein Treffer. Nächster Versuch!";
-  }
-  
-  slotsIsSpinning = false;
-
-  if (slotsWasInFreeSpins && slotsFreeSpinsLeft === 0 && !triggeredFS) {
-    setTimeout(() => {
-      msgEl.innerHTML = `<span style="color:#bf5fff; font-size:20px;">Freespins beendet! Gesamt: +${slotsTotalFreeSpinWin} € 💰</span>`;
-      caseEl.classList.remove('free-spins-mode');
-      fsBox.style.display = "none";
-      winBoxLabel.innerHTML = `Letzter Gewinn: <span id="slots-win-display">${slotsTotalFreeSpinWin} €</span>`;
-      slotsWasInFreeSpins = false;
-      
-      document.getElementById('slots-spin-btn').disabled = false;
-      document.getElementById('slots-auto-btn').disabled = false;
-      
-      if (slotsAutoMode) {
-        slotsAutoInterval = setTimeout(slotsSpin, 2000);
-      }
-    }, 1500);
-    return;
-  }
-
-  document.getElementById('slots-spin-btn').disabled = false;
-  document.getElementById('slots-auto-btn').disabled = false;
-
-  if (slotsFreeSpinsLeft > 0) {
-    slotsAutoInterval = setTimeout(slotsSpin, 1400);
-  } else if (slotsAutoMode) {
-    slotsAutoInterval = setTimeout(slotsSpin, 1200);
-  }
 }
 
-function slotsToggleAuto() {
-  if (slotsAutoMode) {
-    slotsCancelAuto();
-  } else {
-    slotsAutoMode = true;
-    const btn = document.getElementById('slots-auto-btn');
-    btn.textContent = "STOP";
-    btn.classList.add('active');
-    if (!slotsIsSpinning) {
-      slotsSpin();
-    }
-  }
+function buildPaytable() {
+  const p = el('paytable');
+  p.innerHTML = SYMBOLS.map(s => {
+    const pays = Object.keys(s.pay).sort().map(k => `${k}x ${s.pay[k]}×`).join(' · ');
+    return `<div class="payitem"><b>${s.icon}</b>${s.name}<br>${pays}${s.scatter ? '<br>3+ = Freispiele' : ''}</div>`;
+  }).join('');
 }
-
-function slotsCancelAuto() {
-  slotsAutoMode = false;
-  if(slotsFreeSpinsLeft === 0) {
-    clearTimeout(slotsAutoInterval);
-    const btn = document.getElementById('slots-auto-btn');
-    btn.textContent = "AUTO";
-    btn.classList.remove('active');
-  }
+function showPaytable() {
+  const p = el('paytable');
+  p.style.display = p.style.display === 'none' ? 'grid' : 'none';
 }
-
-window.onload = () => {
-  slotsSetBet(10);
-};
 </script>
 </body>
 </html>

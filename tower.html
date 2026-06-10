@@ -1,309 +1,382 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<title>Royal Deluxe Casino - Custom Tower Crash</title>
-<script src="casino-utils.js"></script>
-<style>
-:root {
-  --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
-  --transition: all 0.2s cubic-bezier(0.215, 0.610, 0.355, 1);
-}
-body {
-  margin: 0; font-family: 'Georgia', serif; background: var(--board-bg);
-  min-height: 100vh; color: white; padding: 25px; box-sizing: border-box; user-select: none;
-  display: flex; flex-direction: column; align-items: center;
-}
-.topbar { display: flex; gap: 15px; margin-bottom: 25px; align-items: center; background: rgba(0, 0, 0, 0.25); padding: 12px 25px; border-radius: 30px; }
-button { 
-  padding: 10px 20px; cursor: pointer; background: linear-gradient(to bottom, #4a3b32, #2f251f);
-  border: 1px solid #1a1411; color: #e5c158; border-radius: 20px; font-weight: bold; font-family: 'Segoe UI';
-  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); transition: var(--transition);
-}
-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
-button:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
-.btn-lobby { background: linear-gradient(to bottom, #8b2626, #5c1a1a); color: white; border: 1px solid #3a0f0f; }
-.counter-display { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; color: #e5c158; background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tower Crash</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="casino-utils.js"></script>
+  <style>
+    body{
+      background:
+        radial-gradient(circle at 50% 10%, #87b8c5 0%, #21414d 28%, #152731 52%, #0a1218 100%);
+    }
+    .tower-shell{
+      max-width:920px;margin:auto;position:relative;overflow:hidden;
+      background:linear-gradient(145deg,#233741,#0f1a20);
+      border:2px solid #c9a45e;
+      box-shadow:0 26px 60px rgba(0,0,0,.55),0 0 34px rgba(201,164,94,.15)
+    }
+    .tower-shell:before{
+      content:"ROYAL ASCENT";
+      position:absolute;top:10px;left:50%;transform:translateX(-50%);
+      font-size:12px;letter-spacing:4px;color:#f1ddaf;opacity:.72;font-weight:900
+    }
+    .tower-title{
+      font-size:38px;
+      margin-top:12px;
+      background:linear-gradient(#f7e4b3,#d3aa61,#8e6523);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      text-shadow:none
+    }
+    .tower-board{
+      position:relative;
+      display:flex;flex-direction:column-reverse;gap:12px;
+      max-width:760px;margin:18px auto;
+      padding:18px;border-radius:22px;
+      background:linear-gradient(180deg,#101c21,#162a31 58%,#0d1519 100%);
+      border:2px solid rgba(201,164,94,.26);
+      box-shadow:inset 0 0 28px rgba(0,0,0,.5),0 0 18px rgba(201,164,94,.08)
+    }
+    .tower-board:before{
+      content:"";
+      position:absolute;inset:12px;
+      border-radius:18px;
+      border:1px solid rgba(241,221,175,.06);
+      pointer-events:none
+    }
+    .tower-row{
+      display:flex;gap:12px;align-items:center;justify-content:center;
+      transition:.18s ease;
+      min-height:60px
+    }
+    .tower-row.active{transform:scale(1.01)}
+    .tower-row.locked,.tower-row.passed{opacity:.42}
+    .tower-row.passed{opacity:.78}
+    .tower-tile{
+      min-width:78px;height:58px;border-radius:16px;font-size:24px;padding:0;
+      background:linear-gradient(180deg,#30454f,#1a2c35);
+      border:1px solid rgba(244,230,196,.08);
+      box-shadow:inset 0 1px 8px rgba(255,255,255,.04), inset 0 -10px 14px rgba(0,0,0,.24);
+      position:relative;z-index:2;transition:.18s ease
+    }
+    .tower-tile:hover:not(:disabled){transform:translateY(-1px)}
+    .tower-row.active .tower-tile:not(:disabled){
+      outline:2px solid rgba(229,193,88,.78);
+      box-shadow:0 0 18px rgba(229,193,88,.24), 0 0 0 2px rgba(229,193,88,.10), inset 0 1px 8px rgba(255,255,255,.05);
+      cursor:pointer
+    }
+    .tower-tile:disabled{cursor:not-allowed;filter:grayscale(.28);opacity:.74}
+    .tower-tile.safe{
+      background:linear-gradient(180deg,#43b16a,#1e6d3a)!important;
+      color:#fff;border-color:#8ef0aa!important;opacity:1;filter:none;
+      box-shadow:0 0 18px rgba(67,177,106,.28), inset 0 0 8px rgba(255,255,255,.08)
+    }
+    .tower-tile.bomb{
+      background:linear-gradient(180deg,#c44a4a,#6a1818)!important;
+      color:#fff;border-color:#ff8d8d!important;opacity:1;filter:none;
+      box-shadow:0 0 18px rgba(196,74,74,.26), inset 0 0 8px rgba(255,255,255,.08)
+    }
+    .tower-mult{
+      width:90px;text-align:center;
+      background:linear-gradient(180deg,#f7e4b3,#d3aa61);
+      color:#35210d;border:none;font-weight:900
+    }
+    .tower-help{
+      text-align:center;color:rgba(255,255,255,.62);font-size:13px;
+      margin-top:10px;letter-spacing:.2px
+    }
+    .tower-debug{
+      font-size:12px;color:#edd8aa;text-align:center;margin:10px auto 0;
+      display:inline-flex;justify-content:center;align-items:center;
+      padding:8px 14px;border-radius:999px;
+      background:rgba(0,0,0,.22);border:1px solid rgba(201,164,94,.18);
+      min-width:170px
+    }
+    .tower-debug-wrap{text-align:center}
+    .tower-config{
+      display:grid;grid-template-columns:1fr;gap:8px;max-width:760px;margin:0 auto
+    }
 
-.tower-building { display: flex; flex-direction: column; gap: 12px; background: rgba(0, 0, 0, 0.4); padding: 25px; border-radius: 20px; border: 3px solid #e5c158; box-shadow: inset 0 0 25px rgba(0,0,0,0.9); width: 100%; max-width: 580px; box-sizing: border-box; }
-.tower-row { display: flex; gap: 10px; align-items: center; opacity: 0.25; pointer-events: none; transition: var(--transition); }
-.tower-row.active { opacity: 1; pointer-events: auto; }
-.tower-row.passed { opacity: 0.65; }
-.tower-tile { flex: 1; height: 50px; background: linear-gradient(to bottom, #3a2f27, #1f1814); border: 2px solid #8e7335; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #e5c158; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: var(--transition); }
-.tower-row.active .tower-tile:hover { filter: brightness(1.4); transform: translateY(-2px); border-color: #e5c158; }
-.tower-tile.safe { background: linear-gradient(to bottom, #235c32, #113318) !important; border-color: #4cd16b; color: #fff; }
-.tower-tile.bomb { background: linear-gradient(to bottom, #8b2626, #5c1a1a) !important; border-color: #ff4d4d; color: #fff; }
-.tower-multiplier { width: 85px; text-align: right; color: #e5c158; font-weight: bold; font-family: 'Segoe UI'; font-size: 15px; background: rgba(0,0,0,0.4); padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(229,193,88,0.2); }
-.bj-controls { display: flex; gap: 15px; margin-top: 20px; align-items: center; justify-content: center; flex-wrap: wrap; }
-.chip-btn { background: linear-gradient(to bottom, #162a45, #0f1c2e); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; width: 60px; height: 60px; font-size: 16px; font-weight: bold; color: #e5c158; cursor: pointer; }
-.diff-btn { background: #2f251f; border: 1px solid #5a4538; color: #a1887f; padding: 6px 14px; font-size: 12px; }
-.diff-btn.active { background: linear-gradient(to bottom, #b08d24, #735613); color: white; border-color: #e5c158; box-shadow: 0 0 10px rgba(229,193,88,0.4); }
-#tower-message { font-size: 26px; color: #ffd700; font-weight: bold; text-shadow: 0 2px 15px rgba(0,0,0,0.8); margin: 15px 0; text-align: center; min-height: 35px; }
-.settings-box { display: flex; flex-direction: column; gap: 10px; background: rgba(0, 0, 0, 0.4); padding: 15px 25px; border-radius: 15px; border: 1px solid rgba(229,193,88,0.2); margin-bottom: 20px; width: 100%; max-width: 580px; box-sizing: border-box; }
-.settings-row { display: flex; align-items: center; gap: 15px; }
-.settings-label { font-family: 'Segoe UI'; font-weight: bold; color: #e5c158; width: 80px; font-size: 14px; text-transform: uppercase; }
-.flex-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+    /* FINAL tower viewport fit */
+    @media(max-height:820px){
+      .tower-building{padding:12px;gap:7px}
+      .tower-tile{height:40px;min-width:62px;font-size:16px}
+      .tower-row{gap:8px;min-height:42px}
+      .settings-box{padding:10px 14px;margin-bottom:8px}
+      #tower-message{font-size:18px;margin:8px 0}
+      .tower-board{padding:12px}
+      .tower-mult{width:72px}
+    }
+    @media(max-width:680px){
+      .tower-building{padding:10px}
+      .tower-multiplier{width:62px;font-size:12px}
+      .settings-row{align-items:flex-start;gap:8px;flex-direction:column}
+      .tower-row{gap:8px}
+      .tower-tile{min-width:54px;height:44px;font-size:18px}
+      .tower-mult{width:64px;font-size:12px}
+      .tower-title{font-size:34px}
+      .tower-board{padding:12px}
+    }
 </style>
 </head>
 <body>
+<main class="page">
+  <div class="topbar">
+    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
+    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
+    <div class="counter-display">Cashout: <span id="winOut">0 €</span></div>
+  </div>
 
-<div class="topbar">
-  <a href="index.html" style="text-decoration: none;"><button class="btn-lobby">🏰 Lobby</button></a>
-  <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
-  <div class="counter-display">Einsatz: <span id="tower-bet-display">10 €</span></div>
-  <div class="counter-display">Mögl. Gewinn: <span id="tower-win-display">0 €</span></div>
-</div>
-
-<div class="settings-box" id="tower-config-panel">
-  <div class="settings-row">
-    <div class="settings-label">📁 Felder:</div>
-    <div class="flex-wrap">
-      <button id="field-3" class="diff-btn active" onclick="towerSetFields(3)">3 Felder</button>
-      <button id="field-4" class="diff-btn" onclick="towerSetFields(4)">4 Felder</button>
-      <button id="field-5" class="diff-btn" onclick="towerSetFields(5)">5 Felder</button>
-      <button id="field-6" class="diff-btn" onclick="towerSetFields(6)">6 Felder</button>
+  <section class="panel tower-shell">
+    <h1 class="title tower-title">🏰 Tower Crash</h1>
+    <div class="betbox">
+      <label for="betSlider">Einsatz</label>
+      <b id="betDisplay">10 €</b>
+      <input id="betSlider" type="range">
     </div>
-  </div>
-  <div class="settings-row">
-    <div class="settings-label">💣 Bomben:</div>
-    <div class="flex-wrap" id="tower-bomb-buttons-container"></div>
-  </div>
-</div>
 
-<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">
-  <div class="tower-building" id="tower-grid"></div>
-  <div id="tower-message">Wähle deine Konfiguration & Starte den Aufstieg!</div>
-  
-  <div class="bj-controls" id="tower-setup-controls">
-    <button class="chip-btn" onclick="towerChangeBet(10)">10</button>
-    <button class="chip-btn" onclick="towerChangeBet(50)">50</button>
-    <button class="chip-btn" onclick="towerChangeBet(100)">100</button>
-    <button onclick="towerStart()" style="background: linear-gradient(to bottom, #2b6a3a, #164221); padding: 12px 35px; border-radius: 25px;">Spiel Starten 🚀</button>
-  </div>
-  
-  <div class="bj-controls" id="tower-play-controls" style="display:none;">
-    <button id="tower-cashout-btn" onclick="towerCashOut()" style="background: linear-gradient(to bottom, #e5c158, #b08d24); color: #000; padding: 14px 45px; border-radius: 25px; font-size: 16px;">CASH OUT</button>
-  </div>
-</div>
+    <div class="seg" id="fieldBtns">
+      <button class="active" data-fields="3" type="button">3 Felder</button>
+      <button data-fields="4" type="button">4 Felder</button>
+      <button data-fields="5" type="button">5 Felder</button>
+      <button data-fields="6" type="button">6 Felder</button>
+    </div>
+    <div class="seg" id="bombBtns" style="margin-top:8px"></div>
+    <div class="tower-help">Erst Start drücken, dann die leuchtende unterste Ebene anklicken.</div>
+    <div class="tower-debug-wrap"><div class="tower-debug" id="stateOut">Status: bereit</div></div>
+
+    <div id="tower" class="tower-board" aria-label="Tower Felder"></div>
+    <div id="msg" class="message"></div>
+    <div class="controls">
+      <button class="success" id="startBtn" type="button">Start</button>
+      <button class="primary" id="cashBtn" type="button" disabled>Cash Out</button>
+    </div>
+  </section>
+</main>
 
 <script>
-let towerBet = 10, towerActiveLevel = 0, towerGameState = 'setup';
-let towerFieldsPerRow = 3;
-let towerBombsPerRow = 1;
-let towerBombs = []; 
+let getBet;
+let fields = 3;
+let bombs = 1;
+let level = 0;
+let state = 'idle';
+let bombMap = [];
+let mults = [];
+let roundBet = 0;
 
-function calculateMultipliers() {
-  const mults = [];
-  let acc = 1;
-  const step = (towerFieldsPerRow / (towerFieldsPerRow - towerBombsPerRow)) * 0.97; 
-  
-  for (let row = 0; row < 5; row++) {
-    acc *= step;
-    if (acc < 10) {
-      mults.push(parseFloat(acc.toFixed(1)));
-    } else if (acc < 100) {
-      mults.push(parseFloat(acc.toFixed(1)));
-    } else if (acc < 1000) {
-      mults.push(parseFloat(acc.toFixed(0)));
-    } else {
-      mults.push(Math.round(acc)); 
-    }
-  }
-  return mults;
-}
+const el = id => document.getElementById(id);
 
-function towerReset() {
-  towerGameState = 'setup'; towerActiveLevel = 0;
-  document.getElementById('tower-setup-controls').style.display = 'flex';
-  document.getElementById('tower-play-controls').style.display = 'none';
-  
-  const panel = document.getElementById('tower-config-panel');
-  panel.style.pointerEvents = 'auto'; panel.style.opacity = '1';
-  
-  document.getElementById('tower-message').textContent = "Wähle deine Konfiguration & Starte den Aufstieg!";
-  document.getElementById('tower-win-display').textContent = "0 €";
-  
-  towerRenderBombButtons();
-  buildTowerUI(); 
-}
-
-function towerChangeBet(amount) { 
-  if (towerGameState !== 'setup') return; 
-  towerBet = amount; 
-  document.getElementById('tower-bet-display').textContent = towerBet + " €"; 
-}
-
-function towerSetFields(fields) {
-  if (towerGameState !== 'setup') return;
-  towerFieldsPerRow = fields;
-  
-  for(let i = 3; i <= 6; i++) {
-    document.getElementById(`field-${i}`).classList.toggle('active', i === fields);
-  }
-  
-  if (towerBombsPerRow >= fields) {
-    towerBombsPerRow = fields - 1;
-  }
-  
-  towerRenderBombButtons();
-  buildTowerUI();
-}
-
-function towerRenderBombButtons() {
-  const container = document.getElementById('tower-bomb-buttons-container');
-  container.innerHTML = '';
-  
-  for (let b = 1; b < towerFieldsPerRow; b++) {
-    const btn = document.createElement('button');
-    btn.className = 'diff-btn' + (b === towerBombsPerRow ? ' active' : '');
-    btn.id = `bomb-btn-${b}`;
-    btn.textContent = b + (b === 1 ? ' Bombe' : ' Bomben');
-    btn.onclick = () => towerSetBombs(b);
-    container.appendChild(btn);
-  }
-}
-
-function towerSetBombs(bombs) {
-  if (towerGameState !== 'setup') return;
-  towerBombsPerRow = bombs;
-  
-  for (let b = 1; b < towerFieldsPerRow; b++) {
-    const btn = document.getElementById(`bomb-btn-${b}`);
-    if(btn) btn.classList.toggle('active', b === bombs);
-  }
-  buildTowerUI();
-}
-
-function buildTowerUI() {
-  const grid = document.getElementById('tower-grid'); grid.innerHTML = '';
-  const currentMults = calculateMultipliers();
-  
-  for (let row = 4; row >= 0; row--) {
-    const rowEl = document.createElement('div'); rowEl.className = 'tower-row'; rowEl.id = `tower-row-${row}`;
-    
-    for (let tile = 0; tile < towerFieldsPerRow; tile++) {
-      const tileEl = document.createElement('div'); tileEl.className = 'tower-tile'; tileEl.textContent = '⚜';
-      tileEl.onclick = () => towerTileClick(row, tile); rowEl.appendChild(tileEl);
-    }
-    
-    const multEl = document.createElement('div'); multEl.className = 'tower-multiplier'; multEl.textContent = `${currentMults[row]}x`;
-    rowEl.appendChild(multEl); grid.appendChild(rowEl);
-  }
-  updateTowerRowStates();
-}
-
-function updateTowerRowStates() {
-  for (let row = 0; row < 5; row++) {
-    const rowEl = document.getElementById(`tower-row-${row}`); if (!rowEl) continue;
-    rowEl.className = 'tower-row';
-    if (towerGameState === 'playing') {
-      if (row === towerActiveLevel) rowEl.classList.add('active');
-      else if (row < towerActiveLevel) rowEl.classList.add('passed');
-    }
-  }
-}
-
-function towerStart() {
-  if (getCash() < towerBet) { document.getElementById('tower-message').textContent = "Nicht genug Geld!"; return; }
-  setCash(getCash() - towerBet);
-  
-  towerGameState = 'playing'; towerActiveLevel = 0; towerBombs = [];
-  
-  for (let i = 0; i < 5; i++) {
-    let rowBombs = [];
-    while (rowBombs.length < towerBombsPerRow) {
-      let randSlot = Math.floor(Math.random() * towerFieldsPerRow);
-      if (!rowBombs.includes(randSlot)) {
-        rowBombs.push(randSlot);
-      }
-    }
-    towerBombs.push(rowBombs);
-  }
-  
-  document.getElementById('tower-setup-controls').style.display = 'none';
-  document.getElementById('tower-play-controls').style.display = 'flex';
-  
-  const panel = document.getElementById('tower-config-panel');
-  panel.style.pointerEvents = 'none'; panel.style.opacity = '0.3';
-  
-  document.getElementById('tower-message').textContent = "Wähle ein Feld in der untersten Reihe!";
-  
-  buildTowerUI(); updateTowerCashoutButton();
-}
-
-function updateTowerCashoutButton() {
-  const btn = document.getElementById('tower-cashout-btn');
-  const currentMults = calculateMultipliers();
-  if (towerActiveLevel === 0) { 
-    btn.disabled = true; btn.textContent = `CASH OUT`; 
-    document.getElementById('tower-win-display').textContent = "0 €"; 
-  } else {
-    btn.disabled = false; 
-    const currentWin = Math.floor(towerBet * currentMults[towerActiveLevel - 1]);
-    btn.textContent = `CASH OUT: ${currentWin} € 💰`; 
-    document.getElementById('tower-win-display').textContent = currentWin + " €";
-  }
-}
-
-function towerTileClick(row, tile) {
-  if (towerGameState !== 'playing' || row !== towerActiveLevel) return;
-  const rowEl = document.getElementById(`tower-row-${row}`); 
-  const tiles = rowEl.querySelectorAll('.tower-tile'); 
-  const bombIndices = towerBombs[row];
-  const currentMults = calculateMultipliers();
-
-  tiles.forEach((tEl, idx) => { 
-    if (bombIndices.includes(idx)) { 
-      tEl.classList.add('bomb'); tEl.textContent = '💣'; 
-    } else { 
-      tEl.classList.add('safe'); tEl.textContent = '🏹'; 
-    } 
+window.addEventListener('DOMContentLoaded', () => {
+  getBet = createBetSlider({
+    inputId: 'betSlider',
+    displayId: 'betDisplay',
+    min: 1,
+    max: 500,
+    value: 10,
+    onChange: v => { el('betOut').textContent = money(v); }
   });
 
-  if (bombIndices.includes(tile)) {
-    towerGameState = 'gameover'; 
-    document.getElementById('tower-message').innerHTML = `<span style="color:#ff4d4d;">💥 CRASH! Bombe erwischt.</span>`;
-    revealEntireTower(); setTimeout(towerReset, 3000);
-  } else {
-    towerActiveLevel++;
-    if (towerActiveLevel === 5) {
-      const totalWin = Math.floor(towerBet * currentMults[4]); 
-      setCash(getCash() + totalWin); towerGameState = 'gameover';
-      document.getElementById('tower-message').innerHTML = `<span style="color:#ffd700;">🏆 TOWER BEZWUNGEN! +${totalWin} €</span>`;
-      revealEntireTower(); setTimeout(towerReset, 3500);
+  el('fieldBtns').addEventListener('click', event => {
+    const btn = event.target.closest('button[data-fields]');
+    if (!btn || state !== 'idle') return;
+    fields = Number(btn.dataset.fields);
+    if (bombs >= fields) bombs = fields - 1;
+    document.querySelectorAll('#fieldBtns button').forEach(b => b.classList.toggle('active', b === btn));
+    renderBombButtons();
+    buildTower();
+  });
+
+  el('bombBtns').addEventListener('click', event => {
+    const btn = event.target.closest('button[data-bombs]');
+    if (!btn || state !== 'idle') return;
+    bombs = Number(btn.dataset.bombs);
+    renderBombButtons();
+    buildTower();
+  });
+
+  // Delegation statt einzelner onclick-Handler: dadurch bleiben Klicks auch nach jedem Re-Render stabil.
+  el('tower').addEventListener('click', event => {
+    const tile = event.target.closest('.tower-tile');
+    if (!tile || tile.disabled) return;
+    pickTile(Number(tile.dataset.row), Number(tile.dataset.col));
+  });
+
+  el('startBtn').addEventListener('click', startTower);
+  el('cashBtn').addEventListener('click', cashoutTower);
+
+  renderBombButtons();
+  buildTower();
+});
+
+function setStateText() {
+  el('stateOut').textContent = state === 'play'
+    ? `Status: läuft · aktive Ebene ${level + 1}/6`
+    : 'Status: bereit';
+}
+
+function renderBombButtons() {
+  const wrap = el('bombBtns');
+  wrap.textContent = '';
+  for (let i = 1; i < fields; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.bombs = String(i);
+    btn.className = i === bombs ? 'active' : '';
+    btn.textContent = `${i} ${i === 1 ? 'Bombe' : 'Bomben'}`;
+    wrap.appendChild(btn);
+  }
+}
+
+function calcMults() {
+  let acc = 1;
+  const step = (fields / (fields - bombs)) * 0.97;
+  return Array.from({ length: 6 }, () => {
+    acc *= step;
+    return Number(acc.toFixed(acc < 10 ? 2 : 1));
+  });
+}
+
+function buildTower() {
+  mults = calcMults();
+  const tower = el('tower');
+  tower.textContent = '';
+
+  for (let r = 0; r < 6; r++) {
+    const row = document.createElement('div');
+    row.className = 'tower-row';
+    row.id = `row-${r}`;
+    row.dataset.row = String(r);
+
+    for (let c = 0; c < fields; c++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tower-tile';
+      btn.dataset.row = String(r);
+      btn.dataset.col = String(c);
+      btn.textContent = '⚜';
+      row.appendChild(btn);
+    }
+
+    const mult = document.createElement('span');
+    mult.className = 'pill tower-mult';
+    mult.textContent = `${mults[r]}x`;
+    row.appendChild(mult);
+    tower.appendChild(row);
+  }
+  updateRows();
+}
+
+function updateRows() {
+  for (let r = 0; r < 6; r++) {
+    const row = el(`row-${r}`);
+    if (!row) continue;
+    row.classList.remove('active', 'locked', 'passed');
+    const tiles = row.querySelectorAll('.tower-tile');
+    if (state !== 'play') {
+      row.classList.add('locked');
+      tiles.forEach(tile => { tile.disabled = true; });
+    } else if (r === level) {
+      row.classList.add('active');
+      tiles.forEach(tile => { tile.disabled = false; });
+    } else if (r < level) {
+      row.classList.add('passed');
+      tiles.forEach(tile => { tile.disabled = true; });
     } else {
-      document.getElementById('tower-message').textContent = `Sicher! Nächste Stufe: ${currentMults[towerActiveLevel]}x`;
-      updateTowerRowStates(); updateTowerCashoutButton();
+      row.classList.add('locked');
+      tiles.forEach(tile => { tile.disabled = true; });
     }
   }
+  setStateText();
 }
 
-function revealEntireTower() {
-  document.getElementById('tower-play-controls').style.display = 'none';
-  for (let row = 0; row < 5; row++) {
-    const rowEl = document.getElementById(`tower-row-${row}`); if (!rowEl) continue;
-    const tiles = rowEl.querySelectorAll('.tower-tile'); 
-    const bombIndices = towerBombs[row];
-    tiles.forEach((tEl, idx) => { 
-      if (bombIndices.includes(idx)) { 
-        tEl.classList.add('bomb'); tEl.textContent = '💣'; 
-      } else if (!tEl.classList.contains('safe')) { 
-        tEl.style.opacity = '0.4'; 
-      } 
-    });
+function makeBombRow() {
+  const set = new Set();
+  while (set.size < bombs) set.add(Math.floor(Math.random() * fields));
+  return set;
+}
+
+function startTower() {
+  if (state !== 'idle') return;
+  const bet = Math.floor(getBet());
+  if (!canAfford(bet)) return toast('Nicht genug Guthaben.', 'bad');
+
+  roundBet = bet;
+  changeCash(-roundBet);
+  level = 0;
+  state = 'play';
+  bombMap = Array.from({ length: 6 }, makeBombRow);
+  el('winOut').textContent = '0 €';
+  el('msg').textContent = 'Wähle jetzt ein Feld in der leuchtenden Ebene.';
+  el('startBtn').disabled = true;
+  el('cashBtn').disabled = true;
+  document.querySelectorAll('#fieldBtns button, #bombBtns button, #betSlider').forEach(x => { x.disabled = true; });
+  buildTower();
+}
+
+function revealRow(rowIndex, clickedCol, exploded) {
+  const row = el(`row-${rowIndex}`);
+  if (!row) return;
+  row.querySelectorAll('.tower-tile').forEach(btn => {
+    const col = Number(btn.dataset.col);
+    btn.disabled = true;
+    if (bombMap[rowIndex].has(col)) {
+      btn.classList.add('bomb');
+      btn.textContent = '💣';
+    } else {
+      btn.classList.add('safe');
+      btn.textContent = col === clickedCol || exploded ? '✅' : '⚜';
+    }
+  });
+}
+
+function pickTile(r, c) {
+  if (state !== 'play' || r !== level) return;
+
+  if (bombMap[r].has(c)) {
+    revealRow(r, c, true);
+    el('msg').textContent = 'Boom! Einsatz verloren.';
+    recordGame('Tower', -roundBet);
+    endTowerRound(false);
+    return;
   }
+
+  revealRow(r, c, false);
+  level++;
+  const cashout = Math.floor(roundBet * mults[level - 1]);
+  el('winOut').textContent = money(cashout);
+  el('cashBtn').disabled = false;
+
+  if (level >= 6) {
+    cashoutTower();
+    return;
+  }
+
+  el('msg').textContent = `Sicher! Cashout für ${money(cashout)} oder weiter nach oben.`;
+  updateRows();
 }
 
-function towerCashOut() {
-  if (towerGameState !== 'playing' || towerActiveLevel === 0) return;
-  const currentMults = calculateMultipliers();
-  const winAmount = Math.floor(towerBet * currentMults[towerActiveLevel - 1]); 
-  setCash(getCash() + winAmount); towerGameState = 'gameover';
-  document.getElementById('tower-message').innerHTML = `<span style="color:#ffd700;">💰 +${winAmount} € gesichert!</span>`;
-  revealEntireTower(); setTimeout(towerReset, 2500);
+function cashoutTower() {
+  if (state !== 'play' || level <= 0) return;
+  const win = Math.floor(roundBet * mults[level - 1]);
+  changeCash(win);
+  recordGame('Tower', win - roundBet);
+  el('msg').textContent = `Ausgezahlt: ${money(win)} 🎉`;
+  endTowerRound(true);
 }
 
-window.onload = towerReset;
+function endTowerRound(won) {
+  state = 'idle';
+  el('startBtn').disabled = false;
+  el('cashBtn').disabled = true;
+  document.querySelectorAll('#fieldBtns button, #bombBtns button, #betSlider').forEach(x => { x.disabled = false; });
+  updateRows();
+  setTimeout(() => {
+    el('winOut').textContent = '0 €';
+    buildTower();
+  }, won ? 1300 : 1700);
+}
 </script>
 </body>
 </html>

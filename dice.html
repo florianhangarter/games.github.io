@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Würfelspiel</title>
+<link rel="stylesheet" href="styles.css">
+<script src="casino-utils.js"></script>
+<style>
+  .dice-table{position:relative;margin-top:16px;background:linear-gradient(180deg, rgba(71,49,29,.98), rgba(28,18,12,.99));border-radius:34px;padding:48px 16px 16px;box-shadow:0 24px 50px rgba(0,0,0,.45), inset 0 0 0 3px rgba(126,82,39,.95)}
+  .dice-table:before{content:"CASINO DICE";position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:4px;font-weight:900;color:rgba(255,238,180,.88);z-index:2;pointer-events:none;white-space:nowrap}
+  .dice-table #choices{position:relative;z-index:1;margin-top:2px;margin-bottom:14px}
+  .dice-area{position:relative;background:radial-gradient(ellipse at center, rgba(31,116,69,.98) 0%, rgba(8,59,33,.99) 100%);border:2px solid rgba(229,193,88,.22);border-radius:24px;padding:56px 16px 30px;margin-top:0;overflow:hidden;box-shadow:inset 0 0 30px rgba(0,0,0,.28)}
+  .dice-area:before{content:"PASS LINE";position:absolute;left:24px;right:24px;bottom:14px;border:2px solid rgba(229,193,88,.36);border-radius:999px;padding:12px 0 10px;text-align:center;font-size:14px;letter-spacing:4px;font-weight:900;color:rgba(255,238,180,.82)}
+  .dice-area:after{content:"FIELD";position:absolute;left:50%;top:16px;transform:translateX(-50%);width:min(70%,420px);border:2px dashed rgba(229,193,88,.28);border-radius:18px;padding:10px 0;text-align:center;font-size:13px;letter-spacing:4px;font-weight:900;color:rgba(255,238,180,.78)}
+  .dice-stage{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin:26px 0 36px;position:relative;z-index:1}
+  .die-shell{width:124px;height:124px;border-radius:22px;background:linear-gradient(180deg,#ffffff,#ddd7ca);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 28px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.14)}
+  .dice{font-size:84px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.25));transition:transform .18s ease}
+  .dice.rolling{animation:diceRoll .55s linear infinite}
+  @keyframes diceRoll{0%{transform:rotate(0deg) scale(1)}25%{transform:rotate(90deg) scale(1.12)}50%{transform:rotate(180deg) scale(.94)}75%{transform:rotate(270deg) scale(1.08)}100%{transform:rotate(360deg) scale(1)}}
+  @media(max-width:680px){
+    .dice-table{padding:52px 10px 12px}
+    .dice-table:before{font-size:11px;letter-spacing:3px;top:12px}
+    .dice-table #choices{margin-bottom:12px}
+    .dice-area:after{width:min(82%,320px);font-size:11px;letter-spacing:3px}
+    .dice-area:before{left:12px;right:12px;font-size:12px;letter-spacing:3px}
+  }
+
+  /* FINAL dice viewport fit */
+  @media(max-height:820px){
+    .dice-table{padding:38px 10px 10px;margin-top:8px;border-radius:24px}
+    .dice-table:before{top:10px;font-size:10px;letter-spacing:3px}
+    .dice-table #choices{margin-bottom:8px}
+    .dice-area{padding:38px 10px 20px;border-radius:18px}
+    .dice-area:after{top:10px;padding:6px 0;font-size:10px}
+    .dice-area:before{bottom:8px;padding:7px 0;font-size:10px}
+    .dice-stage{gap:12px;margin:18px 0 24px}
+    .die-shell{width:82px;height:82px;border-radius:16px}
+    .dice{font-size:56px}
+  }
+  @media(max-width:680px){
+    .dice-table{padding:44px 8px 10px}
+    .dice-stage{gap:10px}
+    .die-shell{width:86px;height:86px}
+  }
+
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
+    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
+    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
+  </div>
+  <section class="panel">
+    <h1 class="title" style="font-size:38px">🎲 Royal Dice</h1>
+    <div class="betbox"><label for="betSlider">Einsatz</label><b id="betDisplay">10 €</b><input id="betSlider" type="range"></div>
+    <div class="dice-table"><div class="seg" id="choices">
+      <button class="active" data-choice="high">High 8–12 (2x)</button>
+      <button data-choice="low">Low 2–6 (2x)</button>
+      <button data-choice="even">Gerade (1.8x)</button>
+      <button data-choice="odd">Ungerade (1.8x)</button>
+      <button data-choice="double">Pasch (5x)</button>
+      <button data-choice="seven">Genau 7 (4x)</button>
+    </div>
+    <div class="dice-area">
+      <div class="dice-stage">
+        <div class="die-shell"><div id="d1" class="dice">⚀</div></div>
+        <div class="die-shell"><div id="d2" class="dice">⚀</div></div>
+      </div>
+    </div>
+    </div>
+    <div id="msg" class="message"></div>
+    <div class="controls"><button class="success" id="rollBtn" type="button">Würfeln</button></div>
+  </section>
+</main>
+<script>
+let getBet, choice = 'high', rolling = false;
+const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+const d1 = document.getElementById('d1');
+const d2 = document.getElementById('d2');
+const msg = document.getElementById('msg');
+document.addEventListener('DOMContentLoaded',()=>{
+  getBet=createBetSlider({inputId:'betSlider',displayId:'betDisplay',min:1,max:500,value:10,onChange:v=>betOut.textContent=money(v)});
+  document.querySelectorAll('#choices button').forEach(b=>b.onclick=()=>{
+    if (rolling) return;
+    choice=b.dataset.choice;
+    document.querySelectorAll('#choices button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  });
+  document.getElementById('rollBtn').addEventListener('click', rollDice);
+});
+function rollDice(){
+  if (rolling) return;
+  const bet=getBet();
+  if(!canAfford(bet)) return toast('Nicht genug Guthaben.');
+  rolling = true;
+  document.getElementById('rollBtn').disabled = true;
+  document.querySelectorAll('#choices button').forEach(b => b.disabled = true);
+  changeCash(-bet);
+  d1.classList.add('rolling');
+  d2.classList.add('rolling');
+  msg.textContent='Die Würfel rollen...';
+  const spin = setInterval(() => {
+    d1.textContent = faces[Math.floor(Math.random()*6)];
+    d2.textContent = faces[Math.floor(Math.random()*6)];
+  }, 90);
+  setTimeout(() => {
+    clearInterval(spin);
+    const a=1+Math.floor(Math.random()*6), b=1+Math.floor(Math.random()*6), sum=a+b;
+    d1.classList.remove('rolling');
+    d2.classList.remove('rolling');
+    d1.textContent=faces[a-1];
+    d2.textContent=faces[b-1];
+    let mult=0;
+    if(choice==='high'&&sum>=8)mult=2;
+    if(choice==='low'&&sum<=6)mult=2;
+    if(choice==='even'&&sum%2===0)mult=1.8;
+    if(choice==='odd'&&sum%2===1)mult=1.8;
+    if(choice==='double'&&a===b)mult=5;
+    if(choice==='seven'&&sum===7)mult=4;
+    if(mult){
+      const win=Math.floor(bet*mult);
+      changeCash(win);
+      msg.textContent=`${sum}! Gewinn: ${money(win)} 🎉`;
+      recordGame('Dice', win - bet);
+    } else {
+      msg.textContent=`${sum}. Leider verloren.`;
+      recordGame('Dice', -bet);
+    }
+    rolling = false;
+    document.getElementById('rollBtn').disabled = false;
+    document.querySelectorAll('#choices button').forEach(b => b.disabled = false);
+  }, 1150);
+}
+</script>
+</body>
+</html>
