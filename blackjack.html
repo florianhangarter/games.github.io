@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Royal Deluxe Casino - Blackjack</title>
+<script src="casino-utils.js"></script>
 <style>
 :root {
   --board-bg: radial-gradient(circle at 50% 40%, #1a5e35 0%, #0b3319 100%);
@@ -94,7 +95,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 </div>
 
 <script>
-let casinoBankroll = parseInt(localStorage.getItem('casino_bankroll')) || 1000;
 const solSuits = ["♠", "♥", "♦", "♣"];
 const solColors = { "♠": "black", "♣": "black", "♥": "red", "♦": "red" };
 let bjDeck = [], bjPlayerHand = [], bjDealerHand = [];
@@ -108,10 +108,6 @@ const bjEls = {
   overCtrl: document.getElementById('bj-gameover-controls'), btnDeal: document.getElementById('bj-btn-deal')
 };
 
-function syncBankrollDisplays() {
-  localStorage.setItem('casino_bankroll', casinoBankroll.toString());
-  document.querySelectorAll('.shared-bankroll').forEach(el => el.textContent = casinoBankroll + " €");
-}
 function solGetValLabel(v) { if (v === 1) return "A"; if (v === 11) return "J"; if (v === 12) return "Q"; if (v === 13) return "K"; return v; }
 function bjCreateDeck() {
   let d = []; for(let i=0; i<4; i++) { for (let s of solSuits) { for (let v = 1; v <= 13; v++) { d.push({ suit: s, value: v, id: `bj-${i}-${s}-${v}` }); } } }
@@ -130,8 +126,8 @@ function bjMakeCardElement(c, isHidden = false) {
   }
   return el;
 }
-function bjAddBet(amount) { if (casinoBankroll >= amount) { casinoBankroll -= amount; bjCurrentBet += amount; bjUpdateUI(); } }
-function bjClearBet() { casinoBankroll += bjCurrentBet; bjCurrentBet = 0; bjUpdateUI(); }
+function bjAddBet(amount) { if (getCash() >= amount) { setCash(getCash() - amount); bjCurrentBet += amount; bjUpdateUI(); } }
+function bjClearBet() { setCash(getCash() + bjCurrentBet); bjCurrentBet = 0; bjUpdateUI(); }
 function bjDeal() {
   if (bjCurrentBet === 0) return; bjDeck = bjCreateDeck();
   bjPlayerHand = [bjDeck.pop(), bjDeck.pop()]; bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
@@ -157,14 +153,13 @@ function bjEvaluateWinner() {
 }
 function bjEndGame(msg, result) {
   bjGameState = 'gameover'; bjEls.msg.textContent = msg;
-  if (result === 'win') casinoBankroll += bjCurrentBet * 2;
-  else if (result === 'blackjack') casinoBankroll += bjCurrentBet + (bjCurrentBet * 1.5);
-  else if (result === 'push') casinoBankroll += bjCurrentBet;
+  if (result === 'win') setCash(getCash() + bjCurrentBet * 2);
+  else if (result === 'blackjack') setCash(getCash() + bjCurrentBet + (bjCurrentBet * 1.5));
+  else if (result === 'push') setCash(getCash() + bjCurrentBet);
   bjCurrentBet = 0; bjUpdateUI();
 }
 function bjResetGame() { bjPlayerHand = []; bjDealerHand = []; bjGameState = 'betting'; bjEls.msg.textContent = "Bitte Einsatz wählen"; bjUpdateUI(); }
 function bjUpdateUI() {
-  syncBankrollDisplays();
   bjEls.bet.textContent = bjCurrentBet + " €"; bjEls.btnDeal.disabled = bjCurrentBet === 0;
   bjEls.betCtrl.style.display = bjGameState === 'betting' ? 'flex' : 'none';
   bjEls.playCtrl.style.display = bjGameState === 'playing' ? 'flex' : 'none';
