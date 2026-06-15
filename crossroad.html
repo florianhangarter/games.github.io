@@ -388,7 +388,8 @@ async function nextStep(){
     activeBet = 0;
     updateVisuals(); setButtons();
     startAmbientTraffic();
-    try { window.casinoSound&&casinoSound.play('cashout'); playCustomWinSound(); recordGame('Cross Road', -lost); } catch(e) {}
+    try { window.casinoSound&&casinoSound.play('cashout'); if((-lost)>0) playCustomWinSound();
+  recordGame('Cross Road', -lost); } catch(e) {}
     return;
   }
 
@@ -406,6 +407,7 @@ function cashout(){
   if (!inRound || busy || level <= 0) return;
   const win = potential();
   const profit = win - activeBet;
+  playCustomWinSound();
   changeCash(win);
   addHistory('+' + money(win), 'win');
   msg.textContent = `Cashout: ${money(win)} bei ${currentMult().toFixed(2)}x`;
@@ -628,28 +630,26 @@ document.addEventListener('click',e=>{
 </script>
 
 
-<script>
-/* Global Custom Winning Sound für dieses Spiel */
+
+
+<script id="custom-win-sound-safe-final">
+/* Custom Winning Sound - funktioniert auf Mobile/Tablet nach erstem Tippen */
 let customWinSoundUnlocked = false;
 
 function unlockCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio || customWinSoundUnlocked) return;
-
   try{
     audio.load();
     audio.volume = 0.01;
     const p = audio.play();
-
     if(p && typeof p.then === "function"){
       p.then(()=>{
         audio.pause();
         audio.currentTime = 0;
         audio.volume = 1;
         customWinSoundUnlocked = true;
-      }).catch(()=>{
-        audio.volume = 1;
-      });
+      }).catch(()=>{ audio.volume = 1; });
     }else{
       audio.pause();
       audio.currentTime = 0;
@@ -657,14 +657,13 @@ function unlockCustomWinSound(){
       customWinSoundUnlocked = true;
     }
   }catch(e){
-    audio.volume = 1;
+    if(audio) audio.volume = 1;
   }
 }
 
 function playCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio) return;
-
   try{
     audio.volume = 1;
     audio.currentTime = 0;
@@ -679,7 +678,7 @@ document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
 document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
 document.addEventListener("click", unlockCustomWinSound, {passive:true});
 </script>
-
 <audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
+
 </body>
 </html>

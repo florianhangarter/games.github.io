@@ -738,58 +738,60 @@ document.addEventListener('click',e=>{
 </script>
 
 
-<script>
-/* Global Custom Winning Sound für dieses Spiel */
+
+<script id="custom-win-sound-safe">
+/* Custom Winning Sound - nur per direktem Aufruf */
 let customWinSoundUnlocked = false;
 
 function unlockCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio || customWinSoundUnlocked) return;
-
   try{
     audio.load();
     audio.volume = 0.01;
     const p = audio.play();
-
     if(p && typeof p.then === "function"){
       p.then(()=>{
         audio.pause();
         audio.currentTime = 0;
         audio.volume = 1;
         customWinSoundUnlocked = true;
-      }).catch(()=>{
-        audio.volume = 1;
-      });
+      }).catch(()=>{ audio.volume = 1; });
     }else{
       audio.pause();
       audio.currentTime = 0;
       audio.volume = 1;
       customWinSoundUnlocked = true;
     }
-  }catch(e){
-    audio.volume = 1;
-  }
+  }catch(e){ audio.volume = 1; }
 }
 
 function playCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio) return;
-
   try{
     audio.volume = 1;
     audio.currentTime = 0;
     const p = audio.play();
-    if(p && typeof p.catch === "function"){
-      p.catch(()=>unlockCustomWinSound());
-    }
+    if(p && typeof p.catch === "function") p.catch(()=>unlockCustomWinSound());
   }catch(e){}
+}
+
+function playCustomWinSoundIfProfit(payout, stake){
+  const p = Number(payout || 0);
+  const s = Number(stake || 0);
+  if(p > s){
+    playCustomWinSound();
+    return true;
+  }
+  return false;
 }
 
 document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
 document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
 document.addEventListener("click", unlockCustomWinSound, {passive:true});
 </script>
-
 <audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
+
 </body>
 </html>

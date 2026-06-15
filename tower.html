@@ -175,8 +175,14 @@ window.addEventListener('DOMContentLoaded', () => {
     pickTile(Number(tile.dataset.row), Number(tile.dataset.col));
   });
 
-  el('startBtn').addEventListener('click', startTower);
-  el('cashBtn').addEventListener('click', cashoutTower);
+  el('startBtn').addEventListener('click', () => {
+    if (typeof unlockCustomWinSound === 'function') unlockCustomWinSound();
+    startTower();
+  });
+  el('cashBtn').addEventListener('click', () => {
+    if (typeof unlockCustomWinSound === 'function') unlockCustomWinSound();
+    cashoutTower();
+  });
 
   renderBombButtons();
   buildTower();
@@ -348,7 +354,7 @@ function pickTile(r, c) {
   if (bombMap[r].has(c)) {
     revealRow(r, c, true);
     el('msg').textContent = 'Boom! Einsatz verloren.';
-    playCustomWinSound(); recordGame('Tower', -roundBet);
+    recordGame('Tower', -roundBet);
     endTowerRound(false);
     return;
   }
@@ -372,6 +378,12 @@ function cashoutTower() {
   if (state !== 'play' || level <= 0) return;
   const win = Math.floor(roundBet * mults[level - 1]);
   changeCash(win);
+
+  // Custom-Winning-Sound nur bei echtem Gewinn/Cashout
+  if (win > roundBet && typeof playCustomWinSound === 'function') {
+    playCustomWinSound();
+  }
+
   recordGame('Tower', win - roundBet);
   el('msg').textContent = `Ausgezahlt: ${money(win)} 🎉`;
   endTowerRound(true);
@@ -559,28 +571,26 @@ document.addEventListener('click',e=>{
 </script>
 
 
-<script>
-/* Global Custom Winning Sound für dieses Spiel */
+
+
+<script id="custom-win-sound-safe-final">
+/* Custom Winning Sound - funktioniert auf Mobile/Tablet nach erstem Tippen */
 let customWinSoundUnlocked = false;
 
 function unlockCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio || customWinSoundUnlocked) return;
-
   try{
     audio.load();
     audio.volume = 0.01;
     const p = audio.play();
-
     if(p && typeof p.then === "function"){
       p.then(()=>{
         audio.pause();
         audio.currentTime = 0;
         audio.volume = 1;
         customWinSoundUnlocked = true;
-      }).catch(()=>{
-        audio.volume = 1;
-      });
+      }).catch(()=>{ audio.volume = 1; });
     }else{
       audio.pause();
       audio.currentTime = 0;
@@ -588,14 +598,13 @@ function unlockCustomWinSound(){
       customWinSoundUnlocked = true;
     }
   }catch(e){
-    audio.volume = 1;
+    if(audio) audio.volume = 1;
   }
 }
 
 function playCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio) return;
-
   try{
     audio.volume = 1;
     audio.currentTime = 0;
@@ -610,7 +619,7 @@ document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
 document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
 document.addEventListener("click", unlockCustomWinSound, {passive:true});
 </script>
-
 <audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
+
 </body>
 </html>
