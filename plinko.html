@@ -3,120 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Plinko</title>
+<title>Plinko - Royal Deluxe Casino</title>
 <link rel="stylesheet" href="styles.css">
-<script src="casino-utils.js"></script>
+<script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
+document.addEventListener('click',e=>{const t=(e.target.textContent||'').toLowerCase(); if(t.includes('drop')) window.casinoSound&&casinoSound.play('plinkoHit');});
+</script>
 <style>
-  body{
-    background:
-      radial-gradient(circle at 50% 8%,#9ec9d7 0%,#31505e 28%,#182b35 54%,#081016 100%);
-  }
-  .plinko-shell{
-    max-width:920px;margin:auto;position:relative;overflow:hidden;
-    background:linear-gradient(145deg,#263d49,#0e1920);
-    border:2px solid #c9a45e;
-    box-shadow:0 26px 60px rgba(0,0,0,.58),0 0 34px rgba(201,164,94,.15)
-  }
-  .plinko-shell:before{
-    content:"ROYAL DROP";
-    position:absolute;top:10px;left:50%;transform:translateX(-50%);
-    font-size:12px;letter-spacing:4px;color:#f1ddaf;opacity:.74;font-weight:900
-  }
-  .plinko-title{
-    font-size:38px;margin-top:12px;
-    background:linear-gradient(#f7e4b3,#d3aa61,#8e6523);
-    -webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none
-  }
-  .plinko-config{display:grid;grid-template-columns:1fr;gap:8px;max-width:760px;margin:0 auto}
-  .ball-seg{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px auto 0}
-  .ball-seg button.active{background:linear-gradient(#d8bb55,#9c7620);color:#181008;border-color:#ffe9a4}
-  .plinko-live{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;max-width:760px;margin:12px auto 0}
-  .plinko-live .counter-display{text-align:center;border-radius:16px}
-  .plinko-help{text-align:center;color:rgba(255,255,255,.62);font-size:13px;margin-top:10px;letter-spacing:.2px}
-  .plinko-status-wrap{text-align:center}
-  .plinko-status{
-    font-size:12px;color:#edd8aa;text-align:center;margin:10px auto 0;
-    display:inline-flex;justify-content:center;align-items:center;
-    padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.22);
-    border:1px solid rgba(201,164,94,.18);min-width:190px
-  }
-  .plinko-board{
-    position:relative;max-width:760px;margin:18px auto 8px;padding:16px;border-radius:24px;
-    background:linear-gradient(180deg,#101c21,#162a31 58%,#0d1519 100%);
-    border:2px solid rgba(201,164,94,.26);
-    box-shadow:inset 0 0 30px rgba(0,0,0,.52),0 0 18px rgba(201,164,94,.08)
-  }
-  .plinko-board:before{content:"";position:absolute;inset:12px;border-radius:20px;border:1px solid rgba(241,221,175,.06);pointer-events:none}
-  #plinkoCanvas{position:relative;z-index:1;width:100%;height:520px;display:block;border-radius:18px;background:radial-gradient(circle at 50% 10%,rgba(255,255,255,.045),rgba(0,0,0,.18) 70%)}
-  .bucket-row{display:grid;gap:6px;max-width:760px;margin:0 auto;position:relative;z-index:2}
-  .bucket{
-    text-align:center;padding:8px 4px;border-radius:12px;font-size:12px;font-weight:950;
-    color:#351f0b;background:linear-gradient(180deg,#f7e4b3,#cfa25a);
-    border:1px solid rgba(255,239,180,.45);box-shadow:inset 0 1px 4px rgba(255,255,255,.18)
-  }
-  .bucket.hot{background:linear-gradient(180deg,#ffdf7a,#c78225);color:#241302;box-shadow:0 0 20px rgba(229,193,88,.24)}
-  .bucket.bad{background:linear-gradient(180deg,#455a64,#1b2c34);color:#dce7ea;border-color:rgba(255,255,255,.08)}
-  .plinko-history{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:760px;margin:10px auto 0}
-  .plinko-history span{font-size:12px;font-weight:900;border-radius:999px;padding:5px 9px;background:rgba(0,0,0,.32);border:1px solid rgba(229,193,88,.18);color:#f0cc77}
-  .plinko-history .loss{color:#b8c7ce;border-color:rgba(255,255,255,.12)}
-  .plinko-history .win{color:#93f0ae;border-color:rgba(147,240,174,.34)}
-  @media(max-height:820px){#plinkoCanvas{height:430px}.plinko-board{padding:12px}.bucket{font-size:11px;padding:6px 3px}.plinko-title{font-size:34px}#msg{font-size:18px;margin:8px 0}}
-  @media(max-width:680px){#plinkoCanvas{height:420px}.bucket-row{gap:4px}.bucket{font-size:10px}.plinko-title{font-size:34px}.plinko-board{padding:10px}}
+:root{
+  --pl-bg:#060812;--pl-panel:#0d1424;--pl-gold:#e5c158;--pl-gold-2:#fff0a3;--pl-text:#f8f5ed;--pl-muted:rgba(248,245,237,.66);--pl-border:rgba(229,193,88,.28);--pl-green:#37b46b;--pl-red:#c64d4d;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%;overflow-x:hidden}
+body{
+  margin:0;padding:clamp(10px,1.8vw,24px);color:var(--pl-text);font-family:Segoe UI,Arial,sans-serif;user-select:none;
+  background:radial-gradient(circle at 15% 5%,rgba(229,193,88,.17),transparent 30%),radial-gradient(circle at 84% 8%,rgba(102,74,255,.15),transparent 30%),radial-gradient(circle at 50% 100%,rgba(26,122,91,.22),transparent 35%),linear-gradient(145deg,#050711,#0a101d 48%,#05070d 100%)!important;
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:44px 44px;opacity:.42;z-index:-1}
+
+.plinko-app{width:min(1440px,100%);margin:0 auto;min-height:calc(100dvh - clamp(20px,3.6vw,48px));max-height:calc(100dvh - clamp(20px,3.6vw,48px));display:grid;grid-template-rows:auto minmax(0,1fr);border:1px solid var(--pl-border);border-radius:32px;overflow:hidden;background:linear-gradient(180deg,rgba(11,17,30,.96),rgba(6,10,18,.98));box-shadow:0 30px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+.casino-header{min-height:94px;padding:18px 24px;display:grid;grid-template-columns:auto minmax(280px,1fr) auto;gap:20px;align-items:center;background:rgba(4,8,15,.72);border-bottom:1px solid rgba(229,193,88,.18);backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:13px;min-width:190px;color:var(--pl-text);text-decoration:none}.brand-mark{font-size:42px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}.brand-title{font-family:Georgia,serif;font-size:25px;line-height:.9;font-weight:900;letter-spacing:1px;color:var(--pl-gold-2)}.brand-title span{display:block;margin-top:8px;text-align:center;font-size:11px;letter-spacing:4px;color:var(--pl-gold)}
+.casino-nav{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;overflow-x:auto;scrollbar-width:none;padding:4px}.casino-nav::-webkit-scrollbar{display:none}.casino-nav a{flex:0 0 auto;color:rgba(255,255,255,.74);text-decoration:none;font-size:13px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;padding:12px 17px;border-radius:999px;border:1px solid transparent;transition:.18s ease}.casino-nav a.active,.casino-nav a:hover{color:var(--pl-gold-2);background:rgba(229,193,88,.11);border-color:rgba(229,193,88,.34)}
+.wallet{display:flex;align-items:center;gap:13px;padding:11px 13px 11px 16px;border-radius:20px;background:rgba(0,0,0,.32);border:1px solid rgba(229,193,88,.26);min-width:220px}.wallet-icon,.wallet-plus{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#201405;background:linear-gradient(#fff0a3,#d5a43b);font-size:23px;font-weight:950}.wallet small{display:block;color:rgba(255,255,255,.58);font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:11px}.wallet b{display:block;font-size:20px;margin-top:2px;white-space:nowrap}.wallet-plus{border:none;border-radius:13px;padding:0;cursor:pointer;margin-left:auto}
+
+.plinko-main{min-height:0;display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;padding:18px;overflow:hidden}
+.side-panel,.game-panel{min-height:0;border:1px solid rgba(229,193,88,.24);border-radius:28px;background:linear-gradient(180deg,rgba(17,27,45,.82),rgba(5,9,18,.90));box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 55px rgba(0,0,0,.28);overflow:hidden}
+.side-panel{padding:22px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.game-panel{padding:20px;display:grid;grid-template-rows:auto auto minmax(0,1fr) 34px 54px auto;gap:14px;overflow:hidden}
+.game-eyebrow{color:var(--pl-gold);font-size:12px;font-weight:950;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}.game-title{font-family:Georgia,serif;font-size:clamp(42px,4vw,58px);line-height:.92;margin:0;color:#fff}.game-title span{display:block;color:var(--pl-gold)}.side-copy{color:rgba(255,255,255,.72);line-height:1.55;margin:14px 0 0;font-size:14px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat-card{padding:15px;border-radius:20px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08)}.stat-card small{display:block;color:var(--pl-muted);font-weight:900;text-transform:uppercase;letter-spacing:1px;font-size:11px}.stat-card b{display:block;margin-top:6px;color:var(--pl-gold-2);font-size:24px}
+.quick-bet-card{position:relative;overflow:hidden;padding:16px;border-radius:24px;background:linear-gradient(180deg,rgba(17,27,45,.78),rgba(3,7,14,.72));border:1px solid rgba(229,193,88,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 14px 28px rgba(0,0,0,.22)}.quick-bet-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,rgba(229,193,88,.14),transparent 48%);pointer-events:none}.quick-bet-card>*{position:relative;z-index:1}.bet-display{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:14px}.bet-amount{font-size:42px;line-height:1;font-weight:950;color:#fff;text-shadow:0 6px 18px rgba(0,0,0,.35)}.bet-amount span{color:var(--pl-gold);font-size:.68em;margin-right:2px}.bet-mode-pill{border:1px solid rgba(229,193,88,.26);background:rgba(0,0,0,.26);border-radius:999px;padding:9px 12px;color:var(--pl-gold-2);font-weight:900;font-size:12px;text-transform:uppercase;white-space:nowrap}
+.preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}.preset{min-height:68px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;font-weight:950;display:grid;place-items:center;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease,box-shadow .15s ease;text-transform:none;letter-spacing:0;padding:8px}.preset:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(229,193,88,.45);background:rgba(229,193,88,.08)}.preset.active{border-color:rgba(229,193,88,.65);box-shadow:0 0 0 3px rgba(229,193,88,.14),0 10px 22px rgba(0,0,0,.28);background:rgba(229,193,88,.12)}.preset b{display:block;color:var(--pl-gold-2);font-size:18px}.preset small{display:block;color:var(--pl-muted);font-size:11px;margin-top:3px;text-transform:uppercase;letter-spacing:.7px}.slider-wrap{padding:14px;border-radius:18px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08)}.slider-wrap input[type=range]{width:100%;accent-color:#e5c158}.range-labels{display:flex;justify-content:space-between;margin-top:7px;color:var(--pl-muted);font-size:12px;font-weight:800}.bet-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.bet-action{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.055);color:#fff;border-radius:14px;padding:11px 8px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:.3px}.bet-action.red{background:rgba(184,68,68,.22);border-color:rgba(184,68,68,.35)}.bet-action.green{background:rgba(55,180,107,.22);border-color:rgba(55,180,107,.35)}.bet-action:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.12)}.bet-action:disabled,.preset:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.7)}
+
+.setting-panel{display:grid;gap:12px}.setting-panel h3{margin:0;color:var(--pl-gold-2);font-size:16px;text-transform:uppercase;letter-spacing:1px}.seg,.ball-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;justify-content:initial}.seg button,.ball-seg button{min-height:52px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);color:#fff;text-transform:none}.seg button.active,.ball-seg button.active{background:rgba(229,193,88,.13);border-color:rgba(229,193,88,.6);color:var(--pl-gold-2);box-shadow:0 0 0 3px rgba(229,193,88,.12)}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.table-head h2{margin:0;color:var(--pl-gold-2);font-size:25px;text-transform:uppercase;letter-spacing:1px}.rule-pill,.plinko-status{padding:9px 13px;border-radius:999px;border:1px solid rgba(229,193,88,.26);background:rgba(0,0,0,.28);color:var(--pl-gold);font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+.plinko-live{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.live-box{padding:12px;border-radius:18px;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.08);text-align:center}.live-box small{display:block;color:var(--pl-muted);font-weight:900;text-transform:uppercase;letter-spacing:1px;font-size:10px}.live-box b{display:block;margin-top:5px;color:var(--pl-gold-2);font-size:18px}
+.plinko-stage{min-height:0;height:100%;border-radius:30px;padding:20px;background:radial-gradient(circle at 50% 8%,rgba(229,193,88,.10),transparent 34%),linear-gradient(180deg,rgba(9,17,30,.98),rgba(3,7,14,.99));border:2px solid rgba(229,193,88,.24);box-shadow:inset 0 0 70px rgba(0,0,0,.46),0 24px 50px rgba(0,0,0,.35);overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr)}
+.plinko-board{position:relative;width:100%;height:100%;min-height:500px;margin:0 auto;padding:14px 14px 12px;border-radius:24px;background:linear-gradient(180deg,#101c21,#162a31 58%,#0d1519 100%);border:2px solid rgba(201,164,94,.26);box-shadow:inset 0 0 30px rgba(0,0,0,.52),0 0 18px rgba(201,164,94,.08);overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:8px}
+.plinko-board:before{content:"";position:absolute;inset:12px;border-radius:20px;border:1px solid rgba(241,221,175,.06);pointer-events:none}
+#plinkoCanvas{position:relative;z-index:1;width:100%;height:100%;display:block;border-radius:18px;background:radial-gradient(circle at 50% 10%,rgba(255,255,255,.045),rgba(0,0,0,.18) 70%)}
+.bucket-row{display:grid;gap:6px;width:100%;margin:0;position:relative;z-index:2}.bucket{text-align:center;padding:8px 4px;border-radius:12px;font-size:12px;font-weight:950;color:#351f0b;background:linear-gradient(180deg,#f7e4b3,#cfa25a);border:1px solid rgba(255,239,180,.45);box-shadow:inset 0 1px 4px rgba(255,255,255,.18)}.bucket.hot{background:linear-gradient(180deg,#ffdf7a,#c78225);color:#241302;box-shadow:0 0 20px rgba(229,193,88,.24)}.bucket.bad{background:linear-gradient(180deg,#455a64,#1b2c34);color:#dce7ea;border-color:rgba(255,255,255,.08)}
+.plinko-history{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin:0 auto;min-height:34px;max-height:34px;overflow:hidden}.plinko-history span{font-size:12px;font-weight:900;border-radius:999px;padding:5px 9px;background:rgba(0,0,0,.32);border:1px solid rgba(229,193,88,.18);color:#f0cc77}.plinko-history .loss{color:#b8c7ce;border-color:rgba(255,255,255,.12)}.plinko-history .win{color:#93f0ae;border-color:rgba(147,240,174,.34)}
+.message{margin:0 auto;width:100%;min-height:54px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:20px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.08);color:#ffd966}.controls{margin:0;gap:10px}.controls button{min-width:160px}.betbox{display:none!important}
+@media(max-width:1120px){.casino-header{grid-template-columns:1fr auto;gap:14px}.casino-nav{grid-column:1/-1;justify-content:flex-start;order:3}.plinko-main{grid-template-columns:1fr;overflow:auto}.side-panel{display:grid;grid-template-columns:1fr 1fr;align-items:start}.quick-bet-card,.setting-panel{grid-column:auto}}
+@media(max-width:760px){body{padding:10px}.plinko-app{border-radius:24px;max-height:none}.casino-header{grid-template-columns:1fr;justify-items:stretch;padding:14px;min-height:0}.brand{justify-content:center;min-width:0}.wallet{justify-content:center;min-width:0}.wallet-plus{display:none}.casino-nav{justify-content:flex-start}.brand-title{font-size:20px}.brand-mark{font-size:34px}.plinko-main{padding:14px;gap:14px;overflow:auto}.side-panel,.game-panel{border-radius:22px;padding:16px}.side-panel{display:flex}.game-title,.side-copy{text-align:center}.stat-grid,.plinko-live{grid-template-columns:1fr}.seg,.ball-seg{grid-template-columns:1fr 1fr}.preset-grid{grid-template-columns:1fr}.bet-actions{grid-template-columns:repeat(2,1fr)}.table-head{justify-content:center;text-align:center}.plinko-stage{padding:12px}.plinko-board{min-height:400px;padding:10px}.bucket{font-size:10px;padding:6px 3px}.controls button{flex:1 1 160px}}
+@media(max-height:760px) and (min-width:900px){.plinko-main{padding:14px;gap:14px}.side-panel,.game-panel{padding:16px}.game-title{font-size:38px}.stat-card{padding:11px}.plinko-board{min-height:370px}}
 </style>
 </head>
 <body>
-<main class="page">
-  <div class="topbar">
-    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
-    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
-    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
-    <div class="counter-display">Gewinn: <span id="winOut">0 €</span></div>
-  </div>
-
-  <section class="panel plinko-shell">
-    <h1 class="title plinko-title">🟡 Plinko</h1>
-    <div class="betbox">
-      <label for="betSlider">Einsatz</label>
-      <b id="betDisplay">10 €</b>
-      <input id="betSlider" type="range">
-    </div>
-
-    <div class="plinko-config">
-      <div class="seg" id="riskBtns">
-        <button class="active" data-risk="low" type="button">Sicher</button>
-        <button data-risk="medium" type="button">Normal</button>
-        <button data-risk="high" type="button">Riskant</button>
+<div class="plinko-app">
+  <header class="casino-header">
+    <a href="index.html" class="brand" aria-label="Royal Deluxe Casino"><div class="brand-mark">👑</div><div class="brand-title">ROYAL<br>DELUXE<span>CASINO</span></div></a>
+    <nav class="casino-nav" aria-label="Casino Navigation">
+      <a href="index.html">🏠 Home</a><a href="tower.html">🏰 Tower</a><a class="active" href="plinko.html">🟡 Plinko</a><a href="crossroad.html">🐔 Cross Road</a><a href="solitaire.html">♠️ Solitär</a>
+    </nav>
+    <div class="wallet"><div class="wallet-icon">€</div><div><small>Guthaben</small><b class="shared-bankroll">1000 €</b></div><button class="wallet-plus" type="button" onclick="resetBankroll()">+</button></div>
+  </header>
+  <main class="plinko-main">
+    <aside class="side-panel">
+      <div><div class="game-eyebrow">🟡 Royal Drop Game</div><h1 class="game-title">Plin<span>ko</span></h1><p class="side-copy">Wähle Risiko, Einsatz pro Ball und Ball-Anzahl. Danach fallen alle Kugeln gleichzeitig in die Multiplikatoren.</p></div>
+      <div class="stat-grid"><div class="stat-card"><small>Einsatz pro Ball</small><b id="betOut">50 €</b></div><div class="stat-card"><small>Gewinn</small><b id="winOut">0 €</b></div></div>
+      <div class="quick-bet-card" id="quickBetCard">
+        <div class="bet-display"><div class="bet-amount"><span>€</span><b id="betDisplay">50</b></div><div class="bet-mode-pill">Pro Ball</div></div>
+        <div class="preset-grid" id="presetBets"><button class="preset" data-set="10" type="button"><div><b>10 €</b><small>Small</small></div></button><button class="preset active" data-set="50" type="button"><div><b>50 €</b><small>Standard</small></div></button><button class="preset" data-set="100" type="button"><div><b>100 €</b><small>High</small></div></button></div>
+        <div class="slider-wrap"><input id="betSlider" type="range"><div class="range-labels"><span>Minimal</span><span>Maximal</span></div></div>
+        <div class="bet-actions" id="betActions"><button class="bet-action red" data-action="reset" type="button">Reset</button><button class="bet-action" data-action="minus" type="button">-10</button><button class="bet-action" data-action="plus" type="button">+10</button><button class="bet-action green" data-action="allin" type="button">All In</button></div>
       </div>
-      <div class="ball-seg" id="ballBtns">
-        <button class="active" data-balls="1" type="button">1 Ball</button>
-        <button data-balls="5" type="button">5 Balls</button>
-        <button data-balls="10" type="button">10 Balls</button>
-        <button data-balls="25" type="button">25 Balls</button>
-        <button data-balls="50" type="button">50 Balls</button>
-        <button data-balls="100" type="button">100 Balls</button>
+      <div class="setting-panel">
+        <h3>Risiko</h3>
+        <div class="seg" id="riskBtns"><button class="active" data-risk="low" type="button">Sicher</button><button data-risk="medium" type="button">Normal</button><button data-risk="high" type="button">Riskant</button></div>
+        <h3>Ball-Anzahl</h3>
+        <div class="ball-seg" id="ballBtns"><button class="active" data-balls="1" type="button">1</button><button data-balls="5" type="button">5</button><button data-balls="10" type="button">10</button><button data-balls="25" type="button">25</button><button data-balls="50" type="button">50</button><button data-balls="100" type="button">100</button></div>
       </div>
-    </div>
-    <div class="plinko-help">Wähle Risiko, Einsatz pro Ball und Ball-Anzahl. Beim Drop fallen mehrere Kugeln gleichzeitig durch die Pins.</div>
-    <div class="plinko-live">
-      <div class="counter-display">Balls: <span id="ballsOut">1</span></div>
-      <div class="counter-display">Gesamteinsatz: <span id="totalBetOut">10 €</span></div>
-      <div class="counter-display">Geladet: <span id="landedOut">0 / 1</span></div>
-    </div>
-    <div class="plinko-status-wrap"><div class="plinko-status" id="stateOut">Status: bereit</div></div>
-
-    <div class="plinko-board">
-      <canvas id="plinkoCanvas"></canvas>
-      <div class="bucket-row" id="bucketRow"></div>
-    </div>
-    <div class="plinko-history" id="history"></div>
-    <div id="msg" class="message"></div>
-    <div class="controls">
-      <button class="success" id="dropBtn" type="button">Drop</button>
-    </div>
-  </section>
-</main>
-
+    </aside>
+    <section class="game-panel">
+      <div class="table-head"><h2>Royal Drop</h2><div class="plinko-status" id="stateOut">Status: bereit</div></div>
+      <div class="plinko-live">
+        <div class="live-box"><small>Balls</small><b id="ballsOut">1</b></div>
+        <div class="live-box"><small>Gesamteinsatz</small><b id="totalBetOut">50 €</b></div>
+        <div class="live-box"><small>Gelandet</small><b id="landedOut">0 / 1</b></div>
+      </div>
+      <div class="plinko-stage">
+        <div class="plinko-board"><canvas id="plinkoCanvas"></canvas><div class="bucket-row" id="bucketRow"></div></div>
+      </div>
+      <div class="plinko-history" id="history"></div>
+      <div id="msg" class="message"></div>
+      <div class="controls"><button class="success" id="dropBtn" type="button">Drop</button></div>
+    </section>
+  </main>
+</div>
 <script>
+
 let getBet;
 let risk = 'low';
 let running = false;
@@ -130,6 +107,7 @@ let ballCount = 1;
 let totalWin = 0;
 let landedCount = 0;
 let dropStartTime = 0;
+let bucketHits = [];
 
 const multipliers = {
   low:    [0.4,0.6,0.8,1.0,1.3,1.0,0.8,0.6,0.4],
@@ -143,8 +121,43 @@ const ctx = canvas.getContext('2d');
 
 window.addEventListener('DOMContentLoaded', () => {
   getBet = createBetSlider({
-    inputId:'betSlider', displayId:'betDisplay', min:1, max:500, value:10,
-    onChange:v => { el('betOut').textContent = money(v); updateTotalBet(); }
+    inputId:'betSlider',
+    displayId:'betDisplay',
+    min:1,
+    max:500,
+    value:50,
+    onChange:v => {
+      el('betOut').textContent = money(v);
+      const bd = el('betDisplay');
+      if (bd) bd.textContent = Math.floor(v);
+      updatePresetActive(v);
+      updateTotalBet();
+    }
+  });
+
+  const betSlider = el('betSlider');
+  const setBetValue = value => {
+    const min = Number(betSlider.min || 1);
+    const max = Number(betSlider.max || 500);
+    betSlider.value = String(Math.max(min, Math.min(max, Math.floor(value))));
+    betSlider.dispatchEvent(new Event('input'));
+  };
+
+  el('presetBets')?.addEventListener('click', event => {
+    const btn = event.target.closest('button[data-set]');
+    if (!btn || running) return;
+    setBetValue(Number(btn.dataset.set));
+  });
+
+  el('betActions')?.addEventListener('click', event => {
+    const btn = event.target.closest('button[data-action]');
+    if (!btn || running) return;
+    let v = Number(betSlider.value || 0);
+    if (btn.dataset.action === 'reset') v = 50;
+    if (btn.dataset.action === 'minus') v -= 10;
+    if (btn.dataset.action === 'plus') v += 10;
+    if (btn.dataset.action === 'allin') v = Math.floor(getCash() / Math.max(1, ballCount));
+    setBetValue(v);
   });
 
   el('riskBtns').addEventListener('click', event => {
@@ -152,8 +165,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!btn || running) return;
     risk = btn.dataset.risk;
     document.querySelectorAll('#riskBtns button').forEach(b => b.classList.toggle('active', b === btn));
+    resetBucketHits();
     renderBuckets();
-    draw();
+    sizeCanvas();
   });
 
   el('ballBtns').addEventListener('click', event => {
@@ -165,85 +179,182 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   el('dropBtn').addEventListener('click', dropBalls);
-  window.addEventListener('resize', sizeCanvas);
-  sizeCanvas();
+  window.addEventListener('resize', () => requestAnimationFrame(sizeCanvas));
+
+  resetBucketHits();
   renderBuckets();
+  requestAnimationFrame(sizeCanvas);
   renderHistory();
   updateTotalBet();
   setStatus('Status: bereit');
 });
 
+function resetBucketHits(){
+  bucketHits = Array(multipliers[risk].length).fill(0);
+}
+
+function boardSize(){
+  return {
+    w: Math.max(1, canvas.clientWidth || 700),
+    h: Math.max(1, canvas.clientHeight || 460)
+  };
+}
+
 function sizeCanvas(){
   const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.floor(rect.width * window.devicePixelRatio);
-  canvas.height = Math.floor(rect.height * window.devicePixelRatio);
-  ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   buildBoard();
   draw();
 }
 
-function boardSize(){ return { w: canvas.clientWidth, h: canvas.clientHeight }; }
-
 function buildBoard(){
   const {w,h} = boardSize();
+  const mults = multipliers[risk];
+  const bucketCount = mults.length;
+  const bucketW = w / bucketCount;
+
+  buckets = Array.from({length: bucketCount}, (_, i) => ({
+    x: i * bucketW + bucketW / 2,
+    y: h - 30,
+    w: bucketW,
+    mult: mults[i]
+  }));
+
   pins = [];
-  const rows = 8;
-  const top = 70;
-  const bottom = h - 82;
+  const rows = 10;
+  const top = Math.max(42, h * 0.08);
+  const bottom = h - 24;
   const gapY = (bottom - top) / (rows - 1);
-  for (let r=0;r<rows;r++){
+
+  // Important: pins are aligned to the bucket grid.
+  // Each row uses bucket-center spacing, so the pyramid sits exactly over the catch containers.
+  for (let r = 0; r < rows; r++){
     const count = r + 2;
-    const gapX = Math.min(66, w / (count + 2));
-    const startX = w/2 - ((count - 1) * gapX)/2;
-    for (let c=0;c<count;c++) pins.push({x:startX + c*gapX, y:top + r*gapY, r:5, row:r});
+    const y = top + r * gapY;
+    const rowCenter = (bucketCount - 1) / 2;
+    const startIndex = rowCenter - (count - 1) / 2;
+
+    for (let c = 0; c < count; c++){
+      const virtualIndex = startIndex + c;
+      const x = (virtualIndex + 0.5) * bucketW;
+      if (x > bucketW * 0.35 && x < w - bucketW * 0.35) {
+        pins.push({x, y, r:5, row:r, col:c});
+      }
+    }
   }
-  buckets = [];
-  const m = multipliers[risk];
-  const bucketW = w / m.length;
-  for (let i=0;i<m.length;i++) buckets.push({x:i*bucketW + bucketW/2, y:h-26, w:bucketW, mult:m[i]});
 }
 
 function renderBuckets(){
-  const row = el('bucketRow');
-  const m = multipliers[risk];
-  row.style.gridTemplateColumns = `repeat(${m.length},1fr)`;
-  row.innerHTML = m.map(v => `<div class="bucket ${v >= 2 ? 'hot' : v < 0.5 ? 'bad' : ''}">${formatMult(v)}x</div>`).join('');
+  const rows = Array.from(document.querySelectorAll('#bucketRow'));
+  const row = rows[0];
+  rows.slice(1).forEach(extra => extra.remove());
+  if (!row) return;
+
+  const mults = multipliers[risk];
+
+  // Komplett leeren und neu befüllen, niemals anhängen.
+  row.textContent = '';
+  row.style.gridTemplateColumns = `repeat(${mults.length}, minmax(0, 1fr))`;
+
+  mults.forEach((v, i) => {
+    const div = document.createElement('div');
+    div.className = `bucket ${v >= 2 ? 'hot' : v < 0.5 ? 'bad' : ''}`;
+    div.dataset.bucket = String(i);
+    div.textContent = `${formatMult(v)}x`;
+    row.appendChild(div);
+  });
+
   buildBoard();
 }
 
+function refreshBucketStates(){
+  const row = document.querySelector('#bucketRow');
+  if (!row) return;
+  const mults = multipliers[risk];
+
+  // Falls irgendwas doppelt wurde, sofort hart bereinigen.
+  const bucketEls = Array.from(row.querySelectorAll('.bucket'));
+  if (bucketEls.length !== mults.length) {
+    renderBuckets();
+    return;
+  }
+
+  bucketEls.forEach((div, i) => {
+    const v = mults[i];
+    div.className = `bucket ${v >= 2 ? 'hot' : v < 0.5 ? 'bad' : ''}`;
+    div.dataset.bucket = String(i);
+    div.textContent = `${formatMult(v)}x`;
+    delete div.dataset.hits;
+  });
+}
+
+
 function updateTotalBet(){
-  const bet = getBet ? getBet() : 10;
+  const bet = getBet ? getBet() : 50;
   el('ballsOut').textContent = ballCount;
   el('totalBetOut').textContent = money(bet * ballCount);
   el('landedOut').textContent = `${landedCount} / ${ballCount}`;
 }
 
-function makePath(startOffset){
+function weightedTarget(){
+  const mults = multipliers[risk];
+  let pos = Math.floor(mults.length / 2);
+  for (let i = 0; i < 8; i++) pos += Math.random() < 0.5 ? -1 : 1;
+  return Math.max(0, Math.min(mults.length - 1, pos));
+}
+
+function makePath(finalIndex, startOffset){
   const {w,h} = boardSize();
-  const rows = 8;
-  let col = 4;
-  const path = [{x:w/2 + startOffset,y:28}];
-  for (let r=0;r<rows;r++){
-    col += Math.random() < 0.5 ? 0 : 1;
-    const rowY = 70 + r*((h-82-70)/(rows-1));
-    const rowPins = pins.filter(p => Math.abs(p.y - rowY) < 2);
-    const pin = rowPins[Math.max(0, Math.min(rowPins.length-1, col - Math.floor((8-rowPins.length)/2)))] || rowPins[Math.floor(rowPins.length/2)];
-    const offset = (Math.random() < 0.5 ? -1 : 1) * (13 + Math.random() * 10);
-    path.push({x:pin.x + offset, y:pin.y + 18});
+  const path = [{x:w/2 + startOffset, y:28}];
+  let x = w / 2 + startOffset;
+
+  for (let r = 0; r < 10; r++){
+    const rowPins = pins.filter(p => p.row === r);
+    const progress = (r + 1) / 10;
+    const targetX = buckets[finalIndex].x;
+    const wantedX = x + (targetX - x) * (0.18 + progress * 0.20);
+    let nearest = rowPins[0];
+
+    for (const p of rowPins){
+      if (!nearest || Math.abs(p.x - wantedX) < Math.abs(nearest.x - wantedX)) nearest = p;
+    }
+
+    const dir = targetX >= nearest.x ? 1 : -1;
+    x = nearest.x + dir * Math.min(18, buckets[0].w * 0.22) + (Math.random() - 0.5) * 8;
+    path.push({x, y:nearest.y + 16});
   }
-  const finalIndex = Math.max(0, Math.min(multipliers[risk].length-1, col));
-  path.push({x:buckets[finalIndex].x + (Math.random()-.5)*10,y:h-52, finalIndex});
-  return { path, finalIndex };
+
+  path.push({
+    x:buckets[finalIndex].x + (Math.random() - 0.5) * Math.min(8, buckets[0].w * 0.10),
+    y:h - 8,
+    finalIndex
+  });
+
+  return path;
 }
 
 function dropBalls(){
   if (running) return;
+
   activeBet = getBet();
   const totalBet = activeBet * ballCount;
-  if (!canAfford(totalBet)) { toast('Nicht genug Guthaben für alle Balls.', 'error'); return; }
+
+  if (!canAfford(totalBet)) {
+    toast('Nicht genug Guthaben für alle Balls.', 'error');
+    return;
+  }
+
+  buildBoard();
+  resetBucketHits();
+  refreshBucketStates();
+
   changeCash(-totalBet);
   el('winOut').textContent = money(0);
   el('msg').textContent = '';
+
   running = true;
   balls = [];
   totalWin = 0;
@@ -252,27 +363,27 @@ function dropBalls(){
   setControlsDisabled(true);
   setStatus(`Status: ${ballCount} Kugel${ballCount === 1 ? '' : 'n'} fallen`);
 
-  for (let i=0;i<ballCount;i++){
-    const delay = ballCount === 1 ? 0 : i * Math.max(14, 90 - ballCount);
-    const startOffset = (Math.random() - .5) * 28;
-    const made = makePath(startOffset);
+  for (let i = 0; i < ballCount; i++){
+    const target = weightedTarget();
+    const delay = ballCount === 1 ? 0 : i * Math.max(10, 70 - Math.min(60, ballCount));
+    const path = makePath(target, (Math.random() - .5) * 28);
+
     balls.push({
-      path: made.path,
-      target: made.finalIndex,
-      index: 1,
-      x: made.path[0].x,
-      y: made.path[0].y,
-      r: ballCount > 50 ? 6 : ballCount > 20 ? 7 : 10,
-      glow: 0,
-      squash: 0,
-      from: null,
-      to: null,
-      start: 0,
-      duration: 0,
-      delay,
-      started: false,
-      done: false,
-      colorShift: Math.random()
+      path,
+      target,
+      seg:0,
+      x:path[0].x,
+      y:path[0].y,
+      r: ballCount > 50 ? 5.5 : ballCount > 20 ? 7 : 10,
+      glow:0,
+      squash:0,
+      started:false,
+      done:false,
+      from:null,
+      to:null,
+      start:0,
+      duration:0,
+      delay
     });
   }
 
@@ -283,20 +394,20 @@ function dropBalls(){
 
 function setControlsDisabled(disabled){
   el('dropBtn').disabled = disabled;
-  document.querySelectorAll('#riskBtns button,#ballBtns button').forEach(b => b.disabled = disabled);
+  document.querySelectorAll('#riskBtns button,#ballBtns button,#presetBets button,#betActions button').forEach(b => b.disabled = disabled);
   const slider = el('betSlider');
   if (slider) slider.disabled = disabled;
 }
 
-function startNextSegment(ball, time){
-  ball.from = { x: ball.x, y: ball.y };
-  ball.to = ball.path[ball.index] || null;
+function startSegment(ball, time){
+  ball.from = ball.path[ball.seg];
+  ball.to = ball.path[ball.seg + 1] || null;
   ball.start = time;
-  ball.duration = ball.index === ball.path.length - 1 ? 380 : 245 + Math.random() * 90;
+  ball.duration = ball.seg >= ball.path.length - 2 ? 420 : 300 + Math.random() * 80;
 }
 
 function easeInOutCubic(t){
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
 }
 
 function animate(time){
@@ -309,7 +420,8 @@ function animate(time){
     if (!b.started){
       if (time < dropStartTime + b.delay) continue;
       b.started = true;
-      startNextSegment(b, time);
+      b.seg = 0;
+      startSegment(b, time);
     }
 
     if (!b.to){
@@ -319,105 +431,129 @@ function animate(time){
 
     const raw = Math.min(1, (time - b.start) / b.duration);
     const eased = easeInOutCubic(raw);
-    const arc = Math.sin(raw * Math.PI) * (11 + (b.r * .35));
+    const arc = Math.sin(raw * Math.PI) * (10 + b.r * .55);
+
     b.x = b.from.x + (b.to.x - b.from.x) * eased;
     b.y = b.from.y + (b.to.y - b.from.y) * eased - arc;
-    b.glow = Math.max(0, b.glow - 0.035);
-    b.squash = Math.sin(raw * Math.PI) * 0.08;
+    b.glow = Math.max(0, b.glow - .03);
+    b.squash = Math.sin(raw * Math.PI) * .07;
 
     if (raw >= 1){
       b.x = b.to.x;
       b.y = b.to.y;
       b.glow = 1;
-      b.squash = 0.13;
-      b.index++;
-      startNextSegment(b, time);
+      b.squash = .12;
+      b.seg++;
+      startSegment(b, time);
     }
   }
 
   draw();
+
   if (active) raf = requestAnimationFrame(animate);
   else finishDrop();
 }
 
 function finishBall(b){
   if (b.done) return;
+
   b.done = true;
   const mult = multipliers[risk][b.target];
   const win = Math.floor(activeBet * mult);
+
   totalWin += win;
   landedCount++;
+  bucketHits[b.target] = (bucketHits[b.target] || 0) + 1;
+
   el('winOut').textContent = money(totalWin);
   el('landedOut').textContent = `${landedCount} / ${ballCount}`;
-  addMiniBucketFlash(b.target);
+  flashBucket(b.target);
 }
 
 function finishDrop(){
   if (totalWin > 0) changeCash(totalWin);
+
   const totalBet = activeBet * ballCount;
-  recordGame('plinko', totalWin - totalBet);
   const profit = totalWin - totalBet;
+
+  recordGame('plinko', profit);
   el('winOut').textContent = money(totalWin);
   el('msg').textContent = profit > 0
     ? `Gesamtgewinn: ${money(totalWin)} | Profit: +${money(profit)}`
     : `Gesamtauszahlung: ${money(totalWin)} | Verlust: ${money(Math.abs(profit))}`;
+
   addHistoryBatch(totalWin, profit);
+
   running = false;
   setControlsDisabled(false);
   setStatus('Status: bereit');
   draw();
 }
 
-function addMiniBucketFlash(index){
-  const bucketEls = [...document.querySelectorAll('.bucket')];
-  const b = bucketEls[index];
+function flashBucket(index){
+  const row = document.querySelector('#bucketRow');
+  if (!row) return;
+  const b = row.querySelector(`.bucket[data-bucket="${index}"]`);
   if (!b) return;
   b.classList.add('hot');
-  setTimeout(() => renderBuckets(), 160);
+  b.dataset.hits = String(bucketHits[index] || 0);
+  setTimeout(() => {
+    const mult = multipliers[risk][index];
+    b.className = `bucket ${mult >= 2 ? 'hot' : mult < 0.5 ? 'bad' : ''}`;
+  }, 220);
 }
 
 function draw(){
   const {w,h} = boardSize();
   ctx.clearRect(0,0,w,h);
+
   ctx.save();
+
   ctx.fillStyle = 'rgba(229,193,88,.10)';
   ctx.font = '900 12px Segoe UI, Arial';
   ctx.textAlign = 'center';
-  ctx.fillText('DROP ZONE', w/2, 32);
+  ctx.fillText('DROP ZONE', w/2, 30);
+
+  const bucketCount = multipliers[risk].length;
+  const bucketW = w / bucketCount;
+
+  // Die sichtbaren Auffangcontainer kommen ausschließlich aus den HTML-Buckets unten.
+  // Keine zweite Container-Reihe mehr im Canvas.
 
   for (const p of pins){
-    const hit = balls.some(b => !b.done && Math.hypot(b.x-p.x, b.y-p.y) < 25);
+    const hit = balls.some(b => !b.done && b.started && Math.hypot(b.x-p.x,b.y-p.y) < 22);
     const g = ctx.createRadialGradient(p.x,p.y,1,p.x,p.y,hit?16:10);
-    g.addColorStop(0, hit ? '#fff2b6' : '#f1ddaf');
-    g.addColorStop(1, hit ? 'rgba(229,193,88,.25)' : 'rgba(201,164,94,.08)');
+    g.addColorStop(0, hit ? '#fff4bb' : '#f1ddaf');
+    g.addColorStop(1, hit ? 'rgba(229,193,88,.26)' : 'rgba(201,164,94,.08)');
     ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(p.x,p.y,hit?7:5,0,Math.PI*2); ctx.fill();
-  }
-
-  const m = multipliers[risk];
-  const bucketW = w / m.length;
-  for (let i=0;i<m.length;i++){
-    ctx.fillStyle = 'rgba(0,0,0,.18)';
-    ctx.fillRect(i*bucketW+3,h-70,bucketW-6,52);
-    ctx.strokeStyle = 'rgba(241,221,175,.10)';
-    ctx.strokeRect(i*bucketW+3,h-70,bucketW-6,52);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,hit?7:5,0,Math.PI*2);
+    ctx.fill();
   }
 
   for (const b of balls){
-    if (!b.started && running) continue;
+    if (!b.started || b.done) continue;
+
     const g = ctx.createRadialGradient(b.x-3,b.y-4,2,b.x,b.y,b.r+10+(b.glow*8));
     g.addColorStop(0,'#fff4bb');
     g.addColorStop(.48,'#e5c158');
     g.addColorStop(1,'rgba(229,193,88,.08)');
+
     ctx.save();
-    ctx.translate(b.x, b.y);
-    ctx.scale(1 + b.squash, 1 - b.squash * 0.55);
+    ctx.translate(b.x,b.y);
+    ctx.scale(1 + b.squash, 1 - b.squash * .55);
     ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(0,0,b.r+b.glow*2,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.32)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(0,0,b.r,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0,0,b.r+b.glow*2,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.32)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0,0,b.r,0,Math.PI*2);
+    ctx.stroke();
     ctx.restore();
   }
+
   ctx.restore();
 }
 
@@ -426,11 +562,172 @@ function addHistoryBatch(win, profit){
   if (historyItems.length > 10) historyItems.pop();
   renderHistory();
 }
+
 function renderHistory(){
   el('history').innerHTML = historyItems.map(item => `<span class="${item.profit > 0 ? 'win' : 'loss'}">${item.balls}x · ${money(item.win)}</span>`).join('');
 }
+
 function formatMult(v){ return Number.isInteger(v) ? String(v) : v.toFixed(1); }
 function setStatus(text){ el('stateOut').textContent = text; }
+
+function updatePresetActive(value){
+  document.querySelectorAll('#presetBets button[data-set]').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.set) === Math.floor(Number(value)));
+  });
+}
+
 </script>
+
+<script>
+(function(){
+  document.addEventListener('pointerdown',function(){ if(window.casinoSound) casinoSound.unlock(); },{passive:true});
+})();
+</script>
+
+
+<script>
+/* Direct local sounds - works like the slot sounds, no external files needed */
+(function(){
+  if(window.__royalDirectSoundReady) return;
+  window.__royalDirectSoundReady = true;
+
+  let audioCtx = null;
+  let soundEnabled = localStorage.getItem('royal_direct_sound') !== 'off';
+
+  function ctx(){
+    if(!soundEnabled) return null;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      if(!audioCtx) audioCtx = new AC();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }catch(e){ return null; }
+  }
+
+  function unlock(){
+    const c = ctx();
+    if(!c) return;
+    try{
+      const o = c.createOscillator();
+      const g = c.createGain();
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(c.destination);
+      o.start();
+      o.stop(c.currentTime + 0.01);
+    }catch(e){}
+  }
+
+  function tone(freq=440,duration=.08,type='sine',gain=.05,delay=0){
+    if(!soundEnabled) return;
+    setTimeout(()=>{
+      const c = ctx();
+      if(!c) return;
+      try{
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, c.currentTime);
+        g.gain.setValueAtTime(gain, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + duration);
+        o.connect(g); g.connect(c.destination);
+        o.start(c.currentTime);
+        o.stop(c.currentTime + duration + .03);
+      }catch(e){}
+    }, delay);
+  }
+
+  const sounds = {
+    click(){ tone(520,.045,'sine',.055); },
+    hover(){ tone(680,.025,'sine',.025); },
+    bet(){ tone(330,.06,'triangle',.07); tone(460,.05,'triangle',.05,45); },
+    win(){ tone(520,.09,'sine',.08); tone(660,.09,'sine',.07,85); tone(880,.12,'sine',.065,175); },
+    lose(){ tone(240,.12,'triangle',.055); tone(145,.16,'triangle',.042,95); },
+    cashout(){ tone(720,.08,'sine',.08); tone(980,.12,'sine',.07,95); },
+    card(){ tone(500,.06,'triangle',.06); },
+    chip(){ tone(300,.05,'square',.05); tone(420,.05,'square',.04,45); },
+    spin(){ tone(220,.05,'square',.04); },
+    reelStop(){ tone(420,.07,'triangle',.065); },
+    rocket(){ tone(135,.06,'sawtooth',.04); },
+    crash(){ tone(120,.22,'sawtooth',.09); tone(70,.30,'sawtooth',.065,90); },
+    roulette(){ tone(260,.04,'triangle',.04); },
+    ball(){ tone(780,.04,'sine',.05); },
+    plinko(){ tone(620,.04,'sine',.05); },
+    chicken(){ tone(740,.055,'square',.045); tone(920,.045,'square',.030,55); },
+    dice(){ tone(180,.05,'square',.05); tone(260,.05,'square',.04,55); tone(340,.05,'square',.035,110); },
+    free(){ tone(440,.08,'triangle',.085); tone(620,.08,'triangle',.075,85); tone(840,.09,'triangle',.07,170); tone(1180,.1,'triangle',.065,255); },
+    error(){ tone(170,.12,'sawtooth',.06); tone(115,.16,'sawtooth',.045,90); }
+  };
+
+  window.directSound = function(name){
+    unlock();
+    (sounds[name] || sounds.click)();
+  };
+
+  window.toggleDirectSound = function(){
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('royal_direct_sound', soundEnabled ? 'on' : 'off');
+    updateSoundButton();
+    if(soundEnabled) directSound('click');
+  };
+
+  function updateSoundButton(){
+    document.querySelectorAll('[data-sound-toggle]').forEach(btn=>{
+      btn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
+      btn.classList.toggle('sound-off', !soundEnabled);
+      btn.setAttribute('aria-pressed', String(soundEnabled));
+    });
+  }
+
+  function addButton(){
+    const header = document.querySelector('.casino-header,.home-header,.topbar');
+    if(!header || document.querySelector('[data-sound-toggle]')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .global-sound-toggle{
+        height:44px;padding:0 15px;border-radius:999px;
+        border:1px solid rgba(229,193,88,.34);
+        background:rgba(229,193,88,.11);color:#fff0a3;
+        font:900 12px/1 Segoe UI,Arial,sans-serif;
+        letter-spacing:.7px;text-transform:uppercase;cursor:pointer;white-space:nowrap;
+      }
+      .global-sound-toggle.sound-off{color:rgba(255,255,255,.62);background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.12)}
+    `;
+    document.head.appendChild(style);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'global-sound-toggle';
+    btn.setAttribute('data-sound-toggle','true');
+    btn.onclick = toggleDirectSound;
+
+    const wallet = header.querySelector('.wallet');
+    if(wallet) header.insertBefore(btn, wallet);
+    else header.appendChild(btn);
+    updateSoundButton();
+  }
+
+  document.addEventListener('pointerdown', unlock, {passive:true});
+  document.addEventListener('keydown', unlock);
+  document.addEventListener('DOMContentLoaded', addButton);
+
+  document.addEventListener('click', e=>{
+    if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a,.wallet-plus')){
+      directSound('click');
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* plinko direct sound hooks */
+document.addEventListener('click',e=>{
+  const txt=(e.target.textContent||'').toLowerCase();
+  if(txt.includes('drop')||txt.includes('ball')||txt.includes('start')) directSound&&directSound('plinko');
+});
+</script>
+
 </body>
 </html>
