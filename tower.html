@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tower Crash - Royal Deluxe Casino</title>
 <link rel="stylesheet" href="styles.css">
-<script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
-document.addEventListener('click',e=>{if(e.target.closest('.tower-cell,.box,.tile,[data-choice]')) window.casinoSound&&casinoSound.play('click');});
-</script>
+<link rel="stylesheet" href="mobile.css">
+<script src="casino-utils.js"></script>
 <style>
 :root{
   --tw-bg:#060812;--tw-panel:#0d1424;--tw-gold:#e5c158;--tw-gold-2:#fff0a3;--tw-text:#f8f5ed;--tw-muted:rgba(248,245,237,.66);--tw-border:rgba(229,193,88,.28);--tw-green:#37b46b;--tw-red:#c64d4d;
@@ -51,6 +50,15 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
   .tower-board{padding:14px 12px;gap:7px}
 }
 </style>
+
+<style id="mobile-emergency-fix">
+@media(max-width:1180px){
+  html,body{overflow-y:auto!important;max-height:none!important}
+  [class$="-app"],.home-shell{max-height:none!important;height:auto!important;overflow:visible!important}
+  .side-panel,.game-panel{overflow:visible!important}
+}
+</style>
+
 </head>
 <body>
 <div class="tw-app">
@@ -340,7 +348,7 @@ function pickTile(r, c) {
   if (bombMap[r].has(c)) {
     revealRow(r, c, true);
     el('msg').textContent = 'Boom! Einsatz verloren.';
-    recordGame('Tower', -roundBet);
+    playCustomWinSound(); recordGame('Tower', -roundBet);
     endTowerRound(false);
     return;
   }
@@ -550,5 +558,59 @@ document.addEventListener('click',e=>{
 });
 </script>
 
+
+<script>
+/* Global Custom Winning Sound für dieses Spiel */
+let customWinSoundUnlocked = false;
+
+function unlockCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio || customWinSoundUnlocked) return;
+
+  try{
+    audio.load();
+    audio.volume = 0.01;
+    const p = audio.play();
+
+    if(p && typeof p.then === "function"){
+      p.then(()=>{
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 1;
+        customWinSoundUnlocked = true;
+      }).catch(()=>{
+        audio.volume = 1;
+      });
+    }else{
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 1;
+      customWinSoundUnlocked = true;
+    }
+  }catch(e){
+    audio.volume = 1;
+  }
+}
+
+function playCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio) return;
+
+  try{
+    audio.volume = 1;
+    audio.currentTime = 0;
+    const p = audio.play();
+    if(p && typeof p.catch === "function"){
+      p.catch(()=>unlockCustomWinSound());
+    }
+  }catch(e){}
+}
+
+document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
+document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
+document.addEventListener("click", unlockCustomWinSound, {passive:true});
+</script>
+
+<audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
 </body>
 </html>

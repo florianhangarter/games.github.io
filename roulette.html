@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Roulette Royale - Royal Deluxe Casino</title>
     <link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="mobile.css">
     <script src="casino-utils.js"></script>
     <style>
       :root {
@@ -781,7 +782,16 @@
         }
       }
     </style>
-  </head>
+  
+<style id="mobile-emergency-fix">
+@media(max-width:1180px){
+  html,body{overflow-y:auto!important;max-height:none!important}
+  [class$="-app"],.home-shell{max-height:none!important;height:auto!important;overflow:visible!important}
+  .side-panel,.game-panel{overflow:visible!important}
+}
+</style>
+
+</head>
   <body>
     <div class="roulette-app">
       <header class="casino-header">

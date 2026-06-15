@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Royal Dice</title>
 <link rel="stylesheet" href="styles.css">
-<script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
-</script>
+<link rel="stylesheet" href="mobile.css">
+<script src="casino-utils.js"></script>
 <style>
 :root{
   --dice-bg:#060812;--dice-panel:#0d1424;--dice-panel-2:#111b2d;--dice-gold:#e5c158;--dice-gold-2:#fff0a3;--dice-text:#f8f5ed;--dice-muted:rgba(248,245,237,.66);--dice-border:rgba(229,193,88,.28);--dice-soft:rgba(255,255,255,.08);--dice-red:#c64d4d;--dice-green:#37b46b;
@@ -26,6 +26,15 @@
 @media(max-width:760px){body{padding:10px}.dice-app{border-radius:24px;max-height:none}.casino-header{grid-template-columns:1fr;justify-items:stretch;padding:14px;min-height:0}.brand{justify-content:center;min-width:0}.wallet{justify-content:center;min-width:0}.wallet-plus{display:none}.casino-nav{justify-content:flex-start}.brand-title{font-size:20px}.brand-mark{font-size:34px}.dice-main{padding:14px;gap:14px;overflow:auto}.side-panel,.game-panel{border-radius:22px;padding:16px}.side-panel{display:flex}.game-title{text-align:center}.side-copy{text-align:center}.choice-grid{grid-template-columns:1fr}.table-head{justify-content:center;text-align:center}.dice-area{min-height:250px}.die-shell{width:96px;height:96px;border-radius:20px}.dice{font-size:64px}.controls button{flex:1 1 160px}.result-strip{grid-template-columns:1fr}.preset-grid{grid-template-columns:1fr}.bet-actions{grid-template-columns:repeat(2,1fr)}}
 @media(max-height:760px) and (min-width:900px){.dice-main{padding:14px;gap:14px}.side-panel,.game-panel{padding:16px}.dice-area{min-height:230px}.die-shell{width:96px;height:96px}.dice{font-size:64px}.game-title{font-size:38px}.choice-btn{min-height:54px}.stat-card{padding:11px}}
 </style>
+
+<style id="mobile-emergency-fix">
+@media(max-width:1180px){
+  html,body{overflow-y:auto!important;max-height:none!important}
+  [class$="-app"],.home-shell{max-height:none!important;height:auto!important;overflow:visible!important}
+  .side-panel,.game-panel{overflow:visible!important}
+}
+</style>
+
 </head>
 <body>
 <div class="dice-app">
@@ -99,7 +108,7 @@ function rollDice(){ window.casinoSound&&casinoSound.play('dice');
   if(!canAfford(bet))return toast('Nicht genug Guthaben.','bad');
   rolling=true;setControlsDisabled(true);window.casinoSound&&casinoSound.play('bet'); changeCash(-bet);msg.textContent='Die Würfel rollen...';d1.classList.add('rolling');d2.classList.add('rolling');
   const spin=setInterval(()=>{d1.textContent=faces[Math.floor(Math.random()*6)];d2.textContent=faces[Math.floor(Math.random()*6)];},80);
-  setTimeout(()=>{clearInterval(spin);const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6),sum=a+b;d1.classList.remove('rolling');d2.classList.remove('rolling');d1.textContent=faces[a-1];d2.textContent=faces[b-1];sumOut.textContent=sum;let mult=0;if(choice==='high'&&sum>=8)mult=2;if(choice==='low'&&sum<=6)mult=2;if(choice==='even'&&sum%2===0)mult=1.8;if(choice==='odd'&&sum%2===1)mult=1.8;if(choice==='double'&&a===b)mult=5;if(choice==='seven'&&sum===7)mult=4;if(mult){const win=Math.floor(bet*mult);changeCash(win);msg.textContent=`${sum}! Gewinn: ${money(win)} 🎉`;window.casinoSound&&casinoSound.play('win'); recordGame('Dice',win-bet);}else{msg.textContent=`${sum}. Leider verloren.`;recordGame('Dice',-bet);}rolling=false;setControlsDisabled(false);},1150);
+  setTimeout(()=>{clearInterval(spin);const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6),sum=a+b;d1.classList.remove('rolling');d2.classList.remove('rolling');d1.textContent=faces[a-1];d2.textContent=faces[b-1];sumOut.textContent=sum;let mult=0;if(choice==='high'&&sum>=8)mult=2;if(choice==='low'&&sum<=6)mult=2;if(choice==='even'&&sum%2===0)mult=1.8;if(choice==='odd'&&sum%2===1)mult=1.8;if(choice==='double'&&a===b)mult=5;if(choice==='seven'&&sum===7)mult=4;if(mult){const win=Math.floor(bet*mult);changeCash(win);msg.textContent=`${sum}! Gewinn: ${money(win)} 🎉`;window.casinoSound&&casinoSound.play('win'); playCustomWinSound(); playCustomWinSound(); recordGame('Dice',win-bet);}else{msg.textContent=`${sum}. Leider verloren.`;recordGame('Dice',-bet);}rolling=false;setControlsDisabled(false);},1150);
 }
 </script>
 
@@ -254,5 +263,59 @@ document.addEventListener('click',e=>{
 });
 </script>
 
+
+<script>
+/* Global Custom Winning Sound für dieses Spiel */
+let customWinSoundUnlocked = false;
+
+function unlockCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio || customWinSoundUnlocked) return;
+
+  try{
+    audio.load();
+    audio.volume = 0.01;
+    const p = audio.play();
+
+    if(p && typeof p.then === "function"){
+      p.then(()=>{
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 1;
+        customWinSoundUnlocked = true;
+      }).catch(()=>{
+        audio.volume = 1;
+      });
+    }else{
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 1;
+      customWinSoundUnlocked = true;
+    }
+  }catch(e){
+    audio.volume = 1;
+  }
+}
+
+function playCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio) return;
+
+  try{
+    audio.volume = 1;
+    audio.currentTime = 0;
+    const p = audio.play();
+    if(p && typeof p.catch === "function"){
+      p.catch(()=>unlockCustomWinSound());
+    }
+  }catch(e){}
+}
+
+document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
+document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
+document.addEventListener("click", unlockCustomWinSound, {passive:true});
+</script>
+
+<audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
 </body>
 </html>

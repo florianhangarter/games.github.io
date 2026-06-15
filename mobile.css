@@ -1,0 +1,444 @@
+
+/* =========================================================
+   Royal Deluxe Casino - Mobile & Tablet Fix
+   Diese Datei sorgt dafür, dass alle Spiele auf iPad/Tablet/Handy
+   sichtbar, scrollbar und bedienbar bleiben.
+   ========================================================= */
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  touch-action: manipulation;
+}
+
+body {
+  min-height: 100dvh !important;
+}
+
+/* Haupt-App-Wrapper dürfen mobil nicht den Bildschirm abschneiden */
+.rocket-app,
+.roulette-app,
+.slot-app,
+.tw-app,
+.bj-app,
+.cross-app,
+.dice-app,
+.plinko-app,
+.poker-app,
+.sol-app,
+.home-wrap,
+.home-shell {
+  max-height: none !important;
+  height: auto !important;
+  min-height: calc(100dvh - 20px) !important;
+  overflow: visible !important;
+}
+
+/* Panels dürfen innen scrollen/anzeigen */
+.side-panel,
+.game-panel,
+.rocket-main,
+.roulette-main,
+.slot-main,
+.tw-main,
+.bj-main,
+.cross-main,
+.dice-main,
+.plinko-main,
+.poker-main,
+.sol-main {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Spielbereiche sollen nicht abschneiden */
+.rocket-stage,
+.roulette-stage,
+.slot-stage,
+.blackjack-table,
+.cross-stage,
+.dice-stage,
+.plinko-stage,
+.poker-stage,
+.sol-board,
+.game-stage,
+.wheel-panel,
+.table-panel,
+.reel-window,
+.slot-machine {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Canvas/Spielgrafiken responsiv */
+canvas,
+#rouletteCanvas,
+#plinkoCanvas,
+#gameCanvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Buttons auf Touch-Geräten besser nutzbar */
+button,
+.preset,
+.bet-action,
+.chip-btn,
+.num-cell,
+.bet-cell,
+.game-tile {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+/* Navigation immer erreichbar */
+.casino-nav,
+.home-nav {
+  overflow-x: auto !important;
+  justify-content: flex-start !important;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.casino-nav::-webkit-scrollbar,
+.home-nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tablet */
+@media (max-width: 1180px) {
+  body {
+    padding: 10px !important;
+  }
+
+  .casino-header,
+  .home-header {
+    grid-template-columns: 1fr !important;
+    justify-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    min-height: 0 !important;
+  }
+
+  .brand {
+    justify-content: center !important;
+    min-width: 0 !important;
+  }
+
+  .wallet {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+
+  .global-sound-toggle {
+    width: 100%;
+  }
+
+  .rocket-main,
+  .roulette-main,
+  .slot-main,
+  .tw-main,
+  .bj-main,
+  .cross-main,
+  .dice-main,
+  .plinko-main,
+  .poker-main,
+  .sol-main {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    padding: 14px !important;
+    overflow: visible !important;
+  }
+
+  .side-panel,
+  .game-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .side-panel {
+    order: 2;
+  }
+
+  .game-panel {
+    order: 1;
+  }
+
+  .game-title,
+  .side-copy,
+  .game-eyebrow {
+    text-align: center !important;
+  }
+
+  .stat-grid,
+  .slot-live,
+  .poker-live,
+  .sol-live {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .roulette-stage,
+  .plinko-stage,
+  .cross-stage,
+  .rocket-stage,
+  .dice-stage {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .wheel-shell {
+    width: min(100%, 360px) !important;
+  }
+
+  .table-grid {
+    max-height: 360px !important;
+    overflow-y: auto !important;
+  }
+
+  .slot-machine {
+    width: 100% !important;
+  }
+
+  .slot-cell {
+    min-height: 88px;
+  }
+}
+
+/* Handy */
+@media (max-width: 760px) {
+  body {
+    padding: 8px !important;
+  }
+
+  .rocket-app,
+  .roulette-app,
+  .slot-app,
+  .tw-app,
+  .bj-app,
+  .cross-app,
+  .dice-app,
+  .plinko-app,
+  .poker-app,
+  .sol-app,
+  .home-shell {
+    border-radius: 20px !important;
+    min-height: 100dvh !important;
+  }
+
+  .brand-mark {
+    font-size: 32px !important;
+  }
+
+  .brand-title {
+    font-size: 19px !important;
+  }
+
+  .brand-title span {
+    font-size: 9px !important;
+    letter-spacing: 3px !important;
+  }
+
+  .casino-nav a,
+  .home-nav a {
+    font-size: 11px !important;
+    padding: 10px 12px !important;
+  }
+
+  .wallet {
+    padding: 9px 11px !important;
+  }
+
+  .wallet-icon,
+  .wallet-plus {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 18px !important;
+  }
+
+  .wallet b {
+    font-size: 17px !important;
+  }
+
+  .game-title {
+    font-size: 34px !important;
+  }
+
+  .side-copy {
+    font-size: 13px !important;
+  }
+
+  .stat-grid,
+  .slot-live,
+  .poker-live,
+  .sol-live {
+    grid-template-columns: 1fr !important;
+  }
+
+  .quick-bet-card {
+    padding: 13px !important;
+  }
+
+  .bet-display {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+  }
+
+  .bet-amount {
+    font-size: 30px !important;
+  }
+
+  .preset-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .bet-actions {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .seg {
+    grid-template-columns: 1fr !important;
+  }
+
+  .controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .controls button {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .table-head {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .table-head h2 {
+    font-size: 20px !important;
+  }
+
+  .message {
+    min-height: 46px !important;
+    font-size: 13px !important;
+    padding: 8px !important;
+  }
+
+  /* Roulette */
+  .roulette-stage {
+    padding: 10px !important;
+    gap: 12px !important;
+  }
+
+  .wheel-shell {
+    width: min(100%, 300px) !important;
+  }
+
+  .table-grid {
+    grid-template-columns: repeat(3, minmax(40px, 1fr)) !important;
+    max-height: 300px !important;
+  }
+
+  .num-cell,
+  .bet-cell {
+    padding: 8px 5px !important;
+    font-size: 13px !important;
+  }
+
+  /* Slots */
+  .slot-stage {
+    padding: 10px !important;
+  }
+
+  .slot-machine {
+    padding: 14px !important;
+    border-radius: 24px !important;
+  }
+
+  .reel-window {
+    padding: 14px !important;
+  }
+
+  .slots-grid {
+    gap: 10px !important;
+  }
+
+  .slot-cell {
+    height: 74px !important;
+    font-size: 38px !important;
+    border-radius: 16px !important;
+  }
+
+  .win-table-panel {
+    max-height: 300px !important;
+  }
+
+  /* Plinko / Rocket / Dice */
+  .plinko-board,
+  .rocket-sky,
+  .sky,
+  .dice-table {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Cross Road */
+  .road-wrap,
+  .cross-board,
+  .game-road {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+  }
+
+  /* Poker/Solitär große Kartentische scrollbar machen */
+  .poker-stage,
+  .sol-board {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .poker-table,
+  .sol-table {
+    transform-origin: top left;
+  }
+}
+
+/* Sehr kleine Geräte */
+@media (max-width: 430px) {
+  .game-title {
+    font-size: 30px !important;
+  }
+
+  .side-panel,
+  .game-panel {
+    padding: 12px !important;
+  }
+
+  .wallet small {
+    font-size: 10px !important;
+  }
+
+  .wallet b {
+    font-size: 15px !important;
+  }
+
+  .slot-cell {
+    height: 62px !important;
+    font-size: 32px !important;
+  }
+
+  .wheel-shell {
+    width: min(100%, 260px) !important;
+  }
+}
