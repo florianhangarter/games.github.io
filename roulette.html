@@ -1094,6 +1094,62 @@
       })();
     </script>
 
+
+    <script>
+      /* Custom WAV Unlock für Tablet/Mobile Browser */
+      let rouletteCustomWinUnlocked = false;
+
+      function unlockRouletteCustomWinSound() {
+        const audio = document.getElementById("rouletteWinSound");
+        if (!audio || rouletteCustomWinUnlocked) return;
+
+        try {
+          audio.load();
+          audio.volume = 0.01;
+          const p = audio.play();
+
+          if (p && typeof p.then === "function") {
+            p.then(() => {
+              audio.pause();
+              audio.currentTime = 0;
+              audio.volume = 1;
+              rouletteCustomWinUnlocked = true;
+            }).catch(() => {
+              audio.volume = 1;
+            });
+          } else {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.volume = 1;
+            rouletteCustomWinUnlocked = true;
+          }
+        } catch (e) {
+          audio.volume = 1;
+        }
+      }
+
+      function playRouletteCustomWinSound() {
+        const audio = document.getElementById("rouletteWinSound");
+        if (!audio) return;
+
+        try {
+          audio.volume = 1;
+          audio.currentTime = 0;
+          const p = audio.play();
+          if (p && typeof p.catch === "function") {
+            p.catch(() => {
+              // Falls Tablet es trotzdem blockt: beim nächsten Tippen ist es entsperrt.
+              unlockRouletteCustomWinSound();
+            });
+          }
+        } catch (e) {}
+      }
+
+      document.addEventListener("pointerdown", unlockRouletteCustomWinSound, { passive: true });
+      document.addEventListener("touchstart", unlockRouletteCustomWinSound, { passive: true });
+      document.addEventListener("click", unlockRouletteCustomWinSound, { passive: true });
+    </script>
+
     <script>
       const RED_NUMBERS = new Set([
         1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36,
@@ -1342,6 +1398,7 @@
         return stake * 2;
       }
       function startSpin() {
+        unlockRouletteCustomWinSound();
         if (window.directSound) directSound("bet");
         startRouletteSound();
         if (spinning) {
@@ -1402,13 +1459,7 @@
 
         if (winningBets.length) {
           if (window.directSound) directSound("win");
-          const winAudio = document.getElementById("rouletteWinSound");
-          if (winAudio) {
-            try {
-              winAudio.currentTime = 0;
-              winAudio.play().catch(() => {});
-            } catch (e) {}
-          }
+          playRouletteCustomWinSound();
           const payout = winningBets.reduce(
             (sum, b) => sum + payoutForBet(b, bet),
             0,
@@ -1498,10 +1549,6 @@
       }
     </script>
 
-    <audio
-      id="rouletteWinSound"
-      preload="auto"
-      src="./sounds/mixkit-retro-arcade-casino-notification-211.wav"
-    ></audio>
+    <audio id="rouletteWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
   </body>
 </html>
