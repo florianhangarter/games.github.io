@@ -165,6 +165,10 @@ let state = 'idle';
 let bombMap = [];
 let mults = [];
 let roundBet = 0;
+let pickedSafeCols = [];
+let revealedRows = [];
+let resetTimer = null;
+let roundId = 0;
 
 const el = id => document.getElementById(id);
 
@@ -209,6 +213,13 @@ window.addEventListener('DOMContentLoaded', () => {
   renderBombButtons();
   buildTower();
 });
+
+function clearPendingReset() {
+  if (resetTimer) {
+    clearTimeout(resetTimer);
+    resetTimer = null;
+  }
+}
 
 function setStateText() {
   el('stateOut').textContent = state === 'play'
@@ -274,6 +285,12 @@ function updateRows() {
     if (!row) continue;
     row.classList.remove('active', 'locked', 'passed');
     const tiles = row.querySelectorAll('.tower-tile');
+
+    // Wichtig: bereits angeklickte Ebenen nach jedem Re-Render wieder herstellen.
+    // Sonst kann die untere Leiste/Ebene beim Wechsel zum nächsten Multiplikator
+    // wieder auf das neutrale ⚜ zurückspringen.
+    restoreRevealedRow(r);
+
     if (state !== 'play') {
       row.classList.add('locked');
       tiles.forEach(tile => { tile.disabled = true; });
@@ -291,6 +308,24 @@ function updateRows() {
   setStateText();
 }
 
+function restoreRevealedRow(rowIndex) {
+  if (!revealedRows[rowIndex] || !bombMap[rowIndex]) return;
+  const row = el(`row-${rowIndex}`);
+  if (!row) return;
+  const clickedCol = pickedSafeCols[rowIndex];
+  row.querySelectorAll('.tower-tile').forEach(btn => {
+    const col = Number(btn.dataset.col);
+    btn.classList.remove('safe', 'bomb');
+    if (bombMap[rowIndex].has(col)) {
+      btn.classList.add('bomb');
+      btn.textContent = '💣';
+    } else {
+      btn.classList.add('safe');
+      btn.textContent = col === clickedCol ? '✅' : '⚜';
+    }
+  });
+}
+
 function makeBombRow() {
   const set = new Set();
   while (set.size < bombs) set.add(Math.floor(Math.random() * fields));
@@ -299,6 +334,8 @@ function makeBombRow() {
 
 function startTower() {
   if (state !== 'idle') return;
+  clearPendingReset();
+  roundId++;
   const bet = Math.floor(getBet());
   if (!canAfford(bet)) return toast('Nicht genug Guthaben.', 'bad');
 
@@ -307,6 +344,8 @@ function startTower() {
   level = 0;
   state = 'play';
   bombMap = Array.from({ length: 6 }, makeBombRow);
+  pickedSafeCols = Array(6).fill(null);
+  revealedRows = Array(6).fill(false);
   el('winOut').textContent = '0 €';
   el('msg').textContent = 'Wähle jetzt ein Feld in der leuchtenden Ebene.';
   el('startBtn').disabled = true;
@@ -316,11 +355,15 @@ function startTower() {
 }
 
 function revealRow(rowIndex, clickedCol, exploded) {
+  revealedRows[rowIndex] = true;
+  pickedSafeCols[rowIndex] = exploded ? null : clickedCol;
+
   const row = el(`row-${rowIndex}`);
   if (!row) return;
   row.querySelectorAll('.tower-tile').forEach(btn => {
     const col = Number(btn.dataset.col);
     btn.disabled = true;
+    btn.classList.remove('safe', 'bomb');
     if (bombMap[rowIndex].has(col)) {
       btn.classList.add('bomb');
       btn.textContent = '💣';
@@ -367,14 +410,22 @@ function cashoutTower() {
 }
 
 function endTowerRound(won) {
+  const finishedRoundId = roundId;
   state = 'idle';
   el('startBtn').disabled = false;
   el('cashBtn').disabled = true;
   document.querySelectorAll('#fieldBtns button, #bombBtns button, #betSlider').forEach(x => { x.disabled = false; });
   updateRows();
-  setTimeout(() => {
+
+  // Wichtig: Der Ergebnis-Reset darf nur zur beendeten Runde gehören.
+  // Wenn direkt eine neue Runde gestartet wird, darf ein alter Timer nicht
+  // die frisch angeklickte Ebene oder den Cashout-Wert wieder zurücksetzen.
+  clearPendingReset();
+  resetTimer = setTimeout(() => {
+    if (state !== 'idle' || roundId !== finishedRoundId) return;
     el('winOut').textContent = '0 €';
     buildTower();
+    resetTimer = null;
   }, won ? 1300 : 1700);
 }
 </script>
