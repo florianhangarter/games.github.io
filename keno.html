@@ -874,149 +874,329 @@
       }
     </style>
   
-<style id="royal-mobile-final-fix">
-/* FINAL MOBILE / TABLET FIX */
+
+<style id="royal-mobile-ultra-fix">
+/* ULTRA MOBILE FIX KENO - compact playable board */
 @media (max-width: 1180px){
   html,body{
+    margin:0!important;
     width:100%!important;
+    min-width:0!important;
     min-height:100%!important;
+    height:auto!important;
     max-height:none!important;
     overflow-x:hidden!important;
     overflow-y:auto!important;
     -webkit-overflow-scrolling:touch!important;
   }
-  body{padding:10px!important}
+  body{padding:6px!important}
+
   .keno-app{
+    display:block!important;
     width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
     min-height:100dvh!important;
     max-height:none!important;
-    height:auto!important;
     overflow:visible!important;
-    border-radius:24px!important;
+    border-radius:18px!important;
   }
+
   .casino-header{
-    min-height:0!important;
+    display:grid!important;
     grid-template-columns:1fr!important;
-    gap:12px!important;
-    padding:14px!important;
+    gap:8px!important;
+    min-height:0!important;
+    padding:8px!important;
   }
-  .brand{justify-content:center!important;min-width:0!important}
-  .wallet{min-width:0!important;width:100%!important;justify-content:center!important}
+  .brand{
+    min-width:0!important;
+    justify-content:center!important;
+    gap:8px!important;
+  }
+  .brand-mark{font-size:28px!important}
+  .brand-title{font-size:17px!important}
+  .brand-title span{font-size:8px!important;letter-spacing:2px!important}
+  .wallet{
+    width:100%!important;
+    min-width:0!important;
+    justify-content:center!important;
+    padding:7px 10px!important;
+    border-radius:14px!important;
+  }
+  .wallet-icon{width:30px!important;height:30px!important;font-size:16px!important}
+  .wallet b{font-size:16px!important}
+  .wallet small{font-size:9px!important}
   .wallet-plus{display:none!important}
   .casino-nav{
+    display:flex!important;
     width:100%!important;
+    max-width:100%!important;
     justify-content:flex-start!important;
     overflow-x:auto!important;
-    padding-bottom:6px!important;
+    gap:5px!important;
+    padding:2px 0 4px!important;
+    scrollbar-width:none!important;
   }
+  .casino-nav a{
+    font-size:10px!important;
+    padding:7px 9px!important;
+    white-space:nowrap!important;
+  }
+
   .keno-main{
     display:flex!important;
     flex-direction:column!important;
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
-    padding:12px!important;
-    gap:12px!important;
-  }
-  .side-panel,.game-panel{
     width:100%!important;
     height:auto!important;
     min-height:0!important;
     max-height:none!important;
     overflow:visible!important;
-    padding:14px!important;
-    border-radius:22px!important;
+    padding:6px!important;
+    gap:8px!important;
   }
-  .side-panel{display:flex!important;flex-direction:column!important}
-  .game-title,.side-copy{text-align:center!important}
-  .quick-bet-card{overflow:visible!important}
-  .stat-grid,.keno-live{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+
+  .game-panel{
+    order:1!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
   }
-  .preset-grid{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  .side-panel{
+    order:2!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
   }
-  .preset{min-height:58px!important}
-  .bet-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .pick-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .paytable{
-    max-height:260px!important;
-    overflow:auto!important;
-  }
-  .keno-stage{
+
+  .side-panel,.game-panel{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
     height:auto!important;
     min-height:0!important;
+    max-height:none!important;
     overflow:visible!important;
-    padding:12px!important;
-    grid-template-rows:auto auto!important;
+    padding:8px!important;
+    border-radius:16px!important;
   }
+
+  /* Intro ausblenden, damit Spiel auf Mobile direkt nutzbar ist */
+  .side-panel > div:first-child{
+    display:none!important;
+  }
+
+  .table-head{
+    display:flex!important;
+    justify-content:center!important;
+    text-align:center!important;
+    gap:6px!important;
+  }
+  .table-head h2{
+    font-size:16px!important;
+    line-height:1.1!important;
+  }
+  .rule-pill{
+    font-size:9px!important;
+    padding:6px 8px!important;
+  }
+
+  .keno-live{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  .live-box{
+    padding:6px 3px!important;
+    border-radius:10px!important;
+  }
+  .live-box small{
+    font-size:7px!important;
+    letter-spacing:.3px!important;
+  }
+  .live-box b{
+    font-size:12px!important;
+  }
+
+  .keno-stage{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:6px!important;
+    gap:6px!important;
+    border-radius:14px!important;
+  }
+
+  /* Wichtig: Keno bleibt 8x5, damit es NICHT endlos hoch wird */
   .keno-board{
     width:100%!important;
     max-width:100%!important;
+    display:grid!important;
     grid-template-columns:repeat(8,minmax(0,1fr))!important;
-    gap:8px!important;
-    padding:10px!important;
-    border-radius:22px!important;
+    gap:4px!important;
+    padding:6px!important;
+    border-radius:14px!important;
   }
   .number-tile{
-    min-height:50px!important;
-    border-radius:14px!important;
-    font-size:16px!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:clamp(32px,8.2vw,48px)!important;
+    border-radius:9px!important;
+    font-size:clamp(11px,3vw,16px)!important;
     padding:0!important;
+    line-height:1!important;
     touch-action:manipulation!important;
   }
+
   .drawn-strip{
-    min-height:54px!important;
-    padding:8px!important;
-    gap:6px!important;
+    min-height:40px!important;
+    padding:5px!important;
+    gap:4px!important;
+    border-radius:12px!important;
   }
   .draw-ball{
-    width:34px!important;
-    height:34px!important;
-    font-size:13px!important;
+    width:26px!important;
+    height:26px!important;
+    font-size:10px!important;
   }
+
   .message{
-    min-height:46px!important;
-    padding:10px!important;
-    font-size:13px!important;
+    min-height:38px!important;
+    padding:7px!important;
+    font-size:11px!important;
+    line-height:1.25!important;
+    border-radius:12px!important;
   }
+
   .controls{
     display:flex!important;
     flex-wrap:wrap!important;
+    gap:6px!important;
+    margin:0!important;
   }
   .controls button{
-    min-height:52px!important;
-    flex:1 1 150px!important;
+    min-width:0!important;
+    min-height:46px!important;
+    flex:1 1 140px!important;
+    font-size:13px!important;
+  }
+
+  .stat-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  .stat-card{
+    padding:8px!important;
+    border-radius:12px!important;
+  }
+  .stat-card small{font-size:8px!important}
+  .stat-card b{font-size:15px!important}
+
+  .quick-bet-card{
+    padding:8px!important;
+    border-radius:14px!important;
+    overflow:visible!important;
+  }
+  .bet-display{
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    gap:6px!important;
+    margin-bottom:8px!important;
+  }
+  .bet-amount{
+    font-size:28px!important;
+  }
+  .bet-mode-pill{
+    font-size:9px!important;
+    padding:6px 7px!important;
+  }
+  .preset-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+    margin-bottom:8px!important;
+  }
+  .preset{
+    min-height:42px!important;
+    border-radius:11px!important;
+    padding:4px!important;
+  }
+  .preset b{font-size:12px!important}
+  .preset small{font-size:8px!important}
+  .slider-wrap{
+    padding:8px!important;
+    border-radius:12px!important;
+  }
+  .range-labels{font-size:9px!important}
+  .bet-actions{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:4px!important;
+    margin-top:8px!important;
+  }
+  .bet-action{
+    min-height:38px!important;
+    padding:6px 2px!important;
+    font-size:10px!important;
+    border-radius:10px!important;
+  }
+
+  .setting-panel{gap:8px!important}
+  .setting-panel h3{
+    font-size:12px!important;
+    text-align:center!important;
+  }
+  .pick-buttons{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:4px!important;
+  }
+  .pick-buttons button,.auto-btn{
+    min-height:38px!important;
+    font-size:10px!important;
+    padding:4px!important;
+    border-radius:10px!important;
+  }
+  .paytable{
+    max-height:150px!important;
+    overflow-y:auto!important;
+    padding:6px!important;
+    border-radius:12px!important;
+  }
+  .pay-row{
+    display:grid!important;
+    grid-template-columns:70px 1fr!important;
+    gap:6px!important;
+    font-size:10px!important;
+    padding:6px 4px!important;
+  }
+  .pay-row b{
+    text-align:right!important;
+    font-size:10px!important;
+    line-height:1.25!important;
   }
 }
-@media (max-width: 760px){
+
+@media (max-width: 380px){
   .keno-board{
-    grid-template-columns:repeat(5,minmax(0,1fr))!important;
-    gap:7px!important;
+    gap:3px!important;
+    padding:5px!important;
   }
   .number-tile{
-    min-height:46px!important;
-    font-size:15px!important;
+    height:30px!important;
+    font-size:10px!important;
+    border-radius:7px!important;
   }
-}
-@media (max-width: 520px){
-  body{padding:6px!important}
-  .keno-app{border-radius:18px!important}
-  .casino-header{padding:10px!important}
-  .brand-title{font-size:18px!important}
-  .brand-mark{font-size:30px!important}
-  .keno-main{padding:8px!important}
-  .side-panel,.game-panel{padding:10px!important;border-radius:18px!important}
-  .game-title{font-size:36px!important}
-  .side-copy{font-size:13px!important}
-  .stat-grid,.keno-live{grid-template-columns:1fr 1fr!important;gap:8px!important}
-  .live-box,.stat-card{padding:10px!important}
-  .live-box b,.stat-card b{font-size:16px!important}
+  .keno-live{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .preset-grid{grid-template-columns:1fr!important}
-  .bet-display{grid-template-columns:1fr!important;text-align:center!important}
-  .bet-mode-pill{justify-self:center!important}
-  .keno-board{grid-template-columns:repeat(4,minmax(0,1fr))!important}
-  .number-tile{min-height:42px!important;font-size:14px!important}
+  .bet-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .pick-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 </style>
 
