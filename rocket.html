@@ -311,6 +311,7 @@ function startGame(){
     activeBet = Math.floor(getBet());
     if (!canAfford(activeBet)) return toast('Nicht genug Guthaben.', 'bad');
 
+    resetRocket();
     changeCash(-activeBet);
     currentMult = 0.5;
     crashPoint = randomCrash();
@@ -321,6 +322,7 @@ function startGame(){
     flightPoints = [];
 
     el('msg').textContent = 'Die Rakete startet... cashout rechtzeitig!';
+    el('startBtn').textContent = 'Start';
     el('cashOut').textContent = '0 €';
     el('crashOut').textContent = '?';
     el('stateOut').textContent = 'Status: läuft';
@@ -475,20 +477,44 @@ function updatePotential(){
 
 function cashout(){
   if (!running || cashed) return;
+
   cashed = true;
+
   const win = Math.floor(activeBet * currentMult);
+  const profit = win - activeBet;
+
+  // Custom-Winning-Sound nur bei echtem Gewinn
+  if (profit > 0 && typeof playCustomWinSound === 'function') {
+    playCustomWinSound();
+  }
+
   changeCash(win);
   el('cashOut').textContent = money(win);
-  el('msg').textContent = `Cashout bei ${currentMult.toFixed(2)}x: ${money(win)} 🎉`;
+  el('msg').textContent = `Cashout bei ${currentMult.toFixed(2)}x: ${money(win)} 🎉 Die Rakete fliegt weiter bis zum Crash.`;
   addHistory(`${currentMult.toFixed(2)}x · +${money(win)}`, 'win');
-  window.casinoSound&&casinoSound.play('cashout'); stopRocketSoundLoop&&stopRocketSoundLoop(); playCustomWinSound(); recordGame('Rocket Crash', win - activeBet);
+
+  if (window.casinoSound) casinoSound.play('cashout');
+  if (typeof stopRocketSoundLoop === 'function') stopRocketSoundLoop();
+  if (typeof __sndRocketLoop !== 'undefined') clearInterval(__sndRocketLoop);
+  if (typeof __directRocketLoop !== 'undefined') clearInterval(__directRocketLoop);
+
+  recordGame('Rocket Crash', profit);
+
+  // Wichtig: NICHT stoppen. Die Rakete fliegt weiter.
   el('cashBtn').disabled = true;
+  el('stateOut').textContent = 'Status: ausgezahlt · fliegt weiter';
 }
 
 function crash(){
   running = false;
   cancelAnimationFrame(raf);
-  el('rocket').className = 'rocket crashed'; window.casinoSound&&casinoSound.play('crash'); stopRocketSoundLoop&&stopRocketSoundLoop();
+
+  el('rocket').className = 'rocket crashed';
+  if (window.casinoSound) casinoSound.play('crash');
+  if (typeof stopRocketSoundLoop === 'function') stopRocketSoundLoop();
+  if (typeof __sndRocketLoop !== 'undefined') clearInterval(__sndRocketLoop);
+  if (typeof __directRocketLoop !== 'undefined') clearInterval(__directRocketLoop);
+
   el('trail').classList.remove('show');
   el('flash').classList.add('show');
   el('crashOut').textContent = crashPoint.toFixed(2) + 'x';
@@ -496,17 +522,24 @@ function crash(){
   el('bigMult').textContent = 'CRASH';
   el('multOut').textContent = crashPoint.toFixed(2) + 'x';
 
-  if (!cashed){
+  if (cashed) {
+    const missedWin = Math.floor(activeBet * crashPoint);
+    el('msg').textContent = `Crash bei ${crashPoint.toFixed(2)}x — möglich gewesen wären ${money(missedWin)}.`;
+  } else {
     el('msg').textContent = `Crash bei ${crashPoint.toFixed(2)}x — Einsatz verloren.`;
     addHistory(`${crashPoint.toFixed(2)}x · -${money(activeBet)}`, 'loss');
-    window.casinoSound&&casinoSound.play('cashout'); stopRocketSoundLoop&&stopRocketSoundLoop(); recordGame('Rocket Crash', -activeBet);
-  } else {
-    el('msg').textContent += ` | Crash bei ${crashPoint.toFixed(2)}x`;
+    recordGame('Rocket Crash', -activeBet);
   }
 
+  // Nach Crash kurze Animation zeigen, dann neue Runde freigeben
   setTimeout(() => {
-    setControls(false);
+    cashed = false;
     resetRocket();
+    setControls(false);
+    el('startBtn').disabled = false;
+    el('startBtn').textContent = 'Neue Runde';
+    el('cashBtn').disabled = true;
+    el('stateOut').textContent = 'Status: bereit';
   }, 1100);
 }
 
@@ -533,6 +566,8 @@ function resetRocket(){
   el('spaceBg').style.transform = 'scale(1.18)';
   el('spaceBg').style.opacity = '.42';
   el('rocket').className = 'rocket';
+  el('rocket').style.opacity = '1';
+  el('flash').classList.remove('show');
   el('trail').classList.remove('show');
   el('multOut').textContent = '0.50x';
   el('bigMult').textContent = '0.50x';
@@ -732,28 +767,26 @@ document.addEventListener('animationstart',e=>{if((e.animationName||'').toLowerC
 </script>
 
 
-<script>
-/* Global Custom Winning Sound für dieses Spiel */
+
+
+<script id="custom-win-sound-safe-final">
+/* Custom Winning Sound - funktioniert auf Mobile/Tablet nach erstem Tippen */
 let customWinSoundUnlocked = false;
 
 function unlockCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio || customWinSoundUnlocked) return;
-
   try{
     audio.load();
     audio.volume = 0.01;
     const p = audio.play();
-
     if(p && typeof p.then === "function"){
       p.then(()=>{
         audio.pause();
         audio.currentTime = 0;
         audio.volume = 1;
         customWinSoundUnlocked = true;
-      }).catch(()=>{
-        audio.volume = 1;
-      });
+      }).catch(()=>{ audio.volume = 1; });
     }else{
       audio.pause();
       audio.currentTime = 0;
@@ -761,14 +794,13 @@ function unlockCustomWinSound(){
       customWinSoundUnlocked = true;
     }
   }catch(e){
-    audio.volume = 1;
+    if(audio) audio.volume = 1;
   }
 }
 
 function playCustomWinSound(){
   const audio = document.getElementById("customWinSound");
   if(!audio) return;
-
   try{
     audio.volume = 1;
     audio.currentTime = 0;
@@ -783,7 +815,20 @@ document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
 document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
 document.addEventListener("click", unlockCustomWinSound, {passive:true});
 </script>
-
 <audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
+
+
+<script>
+function playCustomWinSoundIfProfit(payout, stake){
+  const p = Number(payout || 0);
+  const s = Number(stake || 0);
+  if (p > s && typeof playCustomWinSound === 'function') {
+    playCustomWinSound();
+    return true;
+  }
+  return false;
+}
+</script>
+
 </body>
 </html>
