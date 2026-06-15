@@ -873,7 +873,154 @@
         }
       }
     </style>
-  </head>
+  
+<style id="royal-mobile-final-fix">
+/* FINAL MOBILE / TABLET FIX */
+@media (max-width: 1180px){
+  html,body{
+    width:100%!important;
+    min-height:100%!important;
+    max-height:none!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  body{padding:10px!important}
+  .keno-app{
+    width:100%!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    height:auto!important;
+    overflow:visible!important;
+    border-radius:24px!important;
+  }
+  .casino-header{
+    min-height:0!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    padding:14px!important;
+  }
+  .brand{justify-content:center!important;min-width:0!important}
+  .wallet{min-width:0!important;width:100%!important;justify-content:center!important}
+  .wallet-plus{display:none!important}
+  .casino-nav{
+    width:100%!important;
+    justify-content:flex-start!important;
+    overflow-x:auto!important;
+    padding-bottom:6px!important;
+  }
+  .keno-main{
+    display:flex!important;
+    flex-direction:column!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    padding:12px!important;
+    gap:12px!important;
+  }
+  .side-panel,.game-panel{
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:14px!important;
+    border-radius:22px!important;
+  }
+  .side-panel{display:flex!important;flex-direction:column!important}
+  .game-title,.side-copy{text-align:center!important}
+  .quick-bet-card{overflow:visible!important}
+  .stat-grid,.keno-live{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .preset-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  .preset{min-height:58px!important}
+  .bet-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .pick-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .paytable{
+    max-height:260px!important;
+    overflow:auto!important;
+  }
+  .keno-stage{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    padding:12px!important;
+    grid-template-rows:auto auto!important;
+  }
+  .keno-board{
+    width:100%!important;
+    max-width:100%!important;
+    grid-template-columns:repeat(8,minmax(0,1fr))!important;
+    gap:8px!important;
+    padding:10px!important;
+    border-radius:22px!important;
+  }
+  .number-tile{
+    min-height:50px!important;
+    border-radius:14px!important;
+    font-size:16px!important;
+    padding:0!important;
+    touch-action:manipulation!important;
+  }
+  .drawn-strip{
+    min-height:54px!important;
+    padding:8px!important;
+    gap:6px!important;
+  }
+  .draw-ball{
+    width:34px!important;
+    height:34px!important;
+    font-size:13px!important;
+  }
+  .message{
+    min-height:46px!important;
+    padding:10px!important;
+    font-size:13px!important;
+  }
+  .controls{
+    display:flex!important;
+    flex-wrap:wrap!important;
+  }
+  .controls button{
+    min-height:52px!important;
+    flex:1 1 150px!important;
+  }
+}
+@media (max-width: 760px){
+  .keno-board{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  .number-tile{
+    min-height:46px!important;
+    font-size:15px!important;
+  }
+}
+@media (max-width: 520px){
+  body{padding:6px!important}
+  .keno-app{border-radius:18px!important}
+  .casino-header{padding:10px!important}
+  .brand-title{font-size:18px!important}
+  .brand-mark{font-size:30px!important}
+  .keno-main{padding:8px!important}
+  .side-panel,.game-panel{padding:10px!important;border-radius:18px!important}
+  .game-title{font-size:36px!important}
+  .side-copy{font-size:13px!important}
+  .stat-grid,.keno-live{grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .live-box,.stat-card{padding:10px!important}
+  .live-box b,.stat-card b{font-size:16px!important}
+  .preset-grid{grid-template-columns:1fr!important}
+  .bet-display{grid-template-columns:1fr!important;text-align:center!important}
+  .bet-mode-pill{justify-self:center!important}
+  .keno-board{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .number-tile{min-height:42px!important;font-size:14px!important}
+}
+</style>
+
+</head>
   <body>
     <div class="keno-app">
       <header class="casino-header">
