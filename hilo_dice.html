@@ -1,0 +1,1492 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hi-Lo Dice - Royal Deluxe Casino</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="mobile.css" />
+    <script src="casino-utils.js"></script>
+    <style>
+      :root {
+        --hl-bg: #060812;
+        --hl-gold: #e5c158;
+        --hl-gold-2: #fff0a3;
+        --hl-text: #f8f5ed;
+        --hl-muted: rgba(248, 245, 237, 0.66);
+        --hl-border: rgba(229, 193, 88, 0.28);
+        --hl-green: #37b46b;
+        --hl-red: #c64d4d;
+        --hl-cyan: #40e8dc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        min-height: 100%;
+        overflow-x: hidden;
+      }
+      body {
+        margin: 0;
+        padding: clamp(10px, 1.8vw, 24px);
+        color: var(--hl-text);
+        font-family:
+          Segoe UI,
+          Arial,
+          sans-serif;
+        user-select: none;
+        background:
+          radial-gradient(
+            circle at 15% 5%,
+            rgba(229, 193, 88, 0.17),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 84% 8%,
+            rgba(102, 74, 255, 0.15),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 50% 100%,
+            rgba(26, 122, 91, 0.22),
+            transparent 35%
+          ),
+          linear-gradient(145deg, #050711, #0a101d 48%, #05070d 100%) !important;
+      }
+      body:before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 44px 44px;
+        opacity: 0.42;
+        z-index: -1;
+      }
+      .hilo-app {
+        width: min(1440px, 100%);
+        margin: 0 auto;
+        min-height: calc(100dvh - clamp(20px, 3.6vw, 48px));
+        max-height: calc(100dvh - clamp(20px, 3.6vw, 48px));
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        border: 1px solid var(--hl-border);
+        border-radius: 32px;
+        overflow: hidden;
+        background: linear-gradient(
+          180deg,
+          rgba(11, 17, 30, 0.96),
+          rgba(6, 10, 18, 0.98)
+        );
+        box-shadow:
+          0 30px 90px rgba(0, 0, 0, 0.55),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+      .casino-header {
+        min-height: 94px;
+        padding: 18px 24px;
+        display: grid;
+        grid-template-columns: auto minmax(280px, 1fr) auto;
+        gap: 20px;
+        align-items: center;
+        background: rgba(4, 8, 15, 0.72);
+        border-bottom: 1px solid rgba(229, 193, 88, 0.18);
+        backdrop-filter: blur(16px);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 190px;
+        color: var(--hl-text);
+        text-decoration: none;
+      }
+      .brand-mark {
+        font-size: 42px;
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+      }
+      .brand-title {
+        font-family: Georgia, serif;
+        font-size: 25px;
+        line-height: 0.9;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: var(--hl-gold-2);
+      }
+      .brand-title span {
+        display: block;
+        margin-top: 8px;
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: 4px;
+        color: var(--hl-gold);
+      }
+      .casino-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 4px;
+      }
+      .casino-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .casino-nav a {
+        flex: 0 0 auto;
+        color: rgba(255, 255, 255, 0.74);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        padding: 12px 17px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        transition: 0.18s ease;
+      }
+      .casino-nav a:hover {
+        color: var(--hl-gold-2);
+        background: rgba(229, 193, 88, 0.11);
+        border-color: rgba(229, 193, 88, 0.34);
+      }
+      .wallet {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 11px 13px 11px 16px;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.32);
+        border: 1px solid rgba(229, 193, 88, 0.26);
+        min-width: 220px;
+      }
+      .wallet-icon,
+      .wallet-plus {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #201405;
+        background: linear-gradient(#fff0a3, #d5a43b);
+        font-size: 23px;
+        font-weight: 950;
+      }
+      .wallet small {
+        display: block;
+        color: rgba(255, 255, 255, 0.58);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 11px;
+      }
+      .wallet b {
+        display: block;
+        font-size: 20px;
+        margin-top: 2px;
+        white-space: nowrap;
+      }
+      .wallet-plus {
+        border: none;
+        border-radius: 13px;
+        padding: 0;
+        cursor: pointer;
+        margin-left: auto;
+      }
+
+      .hilo-main {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 360px minmax(0, 1fr);
+        gap: 18px;
+        padding: 18px;
+        overflow: hidden;
+      }
+      .side-panel,
+      .game-panel {
+        min-height: 0;
+        border: 1px solid rgba(229, 193, 88, 0.24);
+        border-radius: 28px;
+        background: linear-gradient(
+          180deg,
+          rgba(17, 27, 45, 0.82),
+          rgba(5, 9, 18, 0.9)
+        );
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.06),
+          0 20px 55px rgba(0, 0, 0, 0.28);
+        overflow: hidden;
+      }
+      .side-panel {
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow: auto;
+      }
+      .game-panel {
+        padding: 20px;
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+        gap: 14px;
+        overflow: hidden;
+      }
+      .game-eyebrow {
+        color: var(--hl-gold);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .game-title {
+        font-family: Georgia, serif;
+        font-size: clamp(42px, 4vw, 58px);
+        line-height: 0.92;
+        margin: 0;
+        color: #fff;
+      }
+      .game-title span {
+        display: block;
+        color: var(--hl-gold);
+      }
+      .side-copy {
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.55;
+        margin: 14px 0 0;
+        font-size: 14px;
+      }
+      .stat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .stat-card {
+        padding: 15px;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .stat-card small {
+        display: block;
+        color: var(--hl-muted);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 11px;
+      }
+      .stat-card b {
+        display: block;
+        margin-top: 6px;
+        color: var(--hl-gold-2);
+        font-size: 24px;
+      }
+
+      .quick-bet-card {
+        position: relative;
+        overflow: hidden;
+        padding: 16px;
+        border-radius: 24px;
+        background: linear-gradient(
+          180deg,
+          rgba(17, 27, 45, 0.78),
+          rgba(3, 7, 14, 0.72)
+        );
+        border: 1px solid rgba(229, 193, 88, 0.24);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.07),
+          0 14px 28px rgba(0, 0, 0, 0.22);
+      }
+      .quick-bet-card:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 50% 0,
+          rgba(229, 193, 88, 0.14),
+          transparent 48%
+        );
+        pointer-events: none;
+      }
+      .quick-bet-card > * {
+        position: relative;
+        z-index: 1;
+      }
+      .bet-display {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+      .bet-amount {
+        font-size: 42px;
+        line-height: 1;
+        font-weight: 950;
+        color: #fff;
+        text-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      }
+      .bet-amount span {
+        color: var(--hl-gold);
+        font-size: 0.68em;
+        margin-right: 2px;
+      }
+      .bet-mode-pill {
+        border: 1px solid rgba(229, 193, 88, 0.26);
+        background: rgba(0, 0, 0, 0.26);
+        border-radius: 999px;
+        padding: 9px 12px;
+        color: var(--hl-gold-2);
+        font-weight: 900;
+        font-size: 12px;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .preset-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .preset {
+        min-height: 68px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.055);
+        color: #fff;
+        font-weight: 950;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: 0.15s ease;
+        text-transform: none;
+        letter-spacing: 0;
+        padding: 8px;
+      }
+      .preset:hover:not(:disabled) {
+        transform: translateY(-2px);
+        border-color: rgba(229, 193, 88, 0.45);
+        background: rgba(229, 193, 88, 0.08);
+      }
+      .preset.active {
+        border-color: rgba(229, 193, 88, 0.65);
+        box-shadow:
+          0 0 0 3px rgba(229, 193, 88, 0.14),
+          0 10px 22px rgba(0, 0, 0, 0.28);
+        background: rgba(229, 193, 88, 0.12);
+      }
+      .preset b {
+        display: block;
+        color: var(--hl-gold-2);
+        font-size: 18px;
+      }
+      .preset small {
+        display: block;
+        color: var(--hl-muted);
+        font-size: 11px;
+        margin-top: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+      }
+      .slider-wrap {
+        padding: 14px;
+        border-radius: 18px;
+        background: rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .slider-wrap input[type="range"] {
+        width: 100%;
+        accent-color: #e5c158;
+      }
+      .range-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 7px;
+        color: var(--hl-muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .bet-actions {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 9px;
+        margin-top: 14px;
+      }
+      .bet-action {
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(255, 255, 255, 0.055);
+        color: #fff;
+        border-radius: 14px;
+        padding: 11px 8px;
+        font-weight: 900;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+      .bet-action.red {
+        background: rgba(184, 68, 68, 0.22);
+        border-color: rgba(184, 68, 68, 0.35);
+      }
+      .bet-action.green {
+        background: rgba(55, 180, 107, 0.22);
+        border-color: rgba(55, 180, 107, 0.35);
+      }
+      .bet-action:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.12);
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        filter: grayscale(0.7);
+      }
+
+      .mode-panel {
+        display: grid;
+        gap: 12px;
+      }
+      .mode-panel h3 {
+        margin: 0;
+        color: var(--hl-gold-2);
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .mode-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .mode-grid button {
+        min-height: 58px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.055);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .mode-grid button.active {
+        background: rgba(229, 193, 88, 0.13);
+        border-color: rgba(229, 193, 88, 0.6);
+        color: var(--hl-gold-2);
+        box-shadow: 0 0 0 3px rgba(229, 193, 88, 0.12);
+      }
+
+      .table-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .table-head h2 {
+        margin: 0;
+        color: var(--hl-gold-2);
+        font-size: 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .rule-pill {
+        padding: 9px 13px;
+        border-radius: 999px;
+        border: 1px solid rgba(229, 193, 88, 0.26);
+        background: rgba(0, 0, 0, 0.28);
+        color: var(--hl-gold);
+        font-weight: 900;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .hilo-live {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .live-box {
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(0, 0, 0, 0.26);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: center;
+      }
+      .live-box small {
+        display: block;
+        color: var(--hl-muted);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 10px;
+      }
+      .live-box b {
+        display: block;
+        margin-top: 5px;
+        color: var(--hl-gold-2);
+        font-size: 18px;
+      }
+
+      .hilo-stage {
+        min-height: 0;
+        height: 100%;
+        border-radius: 30px;
+        padding: 22px;
+        background:
+          radial-gradient(
+            circle at 50% 8%,
+            rgba(229, 193, 88, 0.1),
+            transparent 34%
+          ),
+          linear-gradient(180deg, rgba(9, 17, 30, 0.98), rgba(3, 7, 14, 0.99));
+        border: 2px solid rgba(229, 193, 88, 0.24);
+        box-shadow:
+          inset 0 0 70px rgba(0, 0, 0, 0.46),
+          0 24px 50px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+      }
+      .dice-card {
+        width: min(760px, 100%);
+        border-radius: 34px;
+        padding: 28px;
+        background: linear-gradient(180deg, #101c21, #13233a 52%, #070b12 100%);
+        border: 3px solid rgba(229, 193, 88, 0.36);
+        box-shadow:
+          0 28px 60px rgba(0, 0, 0, 0.48),
+          inset 0 0 40px rgba(0, 0, 0, 0.48);
+      }
+      .roll-display {
+        min-height: 190px;
+        border-radius: 28px;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(
+            circle at 50% 18%,
+            rgba(229, 193, 88, 0.16),
+            transparent 46%
+          ),
+          rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(229, 193, 88, 0.23);
+        margin-bottom: 20px;
+      }
+      .roll-number {
+        font-size: clamp(58px, 8vw, 108px);
+        font-weight: 950;
+        color: var(--hl-gold-2);
+        text-shadow:
+          0 0 28px rgba(229, 193, 88, 0.35),
+          0 12px 30px rgba(0, 0, 0, 0.55);
+      }
+      .roll-number.win {
+        color: #a7ffd1;
+        text-shadow: 0 0 30px rgba(55, 180, 107, 0.7);
+      }
+      .roll-number.lose {
+        color: #ff9b9b;
+        text-shadow: 0 0 30px rgba(198, 77, 77, 0.7);
+      }
+      .threshold-wrap {
+        padding: 18px;
+        border-radius: 22px;
+        background: rgba(0, 0, 0, 0.24);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .threshold-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+        color: var(--hl-muted);
+        font-weight: 900;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 1px;
+      }
+      .threshold-value {
+        color: var(--hl-gold-2);
+      }
+      .threshold-wrap input[type="range"] {
+        width: 100%;
+        accent-color: var(--hl-gold);
+      }
+      .scale {
+        display: flex;
+        justify-content: space-between;
+        color: rgba(255, 255, 255, 0.48);
+        font-size: 12px;
+        font-weight: 900;
+        margin-top: 8px;
+      }
+      .message {
+        margin: 0 auto;
+        width: 100%;
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.24);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #ffd966;
+      }
+      .controls {
+        margin: 0;
+        gap: 10px;
+      }
+      .controls button {
+        min-width: 160px;
+      }
+
+      @media (max-width: 1120px) {
+        .casino-header {
+          grid-template-columns: 1fr auto;
+          gap: 14px;
+        }
+        .casino-nav {
+          grid-column: 1/-1;
+          justify-content: flex-start;
+          order: 3;
+        }
+        .hilo-main {
+          grid-template-columns: 1fr;
+          overflow: auto;
+        }
+        .side-panel {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          align-items: start;
+        }
+      }
+      @media (max-width: 760px) {
+        body {
+          padding: 10px;
+        }
+        .hilo-app {
+          border-radius: 24px;
+          max-height: none;
+        }
+        .casino-header {
+          grid-template-columns: 1fr;
+          justify-items: stretch;
+          padding: 14px;
+          min-height: 0;
+        }
+        .brand {
+          justify-content: center;
+          min-width: 0;
+        }
+        .wallet {
+          justify-content: center;
+          min-width: 0;
+        }
+        .wallet-plus {
+          display: none;
+        }
+        .hilo-main {
+          padding: 14px;
+          gap: 14px;
+          overflow: auto;
+        }
+        .side-panel,
+        .game-panel {
+          border-radius: 22px;
+          padding: 16px;
+        }
+        .side-panel {
+          display: flex;
+        }
+        .game-title,
+        .side-copy {
+          text-align: center;
+        }
+        .stat-grid,
+        .hilo-live {
+          grid-template-columns: 1fr 1fr;
+        }
+        .preset-grid {
+          grid-template-columns: 1fr;
+        }
+        .bet-actions {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .table-head {
+          justify-content: center;
+          text-align: center;
+        }
+        .hilo-stage {
+          padding: 12px;
+        }
+        .dice-card {
+          padding: 16px;
+          border-radius: 24px;
+        }
+        .roll-display {
+          min-height: 145px;
+        }
+        .controls button {
+          flex: 1 1 160px;
+        }
+      }
+    </style>
+    <style id="mobile-emergency-fix">
+      @media (max-width: 1180px) {
+        html,
+        body {
+          overflow-y: auto !important;
+          max-height: none !important;
+        }
+        [class$="-app"],
+        .home-shell {
+          max-height: none !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        .side-panel,
+        .game-panel {
+          overflow: visible !important;
+        }
+      }
+    </style>
+
+    <style id="hilo-roll-marker-fix">
+      .threshold-wrap {
+        position: relative;
+      }
+      .dice-slider-box {
+        position: relative;
+        padding-top: 34px;
+        padding-bottom: 42px;
+      }
+      .dice-marker-layer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+      }
+      .dice-marker {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: grid;
+        place-items: center;
+        min-width: 58px;
+        height: 26px;
+        padding: 0 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        transition:
+          left 0.35s ease,
+          opacity 0.2s ease,
+          transform 0.2s ease;
+      }
+      .dice-marker.target {
+        top: 0;
+        opacity: 1;
+        color: var(--hl-gold-2);
+        background: rgba(229, 193, 88, 0.16);
+        border: 1px solid rgba(229, 193, 88, 0.55);
+        box-shadow: 0 0 16px rgba(229, 193, 88, 0.28);
+      }
+      .dice-marker.target::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -8px;
+        transform: translateX(-50%);
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 8px solid currentColor;
+      }
+      .dice-marker.roll {
+        top: auto;
+        bottom: 35px;
+        opacity: 0;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .dice-marker.roll.show {
+        opacity: 1;
+      }
+      .dice-marker.roll.win {
+        color: #b9ffd9;
+        background: rgba(55, 180, 107, 0.22);
+        border-color: rgba(55, 180, 107, 0.65);
+        box-shadow: 0 0 18px rgba(55, 180, 107, 0.48);
+      }
+      .dice-marker.roll.lose {
+        color: #ffb1b1;
+        background: rgba(198, 77, 77, 0.22);
+        border-color: rgba(198, 77, 77, 0.65);
+        box-shadow: 0 0 18px rgba(198, 77, 77, 0.48);
+      }
+      .dice-marker.roll::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -8px;
+        transform: translateX(-50%);
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-bottom: 8px solid currentColor;
+      }
+      @media (max-width: 760px) {
+        .dice-marker {
+          min-width: 48px;
+          font-size: 10px;
+          height: 24px;
+        }
+        .dice-slider-box {
+          padding-top: 32px;
+          padding-bottom: 40px;
+        }
+        .dice-marker.roll {
+          bottom: 18px;
+        }
+      }
+      @media (max-width: 420px) {
+        .dice-marker {
+          min-width: 44px;
+          padding: 0 6px;
+          font-size: 9px;
+        }
+      }
+    </style>
+  
+<style id="royal-mobile-final-fix">
+/* FINAL MOBILE / TABLET FIX */
+@media (max-width: 1180px){
+  html,body{
+    width:100%!important;
+    min-height:100%!important;
+    max-height:none!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  body{
+    padding:10px!important;
+  }
+  .hilo-app{
+    width:100%!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    height:auto!important;
+    overflow:visible!important;
+    border-radius:24px!important;
+  }
+  .casino-header{
+    min-height:0!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    padding:14px!important;
+  }
+  .brand{
+    justify-content:center!important;
+    min-width:0!important;
+  }
+  .wallet{
+    min-width:0!important;
+    width:100%!important;
+    justify-content:center!important;
+  }
+  .wallet-plus{
+    display:none!important;
+  }
+  .casino-nav{
+    width:100%!important;
+    justify-content:flex-start!important;
+    overflow-x:auto!important;
+    padding-bottom:6px!important;
+  }
+  .hilo-main{
+    display:flex!important;
+    flex-direction:column!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    padding:12px!important;
+    gap:12px!important;
+  }
+  .side-panel,
+  .game-panel{
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:14px!important;
+    border-radius:22px!important;
+  }
+  .side-panel{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  .game-title,
+  .side-copy{
+    text-align:center!important;
+  }
+  .stat-grid,
+  .hilo-live{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .quick-bet-card{
+    overflow:visible!important;
+  }
+  .preset-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  .preset{
+    min-height:58px!important;
+  }
+  .bet-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .mode-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .hilo-stage{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    padding:12px!important;
+  }
+  .dice-card{
+    width:100%!important;
+    max-width:100%!important;
+    padding:14px!important;
+    border-radius:24px!important;
+  }
+  .roll-display{
+    min-height:130px!important;
+    margin-bottom:12px!important;
+  }
+  .roll-number{
+    font-size:clamp(52px,16vw,96px)!important;
+  }
+  .threshold-wrap{
+    padding:14px!important;
+    overflow:visible!important;
+  }
+  .threshold-head{
+    gap:8px!important;
+    font-size:10px!important;
+  }
+  .dice-slider-box{
+    padding-top:34px!important;
+    padding-bottom:42px!important;
+  }
+  .dice-marker{
+    min-width:48px!important;
+    height:24px!important;
+    font-size:10px!important;
+  }
+  .dice-marker.roll{
+    bottom:18px!important;
+  }
+  .message{
+    min-height:46px!important;
+    padding:10px!important;
+    font-size:13px!important;
+  }
+  .controls{
+    display:flex!important;
+    flex-wrap:wrap!important;
+  }
+  .controls button{
+    min-height:52px!important;
+    flex:1 1 150px!important;
+  }
+}
+@media (max-width: 520px){
+  body{padding:6px!important}
+  .hilo-app{border-radius:18px!important}
+  .casino-header{padding:10px!important}
+  .brand-title{font-size:18px!important}
+  .brand-mark{font-size:30px!important}
+  .hilo-main{padding:8px!important}
+  .side-panel,.game-panel{padding:10px!important;border-radius:18px!important}
+  .game-title{font-size:36px!important}
+  .side-copy{font-size:13px!important}
+  .stat-grid,.hilo-live{grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .live-box,.stat-card{padding:10px!important}
+  .live-box b,.stat-card b{font-size:16px!important}
+  .preset-grid{grid-template-columns:1fr!important}
+  .bet-display{grid-template-columns:1fr!important;text-align:center!important}
+  .bet-mode-pill{justify-self:center!important}
+  .roll-display{min-height:110px!important}
+  .threshold-head{flex-direction:column!important;text-align:center!important}
+}
+</style>
+
+</head>
+  <body>
+    <div class="hilo-app">
+      <header class="casino-header">
+        <a href="index.html" class="brand" aria-label="Royal Deluxe Casino">
+          <div class="brand-mark">👑</div>
+          <div class="brand-title">ROYAL<br />DELUXE<span>CASINO</span></div>
+        </a>
+        <nav class="casino-nav" aria-label="Casino Navigation">
+          <a href="index.html">🏠 Home</a>
+          <a href="tower.html">🏰 Tower</a>
+          <a href="plinko.html">🟡 Plinko</a>
+          <a href="crossroad.html">🐔 Cross Road</a>
+          <a href="solitaire.html">♠️ Solitär</a>
+        </nav>
+        <div class="wallet">
+          <div class="wallet-icon">€</div>
+          <div>
+            <small>Guthaben</small><b class="shared-bankroll">1000 €</b>
+          </div>
+          <button class="wallet-plus" type="button" onclick="resetBankroll()">
+            +
+          </button>
+        </div>
+      </header>
+
+      <main class="hilo-main">
+        <aside class="side-panel">
+          <div>
+            <div class="game-eyebrow">🎲 Royal Risk Dice</div>
+            <h1 class="game-title">Hi-Lo<span>Dice</span></h1>
+            <p class="side-copy">
+              Schiebe den Regler und entscheide, ob die gewürfelte Zahl höher
+              oder niedriger als dein Ziel sein muss.
+            </p>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-card">
+              <small>Aktueller Einsatz</small><b id="betOut">50 €</b>
+            </div>
+            <div class="stat-card">
+              <small>Letzter Gewinn</small><b id="lastWinOut">0 €</b>
+            </div>
+          </div>
+
+          <div class="quick-bet-card">
+            <div class="bet-display">
+              <div class="bet-amount">
+                <span>€</span><b id="betDisplay">50</b>
+              </div>
+              <div class="bet-mode-pill">Pro Roll</div>
+            </div>
+            <div class="preset-grid" id="presetBets">
+              <button class="preset" data-set="10" type="button">
+                <div><b>10 €</b><small>Small</small></div>
+              </button>
+              <button class="preset active" data-set="50" type="button">
+                <div><b>50 €</b><small>Standard</small></div>
+              </button>
+              <button class="preset" data-set="100" type="button">
+                <div><b>100 €</b><small>High</small></div>
+              </button>
+            </div>
+            <div class="slider-wrap">
+              <input id="betSlider" type="range" />
+              <div class="range-labels">
+                <span>Minimal</span><span>Maximal</span>
+              </div>
+            </div>
+            <div class="bet-actions" id="betActions">
+              <button class="bet-action red" data-action="reset" type="button">
+                Reset
+              </button>
+              <button class="bet-action" data-action="minus" type="button">
+                -10
+              </button>
+              <button class="bet-action" data-action="plus" type="button">
+                +10
+              </button>
+              <button
+                class="bet-action green"
+                data-action="allin"
+                type="button"
+              >
+                All In
+              </button>
+            </div>
+          </div>
+
+          <div class="mode-panel">
+            <h3>Spielmodus</h3>
+            <div class="mode-grid" id="modeGrid">
+              <button class="active" data-mode="over" type="button">
+                Roll Over
+              </button>
+              <button data-mode="under" type="button">Roll Under</button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="game-panel">
+          <div class="table-head">
+            <h2>Royal Dice Roll</h2>
+            <div class="rule-pill" id="stateOut">Status: bereit</div>
+          </div>
+
+          <div class="hilo-live">
+            <div class="live-box">
+              <small>Ziel</small><b id="targetOut">50.00</b>
+            </div>
+            <div class="live-box">
+              <small>Chance</small><b id="chanceOut">49.50%</b>
+            </div>
+            <div class="live-box">
+              <small>Multi</small><b id="multOut">1.98x</b>
+            </div>
+            <div class="live-box">
+              <small>Möglich</small><b id="possibleOut">99 €</b>
+            </div>
+          </div>
+
+          <div class="hilo-stage">
+            <div class="dice-card">
+              <div class="roll-display">
+                <div class="roll-number" id="rollNumber">00.00</div>
+              </div>
+
+              <div class="threshold-wrap">
+                <div class="threshold-head">
+                  <span id="ruleText"
+                    >Gewinn wenn Zahl über
+                    <b class="threshold-value">50.00</b></span
+                  >
+                  <span>Regler</span>
+                </div>
+                <div class="dice-slider-box">
+                  <div class="dice-marker-layer">
+                    <div id="targetMarker" class="dice-marker target">
+                      50.00
+                    </div>
+                    <div id="rollMarker" class="dice-marker roll">00.00</div>
+                  </div>
+                  <input
+                    id="targetSlider"
+                    type="range"
+                    min="2"
+                    max="98"
+                    step="0.01"
+                    value="50"
+                  />
+                  <div class="scale">
+                    <span>2.00</span><span>50.00</span><span>98.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="msg" class="message">
+            Setze Einsatz, wähle Over/Under und würfle.
+          </div>
+
+          <div class="controls">
+            <button class="success" id="rollBtn" type="button">Würfeln</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      let getBet;
+      let mode = "over";
+      let rolling = false;
+      let wins = 0;
+      let losses = 0;
+      const el = (id) => document.getElementById(id);
+
+      document.addEventListener("DOMContentLoaded", () => {
+        getBet = createBetSlider({
+          inputId: "betSlider",
+          displayId: "betDisplay",
+          min: 1,
+          max: 500,
+          value: 50,
+          onChange: (v) => {
+            el("betOut").textContent = money(v);
+            el("betDisplay").textContent = Math.floor(v);
+            updatePresetActive(v);
+            updateLive();
+          },
+        });
+
+        const slider = el("betSlider");
+        const setBetValue = (value) => {
+          const min = Number(slider.min || 1);
+          const max = Number(slider.max || 500);
+          slider.value = String(
+            Math.max(min, Math.min(max, Math.floor(value))),
+          );
+          slider.dispatchEvent(new Event("input"));
+        };
+
+        el("presetBets").addEventListener("click", (e) => {
+          const b = e.target.closest("button[data-set]");
+          if (!b || rolling) return;
+          setBetValue(Number(b.dataset.set));
+        });
+
+        el("betActions").addEventListener("click", (e) => {
+          const b = e.target.closest("button[data-action]");
+          if (!b || rolling) return;
+          let v = Number(slider.value || 0);
+          if (b.dataset.action === "reset") v = 50;
+          if (b.dataset.action === "minus") v -= 10;
+          if (b.dataset.action === "plus") v += 10;
+          if (b.dataset.action === "allin") v = getCash();
+          setBetValue(v);
+        });
+
+        el("modeGrid").addEventListener("click", (e) => {
+          const b = e.target.closest("button[data-mode]");
+          if (!b || rolling) return;
+          mode = b.dataset.mode;
+          document
+            .querySelectorAll("#modeGrid button")
+            .forEach((x) => x.classList.toggle("active", x === b));
+          updateLive();
+        });
+
+        el("targetSlider").addEventListener("input", updateLive);
+        el("rollBtn").addEventListener("click", rollDice);
+
+        updateLive();
+      });
+
+      function updatePresetActive(value) {
+        document
+          .querySelectorAll("#presetBets button[data-set]")
+          .forEach((btn) => {
+            btn.classList.toggle(
+              "active",
+              Number(btn.dataset.set) === Math.floor(Number(value)),
+            );
+          });
+      }
+
+      function calcChance() {
+        const target = Number(el("targetSlider").value);
+        return mode === "over"
+          ? Math.max(1, 100 - target)
+          : Math.max(1, target);
+      }
+
+      function calcMultiplier() {
+        const chance = calcChance();
+        return Math.max(1.01, (99 / chance) * 0.98);
+      }
+
+      function markerPercent(value) {
+        return Math.max(0, Math.min(100, Number(value || 0)));
+      }
+
+      function updateTargetMarker() {
+        const target = Number(el("targetSlider").value);
+        const marker = el("targetMarker");
+        if (!marker) return;
+        marker.style.left = markerPercent(target) + "%";
+        marker.textContent = target.toFixed(2);
+      }
+
+      function clearRollMarker() {
+        const marker = el("rollMarker");
+        if (!marker) return;
+        marker.classList.remove("show", "win", "lose");
+        marker.textContent = "00.00";
+      }
+
+      function showRollMarker(value, didWin) {
+        const marker = el("rollMarker");
+        if (!marker) return;
+        marker.style.left = markerPercent(value) + "%";
+        marker.textContent = Number(value).toFixed(2);
+        marker.classList.remove("win", "lose");
+        marker.classList.add("show", didWin ? "win" : "lose");
+      }
+
+      function updateLive() {
+        const target = Number(el("targetSlider").value);
+        const chance = calcChance();
+        const mult = calcMultiplier();
+        const bet = getBet ? Math.floor(getBet()) : 50;
+
+        el("targetOut").textContent = target.toFixed(2);
+        el("chanceOut").textContent = chance.toFixed(2) + "%";
+        el("multOut").textContent = mult.toFixed(2) + "x";
+        el("possibleOut").textContent = money(Math.floor(bet * mult));
+        el("ruleText").innerHTML =
+          mode === "over"
+            ? `Gewinn wenn Zahl über <b class="threshold-value">${target.toFixed(2)}</b>`
+            : `Gewinn wenn Zahl unter <b class="threshold-value">${target.toFixed(2)}</b>`;
+        updateTargetMarker();
+      }
+
+      function setDisabled(disabled) {
+        document
+          .querySelectorAll(
+            "#presetBets button,#betActions button,#betSlider,#modeGrid button,#targetSlider,#rollBtn",
+          )
+          .forEach((x) => (x.disabled = disabled));
+      }
+
+      function rollDice() {
+        if (rolling) return;
+        if (typeof unlockCustomWinSound === "function") unlockCustomWinSound();
+
+        const bet = Math.floor(getBet());
+        if (!canAfford(bet)) return toast("Nicht genug Guthaben.", "bad");
+
+        rolling = true;
+        setDisabled(true);
+        changeCash(-bet);
+        el("stateOut").textContent = "Status: würfelt";
+        el("msg").textContent = "Die Zahl wird gewürfelt...";
+        el("rollNumber").classList.remove("win", "lose");
+        clearRollMarker();
+
+        if (window.casinoSound) casinoSound.play("bet");
+
+        let tick = 0;
+        const timer = setInterval(() => {
+          tick++;
+          el("rollNumber").textContent = (Math.random() * 100).toFixed(2);
+          if (window.casinoSound && tick % 3 === 0) casinoSound.play("dice");
+
+          if (tick >= 22) {
+            clearInterval(timer);
+            finishRoll(bet);
+          }
+        }, 45);
+      }
+
+      function finishRoll(bet) {
+        const target = Number(el("targetSlider").value);
+        const roll = Math.random() * 100;
+        const mult = calcMultiplier();
+        const win = mode === "over" ? roll > target : roll < target;
+
+        el("rollNumber").textContent = roll.toFixed(2);
+        showRollMarker(roll, win);
+
+        if (win) {
+          const payout = Math.floor(bet * mult);
+          const profit = payout - bet;
+          changeCash(payout);
+          el("lastWinOut").textContent = money(payout);
+          el("rollNumber").classList.add("win");
+          el("msg").textContent =
+            `Gewonnen! ${roll.toFixed(2)} trifft ${mode === "over" ? "über" : "unter"} ${target.toFixed(2)} · ${money(payout)} 🎉`;
+          if (profit > 0 && typeof playCustomWinSound === "function")
+            playCustomWinSound();
+          if (window.casinoSound) casinoSound.play("win");
+          recordGame("Hi-Lo Dice", profit);
+          wins++;
+        } else {
+          el("lastWinOut").textContent = "0 €";
+          el("rollNumber").classList.add("lose");
+          el("msg").textContent =
+            `Verloren. ${roll.toFixed(2)} war nicht ${mode === "over" ? "über" : "unter"} ${target.toFixed(2)}.`;
+          if (window.casinoSound) casinoSound.play("lose");
+          recordGame("Hi-Lo Dice", -bet);
+          losses++;
+        }
+
+        rolling = false;
+        setDisabled(false);
+        el("stateOut").textContent = "Status: bereit";
+        updateLive();
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (rolling) return;
+        const slider = el("targetSlider");
+        if (!slider) return;
+        if (e.key === "ArrowLeft") {
+          slider.value = String(
+            Math.max(Number(slider.min), Number(slider.value) - 1),
+          );
+          updateLive();
+        }
+        if (e.key === "ArrowRight") {
+          slider.value = String(
+            Math.min(Number(slider.max), Number(slider.value) + 1),
+          );
+          updateLive();
+        }
+      });
+    </script>
+
+    <script id="custom-win-sound-safe">
+      let customWinSoundUnlocked = false;
+
+      function unlockCustomWinSound() {
+        const audio = document.getElementById("customWinSound");
+        if (!audio || customWinSoundUnlocked) return;
+        try {
+          audio.load();
+          audio.volume = 0.01;
+          const p = audio.play();
+          if (p && typeof p.then === "function") {
+            p.then(() => {
+              audio.pause();
+              audio.currentTime = 0;
+              audio.volume = 1;
+              customWinSoundUnlocked = true;
+            }).catch(() => {
+              audio.volume = 1;
+            });
+          } else {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.volume = 1;
+            customWinSoundUnlocked = true;
+          }
+        } catch (e) {
+          if (audio) audio.volume = 1;
+        }
+      }
+
+      function playCustomWinSound() {
+        const audio = document.getElementById("customWinSound");
+        if (!audio) return;
+        try {
+          audio.volume = 1;
+          audio.currentTime = 0;
+          const p = audio.play();
+          if (p && typeof p.catch === "function") {
+            p.catch(() => unlockCustomWinSound());
+          }
+        } catch (e) {}
+      }
+
+      document.addEventListener("pointerdown", unlockCustomWinSound, {
+        passive: true,
+      });
+      document.addEventListener("touchstart", unlockCustomWinSound, {
+        passive: true,
+      });
+      document.addEventListener("click", unlockCustomWinSound, {
+        passive: true,
+      });
+    </script>
+    <audio
+      id="customWinSound"
+      preload="auto"
+      src="sounds/mixkit-retro-arcade-casino-notification-211.wav"
+    ></audio>
+  </body>
+</html>
