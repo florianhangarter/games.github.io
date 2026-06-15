@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Royal Deluxe Casino</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="mobile.css" />
     <script src="casino-utils.js"></script>
     <style>
       :root {
@@ -68,7 +69,7 @@
       .home-wrap {
         width: min(1440px, 100%);
         margin: 0 auto;
-        height: calc(100dvh - clamp(28px, 4vw, 56px));
+        min-height: calc(100dvh - clamp(28px, 4vw, 56px));
         min-height: 720px;
         display: grid;
         grid-template-rows: minmax(0, 1fr) auto;
@@ -724,7 +725,7 @@
       }
       @media (min-width: 821px) {
         .home-wrap {
-          max-height: calc(100dvh - clamp(28px, 4vw, 56px));
+          max-min-height: calc(100dvh - clamp(28px, 4vw, 56px));
         }
       }
 
@@ -752,7 +753,192 @@
         }
       }
     </style>
-  </head>
+  
+<style id="index-mobile-games-fix">
+/* Index Mobile/iPad Fix: Spiele sichtbar und bedienbar */
+@media (max-width: 900px) {
+  html,
+  body {
+    min-height: 100%;
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  body {
+    padding: 8px !important;
+  }
+
+  .home-wrap {
+    height: auto !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .home-shell {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    display: block !important;
+    overflow: visible !important;
+    border-radius: 22px !important;
+  }
+
+  .home-main {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .home-header {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    min-height: 0 !important;
+  }
+
+  .brand {
+    justify-content: center !important;
+    min-width: 0 !important;
+  }
+
+  .home-nav {
+    order: 2 !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wallet {
+    order: 3 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+
+  .hero {
+    display: block !important;
+    min-height: auto !important;
+    padding: 22px 16px !important;
+    text-align: center !important;
+    overflow: visible !important;
+  }
+
+  .hero-card {
+    display: none !important;
+  }
+
+  h1 {
+    font-size: clamp(32px, 10vw, 44px) !important;
+  }
+
+  .hero p {
+    font-size: 14px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .cta-row {
+    justify-content: center !important;
+  }
+
+  .games-section {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    margin: 12px 10px 16px !important;
+    padding: 14px 10px 16px !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .game-scroll {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 10px 4px 4px !important;
+  }
+
+  .games-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .game-tile {
+    min-height: 128px !important;
+    height: auto !important;
+    padding: 12px 8px !important;
+    border-radius: 18px !important;
+    gap: 8px !important;
+  }
+
+  .game-icon {
+    font-size: 34px !important;
+  }
+
+  .game-tile b {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .game-tile span {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+
+  .trustbar {
+    height: auto !important;
+    min-height: auto !important;
+    margin-top: 12px !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  html,
+  body {
+    overflow-y: auto !important;
+  }
+
+  .home-wrap {
+    height: auto !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+  }
+
+  .home-shell,
+  .home-main,
+  .games-section,
+  .game-scroll {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .games-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .game-tile {
+    min-height: 150px !important;
+  }
+}
+</style>
+
+</head>
   <body>
     <div class="home-wrap">
       <div class="home-shell">
