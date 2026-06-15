@@ -3,137 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Würfelspiel</title>
+<title>Royal Dice</title>
 <link rel="stylesheet" href="styles.css">
-<script src="casino-utils.js"></script>
+<script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
+</script>
 <style>
-  .dice-table{position:relative;margin-top:16px;background:linear-gradient(180deg, rgba(71,49,29,.98), rgba(28,18,12,.99));border-radius:34px;padding:48px 16px 16px;box-shadow:0 24px 50px rgba(0,0,0,.45), inset 0 0 0 3px rgba(126,82,39,.95)}
-  .dice-table:before{content:"CASINO DICE";position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:4px;font-weight:900;color:rgba(255,238,180,.88);z-index:2;pointer-events:none;white-space:nowrap}
-  .dice-table #choices{position:relative;z-index:1;margin-top:2px;margin-bottom:14px}
-  .dice-area{position:relative;background:radial-gradient(ellipse at center, rgba(31,116,69,.98) 0%, rgba(8,59,33,.99) 100%);border:2px solid rgba(229,193,88,.22);border-radius:24px;padding:56px 16px 30px;margin-top:0;overflow:hidden;box-shadow:inset 0 0 30px rgba(0,0,0,.28)}
-  .dice-area:before{content:"PASS LINE";position:absolute;left:24px;right:24px;bottom:14px;border:2px solid rgba(229,193,88,.36);border-radius:999px;padding:12px 0 10px;text-align:center;font-size:14px;letter-spacing:4px;font-weight:900;color:rgba(255,238,180,.82)}
-  .dice-area:after{content:"FIELD";position:absolute;left:50%;top:16px;transform:translateX(-50%);width:min(70%,420px);border:2px dashed rgba(229,193,88,.28);border-radius:18px;padding:10px 0;text-align:center;font-size:13px;letter-spacing:4px;font-weight:900;color:rgba(255,238,180,.78)}
-  .dice-stage{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin:26px 0 36px;position:relative;z-index:1}
-  .die-shell{width:124px;height:124px;border-radius:22px;background:linear-gradient(180deg,#ffffff,#ddd7ca);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 28px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.14)}
-  .dice{font-size:84px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.25));transition:transform .18s ease}
-  .dice.rolling{animation:diceRoll .55s linear infinite}
-  @keyframes diceRoll{0%{transform:rotate(0deg) scale(1)}25%{transform:rotate(90deg) scale(1.12)}50%{transform:rotate(180deg) scale(.94)}75%{transform:rotate(270deg) scale(1.08)}100%{transform:rotate(360deg) scale(1)}}
-  @media(max-width:680px){
-    .dice-table{padding:52px 10px 12px}
-    .dice-table:before{font-size:11px;letter-spacing:3px;top:12px}
-    .dice-table #choices{margin-bottom:12px}
-    .dice-area:after{width:min(82%,320px);font-size:11px;letter-spacing:3px}
-    .dice-area:before{left:12px;right:12px;font-size:12px;letter-spacing:3px}
-  }
-
-  /* FINAL dice viewport fit */
-  @media(max-height:820px){
-    .dice-table{padding:38px 10px 10px;margin-top:8px;border-radius:24px}
-    .dice-table:before{top:10px;font-size:10px;letter-spacing:3px}
-    .dice-table #choices{margin-bottom:8px}
-    .dice-area{padding:38px 10px 20px;border-radius:18px}
-    .dice-area:after{top:10px;padding:6px 0;font-size:10px}
-    .dice-area:before{bottom:8px;padding:7px 0;font-size:10px}
-    .dice-stage{gap:12px;margin:18px 0 24px}
-    .die-shell{width:82px;height:82px;border-radius:16px}
-    .dice{font-size:56px}
-  }
-  @media(max-width:680px){
-    .dice-table{padding:44px 8px 10px}
-    .dice-stage{gap:10px}
-    .die-shell{width:86px;height:86px}
-  }
-
+:root{
+  --dice-bg:#060812;--dice-panel:#0d1424;--dice-panel-2:#111b2d;--dice-gold:#e5c158;--dice-gold-2:#fff0a3;--dice-text:#f8f5ed;--dice-muted:rgba(248,245,237,.66);--dice-border:rgba(229,193,88,.28);--dice-soft:rgba(255,255,255,.08);--dice-red:#c64d4d;--dice-green:#37b46b;
+}
+*{box-sizing:border-box}html,body{min-height:100%;overflow-x:hidden}body{margin:0;padding:clamp(10px,1.8vw,24px);color:var(--dice-text);font-family:Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 5%,rgba(229,193,88,.17),transparent 30%),radial-gradient(circle at 84% 8%,rgba(102,74,255,.15),transparent 30%),radial-gradient(circle at 50% 100%,rgba(26,122,91,.22),transparent 35%),linear-gradient(145deg,#050711,#0a101d 48%,#05070d 100%)!important;user-select:none}body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:44px 44px;opacity:.42;z-index:-1}
+.dice-app{width:min(1440px,100%);margin:0 auto;min-height:calc(100dvh - clamp(20px,3.6vw,48px));max-height:calc(100dvh - clamp(20px,3.6vw,48px));display:grid;grid-template-rows:auto minmax(0,1fr);border:1px solid var(--dice-border);border-radius:32px;overflow:hidden;background:linear-gradient(180deg,rgba(11,17,30,.96),rgba(6,10,18,.98));box-shadow:0 30px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+.casino-header{min-height:94px;padding:18px 24px;display:grid;grid-template-columns:auto minmax(280px,1fr) auto;gap:20px;align-items:center;background:rgba(4,8,15,.72);border-bottom:1px solid rgba(229,193,88,.18);backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:13px;min-width:190px;color:var(--dice-text);text-decoration:none}.brand-mark{font-size:42px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}.brand-title{font-family:Georgia,serif;font-size:25px;line-height:.9;font-weight:900;letter-spacing:1px;color:var(--dice-gold-2)}.brand-title span{display:block;margin-top:8px;text-align:center;font-size:11px;letter-spacing:4px;color:var(--dice-gold)}
+.casino-nav{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;overflow-x:auto;scrollbar-width:none;padding:4px}.casino-nav::-webkit-scrollbar{display:none}.casino-nav a{flex:0 0 auto;color:rgba(255,255,255,.74);text-decoration:none;font-size:13px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;padding:12px 17px;border-radius:999px;border:1px solid transparent;transition:.18s ease}.casino-nav a.active,.casino-nav a:hover{color:var(--dice-gold-2);background:rgba(229,193,88,.11);border-color:rgba(229,193,88,.34)}
+.wallet{display:flex;align-items:center;gap:13px;padding:11px 13px 11px 16px;border-radius:20px;background:rgba(0,0,0,.32);border:1px solid rgba(229,193,88,.26);min-width:220px}.wallet-icon,.wallet-plus{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#201405;background:linear-gradient(#fff0a3,#d5a43b);font-size:23px;font-weight:950}.wallet small{display:block;color:rgba(255,255,255,.58);font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:11px}.wallet b{display:block;font-size:20px;margin-top:2px;white-space:nowrap}.wallet-plus{border:none;border-radius:13px;padding:0;cursor:pointer;margin-left:auto}
+.dice-main{min-height:0;display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;padding:18px;overflow:hidden}.side-panel,.game-panel{min-height:0;border:1px solid rgba(229,193,88,.24);border-radius:28px;background:linear-gradient(180deg,rgba(17,27,45,.82),rgba(5,9,18,.90));box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 55px rgba(0,0,0,.28);overflow:hidden}.side-panel{padding:22px;display:flex;flex-direction:column;gap:16px;overflow:auto}.game-panel{padding:20px;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:14px}.game-eyebrow{color:var(--dice-gold);font-size:12px;font-weight:950;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}.game-title{font-family:Georgia,serif;font-size:clamp(42px,4vw,58px);line-height:.92;margin:0;color:#fff}.game-title span{display:block;color:var(--dice-gold)}.side-copy{color:rgba(255,255,255,.72);line-height:1.55;margin:14px 0 0;font-size:14px}.stat-card{padding:15px;border-radius:20px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08)}.stat-card small{display:block;color:var(--dice-muted);font-weight:900;text-transform:uppercase;letter-spacing:1px;font-size:11px}.stat-card b{display:block;margin-top:6px;color:var(--dice-gold-2);font-size:26px}
+.quick-bet-card{position:relative;overflow:hidden;padding:16px;border-radius:24px;background:linear-gradient(180deg,rgba(17,27,45,.78),rgba(3,7,14,.72));border:1px solid rgba(229,193,88,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 14px 28px rgba(0,0,0,.22)}.quick-bet-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,rgba(229,193,88,.14),transparent 48%);pointer-events:none}.quick-bet-card>*{position:relative;z-index:1}.bet-display{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:14px}.bet-amount{font-size:42px;line-height:1;font-weight:950;color:#fff;text-shadow:0 6px 18px rgba(0,0,0,.35)}.bet-amount span{color:var(--dice-gold);font-size:.68em;margin-right:2px}.bet-mode-pill{border:1px solid rgba(229,193,88,.26);background:rgba(0,0,0,.26);border-radius:999px;padding:9px 12px;color:var(--dice-gold-2);font-weight:900;font-size:12px;text-transform:uppercase;white-space:nowrap}.preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}.preset{min-height:68px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;font-weight:950;display:grid;place-items:center;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease,box-shadow .15s ease;text-transform:none;letter-spacing:0;padding:8px}.preset:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(229,193,88,.45);background:rgba(229,193,88,.08)}.preset.active{border-color:rgba(229,193,88,.65);box-shadow:0 0 0 3px rgba(229,193,88,.14),0 10px 22px rgba(0,0,0,.28);background:rgba(229,193,88,.12)}.preset b{display:block;color:var(--dice-gold-2);font-size:18px}.preset small{display:block;color:var(--dice-muted);font-size:11px;margin-top:3px;text-transform:uppercase;letter-spacing:.7px}.slider-wrap{padding:14px;border-radius:18px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08)}.slider-wrap input[type=range]{width:100%;accent-color:#e5c158}.range-labels{display:flex;justify-content:space-between;margin-top:7px;color:var(--dice-muted);font-size:12px;font-weight:800}.bet-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.bet-action{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.055);color:#fff;border-radius:14px;padding:11px 8px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:.3px}.bet-action.red{background:rgba(184,68,68,.22);border-color:rgba(184,68,68,.35)}.bet-action.green{background:rgba(55,180,107,.22);border-color:rgba(55,180,107,.35)}.bet-action:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.12)}.bet-action:disabled,.preset:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.7)}
+.choice-panel{display:grid;gap:10px}.choice-panel h3{margin:0;color:var(--dice-gold-2);font-size:16px;text-transform:uppercase;letter-spacing:1px}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice-btn{min-height:64px;text-align:left;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:11px 12px;cursor:pointer;transition:.16s ease;text-transform:none;letter-spacing:0}.choice-btn:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(229,193,88,.35)}.choice-btn.active{background:rgba(229,193,88,.12);border-color:rgba(229,193,88,.62);box-shadow:0 0 0 3px rgba(229,193,88,.12)}.choice-btn b{display:block;color:var(--dice-gold-2);font-size:14px}.choice-btn span{display:block;color:var(--dice-muted);font-size:12px;margin-top:4px}.choice-btn:disabled{opacity:.55;cursor:not-allowed}.table-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.table-head h2{margin:0;color:var(--dice-gold-2);font-size:25px;text-transform:uppercase;letter-spacing:1px}.rule-pill{padding:9px 13px;border-radius:999px;border:1px solid rgba(229,193,88,.26);background:rgba(0,0,0,.28);color:var(--dice-gold);font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+.dice-table{position:relative;min-height:0;border-radius:30px;padding:34px 18px 22px;background:radial-gradient(ellipse at center,rgba(31,116,69,.98) 0%,rgba(8,59,33,.99) 55%,rgba(15,22,30,.98) 100%);border:2px solid rgba(229,193,88,.24);box-shadow:inset 0 0 70px rgba(0,0,0,.46),0 24px 50px rgba(0,0,0,.35);overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-items:center}.dice-table:before{content:"CASINO DICE";position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:4px;font-weight:950;color:rgba(255,238,180,.88);z-index:2;white-space:nowrap;background:rgba(0,0,0,.24);border:1px solid rgba(229,193,88,.25);padding:7px 14px;border-radius:999px}.dice-area{position:relative;margin-top:24px;min-height:300px;border-radius:26px;background:radial-gradient(ellipse at center,rgba(25,105,63,.96),rgba(5,45,26,.99));border:1px solid rgba(229,193,88,.20);box-shadow:inset 0 0 30px rgba(0,0,0,.30);display:grid;place-items:center;overflow:hidden}.dice-area:before{content:"PASS LINE";position:absolute;left:24px;right:24px;bottom:16px;border:2px solid rgba(229,193,88,.30);border-radius:999px;padding:12px 0 10px;text-align:center;font-size:13px;letter-spacing:4px;font-weight:950;color:rgba(255,238,180,.80)}.dice-area:after{content:"FIELD";position:absolute;left:50%;top:18px;transform:translateX(-50%);width:min(70%,420px);border:2px dashed rgba(229,193,88,.24);border-radius:18px;padding:10px 0;text-align:center;font-size:12px;letter-spacing:4px;font-weight:950;color:rgba(255,238,180,.76)}.dice-stage{display:flex;justify-content:center;align-items:center;gap:30px;flex-wrap:wrap;position:relative;z-index:1}.die-shell{width:132px;height:132px;border-radius:26px;background:linear-gradient(180deg,#ffffff,#ddd7ca);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.14)}.dice{font-size:88px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.25));transition:transform .18s ease}.dice.rolling{animation:diceRoll .55s linear infinite}@keyframes diceRoll{0%{transform:rotate(0deg) scale(1)}25%{transform:rotate(90deg) scale(1.12)}50%{transform:rotate(180deg) scale(.94)}75%{transform:rotate(270deg) scale(1.08)}100%{transform:rotate(360deg) scale(1)}}
+.result-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.result-box{padding:12px;border-radius:18px;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.08);text-align:center}.result-box small{display:block;color:var(--dice-muted);font-weight:900;text-transform:uppercase;letter-spacing:1px;font-size:10px}.result-box b{display:block;margin-top:5px;color:var(--dice-gold-2);font-size:18px}.message{margin:0 auto;width:100%;border-radius:20px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.08);color:#ffd966}.controls{margin:0;gap:10px}.controls button{min-width:160px}.betbox{display:none!important}
+@media(max-width:1120px){.casino-header{grid-template-columns:1fr auto;gap:14px}.casino-nav{grid-column:1/-1;justify-content:flex-start;order:3}.dice-main{grid-template-columns:1fr}.side-panel{display:grid;grid-template-columns:1fr 1fr;align-items:start}.choice-panel,.quick-bet-card{grid-column:auto}.result-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){body{padding:10px}.dice-app{border-radius:24px;max-height:none}.casino-header{grid-template-columns:1fr;justify-items:stretch;padding:14px;min-height:0}.brand{justify-content:center;min-width:0}.wallet{justify-content:center;min-width:0}.wallet-plus{display:none}.casino-nav{justify-content:flex-start}.brand-title{font-size:20px}.brand-mark{font-size:34px}.dice-main{padding:14px;gap:14px;overflow:auto}.side-panel,.game-panel{border-radius:22px;padding:16px}.side-panel{display:flex}.game-title{text-align:center}.side-copy{text-align:center}.choice-grid{grid-template-columns:1fr}.table-head{justify-content:center;text-align:center}.dice-area{min-height:250px}.die-shell{width:96px;height:96px;border-radius:20px}.dice{font-size:64px}.controls button{flex:1 1 160px}.result-strip{grid-template-columns:1fr}.preset-grid{grid-template-columns:1fr}.bet-actions{grid-template-columns:repeat(2,1fr)}}
+@media(max-height:760px) and (min-width:900px){.dice-main{padding:14px;gap:14px}.side-panel,.game-panel{padding:16px}.dice-area{min-height:230px}.die-shell{width:96px;height:96px}.dice{font-size:64px}.game-title{font-size:38px}.choice-btn{min-height:54px}.stat-card{padding:11px}}
 </style>
 </head>
 <body>
-<main class="page">
-  <div class="topbar">
-    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
-    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
-    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
-  </div>
-  <section class="panel">
-    <h1 class="title" style="font-size:38px">🎲 Royal Dice</h1>
-    <div class="betbox"><label for="betSlider">Einsatz</label><b id="betDisplay">10 €</b><input id="betSlider" type="range"></div>
-    <div class="dice-table"><div class="seg" id="choices">
-      <button class="active" data-choice="high">High 8–12 (2x)</button>
-      <button data-choice="low">Low 2–6 (2x)</button>
-      <button data-choice="even">Gerade (1.8x)</button>
-      <button data-choice="odd">Ungerade (1.8x)</button>
-      <button data-choice="double">Pasch (5x)</button>
-      <button data-choice="seven">Genau 7 (4x)</button>
-    </div>
-    <div class="dice-area">
-      <div class="dice-stage">
-        <div class="die-shell"><div id="d1" class="dice">⚀</div></div>
-        <div class="die-shell"><div id="d2" class="dice">⚀</div></div>
+<div class="dice-app">
+  <header class="casino-header">
+    <a href="index.html" class="brand" aria-label="Royal Deluxe Casino"><div class="brand-mark">👑</div><div class="brand-title">ROYAL<br>DELUXE<span>CASINO</span></div></a>
+    <nav class="casino-nav" aria-label="Casino Navigation">
+
+      <a href="index.html">🏠 Home</a>
+      <a href="tower.html">🏰 Tower</a>
+      <a href="plinko.html">🟡 Plinko</a>
+      <a href="crossroad.html">🐔 Cross Road</a>
+      <a href="solitaire.html">♠️ Solitär</a>
+      </nav>
+    <div class="wallet"><div class="wallet-icon">€</div><div><small>Guthaben</small><b class="shared-bankroll">1000 €</b></div><button class="wallet-plus" type="button" onclick="resetBankroll()">+</button></div>
+  </header>
+  <main class="dice-main">
+    <aside class="side-panel">
+      <div><div class="game-eyebrow">🎲 Royal Table Game</div><h1 class="game-title">Royal<span>Dice</span></h1><p class="side-copy">Wähle deinen Einsatz und deine Wette. High, Low, Gerade, Ungerade, Pasch oder genau 7.</p></div>
+      <div class="stat-card"><small>Aktueller Einsatz</small><b id="betOut">50 €</b></div>
+      <div class="quick-bet-card" id="quickBetCard">
+        <div class="bet-display"><div class="bet-amount"><span>€</span><b id="betDisplay">50</b></div><div class="bet-mode-pill">Preset Mode</div></div>
+        <div class="preset-grid" id="presetBets"><button class="preset" data-set="10" type="button"><div><b>10 €</b><small>Small</small></div></button><button class="preset active" data-set="50" type="button"><div><b>50 €</b><small>Standard</small></div></button><button class="preset" data-set="100" type="button"><div><b>100 €</b><small>High</small></div></button></div>
+        <div class="slider-wrap"><input id="betSlider" type="range"><div class="range-labels"><span>Minimal</span><span>Maximal</span></div></div>
+        <div class="bet-actions" id="betActions"><button class="bet-action red" data-action="reset" type="button">Reset</button><button class="bet-action" data-action="minus" type="button">-10</button><button class="bet-action" data-action="plus" type="button">+10</button><button class="bet-action green" data-action="allin" type="button">All In</button></div>
       </div>
-    </div>
-    </div>
-    <div id="msg" class="message"></div>
-    <div class="controls"><button class="success" id="rollBtn" type="button">Würfeln</button></div>
-  </section>
-</main>
+      <div class="choice-panel">
+        <h3>Wette auswählen</h3>
+        <div class="choice-grid" id="choices">
+          <button class="choice-btn active" data-choice="high" type="button"><b>High</b><span>8–12 · 2x</span></button>
+          <button class="choice-btn" data-choice="low" type="button"><b>Low</b><span>2–6 · 2x</span></button>
+          <button class="choice-btn" data-choice="even" type="button"><b>Gerade</b><span>1.8x</span></button>
+          <button class="choice-btn" data-choice="odd" type="button"><b>Ungerade</b><span>1.8x</span></button>
+          <button class="choice-btn" data-choice="double" type="button"><b>Pasch</b><span>5x</span></button>
+          <button class="choice-btn" data-choice="seven" type="button"><b>Genau 7</b><span>4x</span></button>
+        </div>
+      </div>
+    </aside>
+    <section class="game-panel">
+      <div class="table-head"><h2>Premium Dice Table</h2><div class="rule-pill">Sofortiger Wurf</div></div>
+      <div class="dice-table">
+        <div class="dice-area"><div class="dice-stage"><div class="die-shell"><div id="d1" class="dice">⚀</div></div><div class="die-shell"><div id="d2" class="dice">⚀</div></div></div></div>
+        <div class="result-strip"><div class="result-box"><small>Summe</small><b id="sumOut">2</b></div><div class="result-box"><small>Gewinnchance</small><b id="choiceOut">High</b></div><div class="result-box"><small>Multiplikator</small><b id="multOut">2x</b></div></div>
+      </div>
+      <div id="msg" class="message"></div>
+      <div class="controls"><button class="success" id="rollBtn" type="button">Würfeln</button></div>
+    </section>
+  </main>
+</div>
 <script>
-let getBet, choice = 'high', rolling = false;
-const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
-const d1 = document.getElementById('d1');
-const d2 = document.getElementById('d2');
-const msg = document.getElementById('msg');
+let getBet, choice='high', rolling=false;
+const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const labels={high:['High','2x'],low:['Low','2x'],even:['Gerade','1.8x'],odd:['Ungerade','1.8x'],double:['Pasch','5x'],seven:['Genau 7','4x']};
+const d1=document.getElementById('d1'), d2=document.getElementById('d2'), msg=document.getElementById('msg');
 document.addEventListener('DOMContentLoaded',()=>{
-  getBet=createBetSlider({inputId:'betSlider',displayId:'betDisplay',min:1,max:500,value:10,onChange:v=>betOut.textContent=money(v)});
-  document.querySelectorAll('#choices button').forEach(b=>b.onclick=()=>{
-    if (rolling) return;
-    choice=b.dataset.choice;
-    document.querySelectorAll('#choices button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-  });
-  document.getElementById('rollBtn').addEventListener('click', rollDice);
+  const betSlider=document.getElementById('betSlider');
+  const betDisplay=document.getElementById('betDisplay');
+  getBet=createBetSlider({inputId:'betSlider',displayId:'betDisplay',min:1,max:500,value:50,onChange:v=>{betOut.textContent=money(v);betDisplay.textContent=Math.floor(v);updatePresetActive(v);}});
+  document.getElementById('presetBets').addEventListener('click',e=>{const b=e.target.closest('button[data-set]');if(!b||rolling)return;setBetValue(Number(b.dataset.set));});
+  document.getElementById('betActions').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b||rolling)return;let v=Number(betSlider.value||0);if(b.dataset.action==='reset')v=50;if(b.dataset.action==='minus')v-=10;if(b.dataset.action==='plus')v+=10;if(b.dataset.action==='allin')v=Number(betSlider.max||500);setBetValue(v);});
+  document.getElementById('choices').addEventListener('click',e=>{const b=e.target.closest('button[data-choice]');if(!b||rolling)return;choice=b.dataset.choice;document.querySelectorAll('#choices .choice-btn').forEach(x=>x.classList.toggle('active',x===b));updateChoiceInfo();});
+  document.getElementById('rollBtn').addEventListener('click',rollDice);
+  updateChoiceInfo();
 });
-function rollDice(){
-  if (rolling) return;
+function setBetValue(value){const slider=document.getElementById('betSlider');const min=Number(slider.min||1),max=Number(slider.max||500);slider.value=Math.max(min,Math.min(max,Math.floor(Number(value)||min)));slider.dispatchEvent(new Event('input'));}
+function updatePresetActive(value){document.querySelectorAll('#presetBets .preset').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.set)===Number(value)));}
+function setControlsDisabled(disabled){document.querySelectorAll('#presetBets button,#betActions button,#betSlider,#choices button').forEach(x=>{x.disabled=disabled;});document.getElementById('rollBtn').disabled=disabled;}
+function updateChoiceInfo(){choiceOut.textContent=labels[choice][0];multOut.textContent=labels[choice][1];}
+function rollDice(){ window.casinoSound&&casinoSound.play('dice');
+  if(rolling)return;
   const bet=getBet();
-  if(!canAfford(bet)) return toast('Nicht genug Guthaben.');
-  rolling = true;
-  document.getElementById('rollBtn').disabled = true;
-  document.querySelectorAll('#choices button').forEach(b => b.disabled = true);
-  changeCash(-bet);
-  d1.classList.add('rolling');
-  d2.classList.add('rolling');
-  msg.textContent='Die Würfel rollen...';
-  const spin = setInterval(() => {
-    d1.textContent = faces[Math.floor(Math.random()*6)];
-    d2.textContent = faces[Math.floor(Math.random()*6)];
-  }, 90);
-  setTimeout(() => {
-    clearInterval(spin);
-    const a=1+Math.floor(Math.random()*6), b=1+Math.floor(Math.random()*6), sum=a+b;
-    d1.classList.remove('rolling');
-    d2.classList.remove('rolling');
-    d1.textContent=faces[a-1];
-    d2.textContent=faces[b-1];
-    let mult=0;
-    if(choice==='high'&&sum>=8)mult=2;
-    if(choice==='low'&&sum<=6)mult=2;
-    if(choice==='even'&&sum%2===0)mult=1.8;
-    if(choice==='odd'&&sum%2===1)mult=1.8;
-    if(choice==='double'&&a===b)mult=5;
-    if(choice==='seven'&&sum===7)mult=4;
-    if(mult){
-      const win=Math.floor(bet*mult);
-      changeCash(win);
-      msg.textContent=`${sum}! Gewinn: ${money(win)} 🎉`;
-      recordGame('Dice', win - bet);
-    } else {
-      msg.textContent=`${sum}. Leider verloren.`;
-      recordGame('Dice', -bet);
-    }
-    rolling = false;
-    document.getElementById('rollBtn').disabled = false;
-    document.querySelectorAll('#choices button').forEach(b => b.disabled = false);
-  }, 1150);
+  if(!canAfford(bet))return toast('Nicht genug Guthaben.','bad');
+  rolling=true;setControlsDisabled(true);window.casinoSound&&casinoSound.play('bet'); changeCash(-bet);msg.textContent='Die Würfel rollen...';d1.classList.add('rolling');d2.classList.add('rolling');
+  const spin=setInterval(()=>{d1.textContent=faces[Math.floor(Math.random()*6)];d2.textContent=faces[Math.floor(Math.random()*6)];},80);
+  setTimeout(()=>{clearInterval(spin);const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6),sum=a+b;d1.classList.remove('rolling');d2.classList.remove('rolling');d1.textContent=faces[a-1];d2.textContent=faces[b-1];sumOut.textContent=sum;let mult=0;if(choice==='high'&&sum>=8)mult=2;if(choice==='low'&&sum<=6)mult=2;if(choice==='even'&&sum%2===0)mult=1.8;if(choice==='odd'&&sum%2===1)mult=1.8;if(choice==='double'&&a===b)mult=5;if(choice==='seven'&&sum===7)mult=4;if(mult){const win=Math.floor(bet*mult);changeCash(win);msg.textContent=`${sum}! Gewinn: ${money(win)} 🎉`;window.casinoSound&&casinoSound.play('win'); recordGame('Dice',win-bet);}else{msg.textContent=`${sum}. Leider verloren.`;recordGame('Dice',-bet);}rolling=false;setControlsDisabled(false);},1150);
 }
 </script>
+
+<script>
+(function(){
+  document.addEventListener('pointerdown',function(){ if(window.casinoSound) casinoSound.unlock(); },{passive:true});
+})();
+</script>
+
+
+<script>
+/* Direct local sounds - works like the slot sounds, no external files needed */
+(function(){
+  if(window.__royalDirectSoundReady) return;
+  window.__royalDirectSoundReady = true;
+
+  let audioCtx = null;
+  let soundEnabled = localStorage.getItem('royal_direct_sound') !== 'off';
+
+  function ctx(){
+    if(!soundEnabled) return null;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      if(!audioCtx) audioCtx = new AC();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }catch(e){ return null; }
+  }
+
+  function unlock(){
+    const c = ctx();
+    if(!c) return;
+    try{
+      const o = c.createOscillator();
+      const g = c.createGain();
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(c.destination);
+      o.start();
+      o.stop(c.currentTime + 0.01);
+    }catch(e){}
+  }
+
+  function tone(freq=440,duration=.08,type='sine',gain=.05,delay=0){
+    if(!soundEnabled) return;
+    setTimeout(()=>{
+      const c = ctx();
+      if(!c) return;
+      try{
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, c.currentTime);
+        g.gain.setValueAtTime(gain, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + duration);
+        o.connect(g); g.connect(c.destination);
+        o.start(c.currentTime);
+        o.stop(c.currentTime + duration + .03);
+      }catch(e){}
+    }, delay);
+  }
+
+  const sounds = {
+    click(){ tone(520,.045,'sine',.055); },
+    hover(){ tone(680,.025,'sine',.025); },
+    bet(){ tone(330,.06,'triangle',.07); tone(460,.05,'triangle',.05,45); },
+    win(){ tone(520,.09,'sine',.08); tone(660,.09,'sine',.07,85); tone(880,.12,'sine',.065,175); },
+    lose(){ tone(240,.12,'triangle',.055); tone(145,.16,'triangle',.042,95); },
+    cashout(){ tone(720,.08,'sine',.08); tone(980,.12,'sine',.07,95); },
+    card(){ tone(500,.06,'triangle',.06); },
+    chip(){ tone(300,.05,'square',.05); tone(420,.05,'square',.04,45); },
+    spin(){ tone(220,.05,'square',.04); },
+    reelStop(){ tone(420,.07,'triangle',.065); },
+    rocket(){ tone(135,.06,'sawtooth',.04); },
+    crash(){ tone(120,.22,'sawtooth',.09); tone(70,.30,'sawtooth',.065,90); },
+    roulette(){ tone(260,.04,'triangle',.04); },
+    ball(){ tone(780,.04,'sine',.05); },
+    plinko(){ tone(620,.04,'sine',.05); },
+    chicken(){ tone(740,.055,'square',.045); tone(920,.045,'square',.030,55); },
+    dice(){ tone(180,.05,'square',.05); tone(260,.05,'square',.04,55); tone(340,.05,'square',.035,110); },
+    free(){ tone(440,.08,'triangle',.085); tone(620,.08,'triangle',.075,85); tone(840,.09,'triangle',.07,170); tone(1180,.1,'triangle',.065,255); },
+    error(){ tone(170,.12,'sawtooth',.06); tone(115,.16,'sawtooth',.045,90); }
+  };
+
+  window.directSound = function(name){
+    unlock();
+    (sounds[name] || sounds.click)();
+  };
+
+  window.toggleDirectSound = function(){
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('royal_direct_sound', soundEnabled ? 'on' : 'off');
+    updateSoundButton();
+    if(soundEnabled) directSound('click');
+  };
+
+  function updateSoundButton(){
+    document.querySelectorAll('[data-sound-toggle]').forEach(btn=>{
+      btn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
+      btn.classList.toggle('sound-off', !soundEnabled);
+      btn.setAttribute('aria-pressed', String(soundEnabled));
+    });
+  }
+
+  function addButton(){
+    const header = document.querySelector('.casino-header,.home-header,.topbar');
+    if(!header || document.querySelector('[data-sound-toggle]')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .global-sound-toggle{
+        height:44px;padding:0 15px;border-radius:999px;
+        border:1px solid rgba(229,193,88,.34);
+        background:rgba(229,193,88,.11);color:#fff0a3;
+        font:900 12px/1 Segoe UI,Arial,sans-serif;
+        letter-spacing:.7px;text-transform:uppercase;cursor:pointer;white-space:nowrap;
+      }
+      .global-sound-toggle.sound-off{color:rgba(255,255,255,.62);background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.12)}
+    `;
+    document.head.appendChild(style);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'global-sound-toggle';
+    btn.setAttribute('data-sound-toggle','true');
+    btn.onclick = toggleDirectSound;
+
+    const wallet = header.querySelector('.wallet');
+    if(wallet) header.insertBefore(btn, wallet);
+    else header.appendChild(btn);
+    updateSoundButton();
+  }
+
+  document.addEventListener('pointerdown', unlock, {passive:true});
+  document.addEventListener('keydown', unlock);
+  document.addEventListener('DOMContentLoaded', addButton);
+
+  document.addEventListener('click', e=>{
+    if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a,.wallet-plus')){
+      directSound('click');
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* dice direct sound hooks */
+document.addEventListener('click',e=>{
+  const txt=(e.target.textContent||'').toLowerCase();
+  if(txt.includes('roll')||txt.includes('würf')||txt.includes('start')) directSound&&directSound('dice');
+});
+</script>
+
 </body>
 </html>

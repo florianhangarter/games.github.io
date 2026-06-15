@@ -1,17 +1,1032 @@
-<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Royal Deluxe Casino</title><link rel="stylesheet" href="styles.css"><script src="casino-utils.js"></script></head><body><main class="page">
-<div class="topbar"><div class="counter-display">Gesamtguthaben: <span class="shared-bankroll">1000 €</span></div><button class="danger" onclick="resetBankroll()">🔄 Reset</button></div>
-<h1 class="title">⚜ Royal Deluxe Casino ⚜</h1><div class="subtitle">Wähle dein Spiel</div>
-<section class="grid">
-<a class="game-card" href="blackjack.html"><span class="icon">♦</span><b>Blackjack</b><span class="hint">Slider-Einsatz, Dealer-KI, saubere Rundensteuerung</span></a>
-<a class="game-card" href="poker.html"><span class="icon">♣</span><b>Poker</b><span class="hint">Texas Hold’em gegen 1–4 auswählbare Bots</span></a>
-<a class="game-card" href="dice.html"><span class="icon">🎲</span><b>Würfelspiel</b><span class="hint">High/Low, Gerade/Ungerade und Doppelzahl</span></a>
-<a class="game-card" href="roulette.html"><span class="icon">🎡</span><b>Roulette</b><span class="hint">Europäisches Roulette mit Zahl-, Farb- und Dutzendwetten</span></a>
-<a class="game-card" href="slot.html"><span class="icon">🎰</span><b>Tomb of Fortune</b><span class="hint">Ägyptische Slots mit Freispielen und Expand-Symbol</span></a>
-<a class="game-card" href="slot_dolce.html"><span class="icon">🍋</span><b>La Dolce Spin</b><span class="hint">Mediterraner Dolce-Vita-Stil mit Herz-Wilds</span></a>
-<a class="game-card" href="tower.html"><span class="icon">🏰</span><b>Tower Crash</b><span class="hint">Felder & Bomben wählen, rechtzeitig cashouten</span></a>
-<a class="game-card" href="plinko.html"><span class="icon">🟡</span><b>Plinko</b><span class="hint">Kugel droppen, Pins treffen und Multiplikator landen</span></a>
-<a class="game-card" href="crossroad.html"><span class="icon">🐔</span><b>Cross Road</b><span class="hint">Chicken überquert Straßen, Multiplikator steigt pro sicherem Schritt</span></a>
-<a class="game-card" href="rocket.html"><span class="icon">🚀</span><b>Rocket Blast</b><span class="hint">Multiplier steigt bis zum Crash</span></a>
-<a class="game-card" href="solitaire.html"><span class="icon">♠</span><b>Solitär XL</b><span class="hint">Kartenklassiker mit Undo und Bestenliste</span></a>
-</section>
-</main></body></html>
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Royal Deluxe Casino</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="casino-utils.js"></script>
+    <style>
+      :root {
+        --home-bg: #060812;
+        --home-panel: #0d1424;
+        --home-panel-2: #111b2d;
+        --home-gold: #e5c158;
+        --home-gold-2: #fff0a3;
+        --home-text: #f8f5ed;
+        --home-muted: rgba(248, 245, 237, 0.66);
+        --home-border: rgba(229, 193, 88, 0.28);
+        --home-soft: rgba(255, 255, 255, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        min-height: 100%;
+        overflow-x: hidden;
+      }
+      body {
+        margin: 0;
+        padding: clamp(14px, 2vw, 28px);
+        color: var(--home-text);
+        font-family:
+          Segoe UI,
+          Arial,
+          sans-serif;
+        background:
+          radial-gradient(
+            circle at 15% 5%,
+            rgba(229, 193, 88, 0.17),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 84% 8%,
+            rgba(102, 74, 255, 0.15),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 50% 100%,
+            rgba(26, 122, 91, 0.22),
+            transparent 35%
+          ),
+          linear-gradient(145deg, #050711, #0a101d 48%, #05070d 100%) !important;
+        user-select: none;
+      }
+      body:before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 44px 44px;
+        opacity: 0.42;
+        z-index: -1;
+      }
+      .home-wrap {
+        width: min(1440px, 100%);
+        margin: 0 auto;
+        height: calc(100dvh - clamp(28px, 4vw, 56px));
+        min-height: 720px;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 18px;
+      }
+      .home-shell {
+        border: 1px solid var(--home-border);
+        border-radius: 32px;
+        overflow: hidden;
+        background: linear-gradient(
+          180deg,
+          rgba(11, 17, 30, 0.96),
+          rgba(6, 10, 18, 0.98)
+        );
+        box-shadow:
+          0 30px 90px rgba(0, 0, 0, 0.55),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        min-height: 0;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+      .home-header {
+        min-height: 94px;
+        padding: 18px 24px;
+        display: grid;
+        grid-template-columns: auto minmax(280px, 1fr) auto;
+        gap: 20px;
+        align-items: center;
+        background: rgba(4, 8, 15, 0.72);
+        border-bottom: 1px solid rgba(229, 193, 88, 0.18);
+        backdrop-filter: blur(16px);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 190px;
+        color: var(--home-text);
+        text-decoration: none;
+      }
+      .brand-mark {
+        font-size: 42px;
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+      }
+      .brand-title {
+        font-family: Georgia, serif;
+        font-size: 25px;
+        line-height: 0.9;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: var(--home-gold-2);
+      }
+      .brand-title span {
+        display: block;
+        margin-top: 8px;
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: 4px;
+        color: var(--home-gold);
+      }
+      .home-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 4px;
+      }
+      .home-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .home-nav a {
+        flex: 0 0 auto;
+        color: rgba(255, 255, 255, 0.74);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        padding: 12px 17px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        transition: 0.18s ease;
+      }
+      .home-nav a.active,
+      .home-nav a:hover {
+        color: var(--home-gold-2);
+        background: rgba(229, 193, 88, 0.11);
+        border-color: rgba(229, 193, 88, 0.34);
+      }
+      .wallet {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 11px 13px 11px 16px;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.32);
+        border: 1px solid rgba(229, 193, 88, 0.26);
+        min-width: 220px;
+      }
+      .wallet-icon,
+      .wallet-plus {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #201405;
+        background: linear-gradient(#fff0a3, #d5a43b);
+        font-size: 23px;
+        font-weight: 950;
+      }
+      .wallet small {
+        display: block;
+        color: rgba(255, 255, 255, 0.58);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 11px;
+      }
+      .wallet b {
+        display: block;
+        font-size: 20px;
+        margin-top: 2px;
+        white-space: nowrap;
+      }
+      .wallet-plus {
+        border: none;
+        border-radius: 13px;
+        padding: 0;
+        cursor: pointer;
+        margin-left: auto;
+      }
+      .home-main {
+        min-height: 0;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+      .hero {
+        position: relative;
+        min-height: 280px;
+        padding: 44px 60px;
+        display: grid;
+        grid-template-columns: minmax(360px, 560px) 1fr;
+        gap: 24px;
+        align-items: center;
+        border-bottom: 1px solid rgba(229, 193, 88, 0.15);
+        overflow: hidden;
+      }
+      .hero:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(5, 8, 15, 0.98),
+            rgba(5, 8, 15, 0.82) 42%,
+            rgba(5, 8, 15, 0.25) 72%,
+            rgba(5, 8, 15, 0.92)
+          ),
+          radial-gradient(
+            circle at 76% 42%,
+            rgba(229, 193, 88, 0.2),
+            transparent 30%
+          ),
+          linear-gradient(135deg, #111b2b, #1a1110 50%, #06080f);
+      }
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 560px;
+      }
+      .eyebrow {
+        color: var(--home-gold);
+        font-size: 13px;
+        font-weight: 950;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 13px;
+      }
+      h1 {
+        font-family: Georgia, serif;
+        font-size: clamp(48px, 5.2vw, 74px);
+        line-height: 0.92;
+        margin: 0 0 18px;
+        letter-spacing: -1px;
+        color: white;
+      }
+      h1 span {
+        display: block;
+        color: var(--home-gold);
+      }
+      .hero p {
+        font-size: 17px;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.76);
+        margin: 0 0 24px;
+        max-width: 500px;
+      }
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .cta {
+        height: 50px;
+        padding: 0 24px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        font-weight: 950;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .cta.primary {
+        color: #1b1105;
+        background: linear-gradient(#fff0a3, #d7a73d);
+        box-shadow: 0 14px 30px rgba(229, 193, 88, 0.23);
+      }
+      .cta.ghost {
+        color: var(--home-text);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.055);
+      }
+      .hero-card {
+        position: relative;
+        z-index: 2;
+        justify-self: end;
+        width: min(430px, 100%);
+        min-height: 210px;
+        border-radius: 30px;
+        border: 1px solid rgba(229, 193, 88, 0.25);
+        background: linear-gradient(
+          145deg,
+          rgba(229, 193, 88, 0.12),
+          rgba(255, 255, 255, 0.035)
+        );
+        box-shadow:
+          inset 0 0 70px rgba(0, 0, 0, 0.42),
+          0 26px 60px rgba(0, 0, 0, 0.28);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 28px;
+      }
+      .hero-card .big-icon {
+        font-size: 88px;
+        filter: drop-shadow(0 18px 25px rgba(0, 0, 0, 0.55));
+      }
+      .hero-card b {
+        display: block;
+        margin-top: 14px;
+        font-size: 28px;
+        color: var(--home-gold-2);
+        font-family: Georgia, serif;
+      }
+      .hero-card span {
+        display: block;
+        margin-top: 8px;
+        color: var(--home-muted);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 12px;
+      }
+      .games-section {
+        min-height: 0;
+        margin: 24px 34px 28px;
+        padding: 24px;
+        border-radius: 30px;
+        border: 1px solid rgba(229, 193, 88, 0.34);
+        background: rgba(8, 13, 24, 0.74);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.06),
+          0 20px 50px rgba(0, 0, 0, 0.28);
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: hidden;
+      }
+      .section-head {
+        text-align: center;
+        padding-bottom: 18px;
+      }
+      .section-head h2 {
+        margin: 0;
+        font-size: 30px;
+        letter-spacing: 1px;
+        color: var(--home-gold-2);
+        text-transform: uppercase;
+      }
+      .section-head p {
+        margin: 8px 0 0;
+        color: var(--home-muted);
+        font-size: 14px;
+      }
+      .game-scroll {
+        min-height: 0;
+        overflow: auto;
+        padding: 14px 12px 22px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(229, 193, 88, 0.75) rgba(255, 255, 255, 0.06);
+      }
+      .game-scroll::-webkit-scrollbar {
+        width: 9px;
+        height: 9px;
+      }
+      .game-scroll::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 999px;
+      }
+      .game-scroll::-webkit-scrollbar-thumb {
+        background: linear-gradient(var(--home-gold-2), var(--home-gold));
+        border-radius: 999px;
+      }
+      .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+        gap: 18px;
+        align-items: stretch;
+      }
+      .game-tile {
+        min-height: 190px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        text-decoration: none;
+        color: var(--home-text);
+        background: linear-gradient(
+          145deg,
+          rgba(20, 31, 48, 0.95),
+          rgba(8, 12, 22, 0.98)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.32);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease,
+          border-color 0.18s ease;
+      }
+      .game-tile:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 50% 0,
+          rgba(229, 193, 88, 0.18),
+          transparent 46%
+        );
+        opacity: 0.85;
+      }
+      .game-tile:hover {
+        transform: translateY(-7px);
+        border-color: rgba(229, 193, 88, 0.62);
+        box-shadow:
+          0 24px 44px rgba(0, 0, 0, 0.48),
+          0 0 30px rgba(229, 193, 88, 0.15);
+      }
+      .game-icon {
+        position: relative;
+        z-index: 1;
+        font-size: 56px;
+        filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.46));
+      }
+      .game-tile b {
+        position: relative;
+        z-index: 1;
+        color: var(--home-gold-2);
+        font-size: 17px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: center;
+      }
+      .game-tile span {
+        position: relative;
+        z-index: 1;
+        color: rgba(255, 255, 255, 0.58);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: center;
+      }
+      .blue {
+        background: linear-gradient(
+          145deg,
+          rgba(13, 64, 83, 0.92),
+          rgba(8, 12, 22, 0.98)
+        );
+      }
+      .red {
+        background: linear-gradient(
+          145deg,
+          rgba(82, 18, 31, 0.92),
+          rgba(8, 12, 22, 0.98)
+        );
+      }
+      .purple {
+        background: linear-gradient(
+          145deg,
+          rgba(49, 25, 82, 0.92),
+          rgba(8, 12, 22, 0.98)
+        );
+      }
+      .green {
+        background: linear-gradient(
+          145deg,
+          rgba(19, 74, 49, 0.92),
+          rgba(8, 12, 22, 0.98)
+        );
+      }
+      .gold {
+        background: linear-gradient(
+          145deg,
+          rgba(83, 56, 13, 0.92),
+          rgba(8, 12, 22, 0.98)
+        );
+      }
+      .trustbar {
+        width: 100%;
+        min-height: 84px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-items: center;
+        justify-items: center;
+        gap: 14px;
+        padding: 14px 22px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 26px;
+        background: rgba(0, 0, 0, 0.22);
+        overflow: hidden;
+      }
+      .trust-item {
+        width: 100%;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-width: 0;
+        text-align: left;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.055);
+        padding: 8px 12px;
+      }
+      .trust-item i {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: rgba(229, 193, 88, 0.12);
+        border: 1px solid rgba(229, 193, 88, 0.24);
+        font-style: normal;
+        flex: 0 0 auto;
+      }
+      .trust-item b {
+        display: block;
+        font-size: 12px;
+        color: var(--home-gold-2);
+        text-transform: uppercase;
+      }
+      .trust-item span {
+        display: block;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.58);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      @media (max-width: 1120px) {
+        .home-header {
+          grid-template-columns: 1fr auto;
+          gap: 14px;
+        }
+        .home-nav {
+          grid-column: 1/-1;
+          justify-content: flex-start;
+          order: 3;
+        }
+        .home-shell {
+          grid-template-rows: auto minmax(0, 1fr);
+        }
+        .hero {
+          grid-template-columns: 1fr;
+          min-height: auto;
+          padding: 38px;
+        }
+        .hero-card {
+          display: none;
+        }
+        .games-section {
+          margin: 20px 24px 24px;
+        }
+        .games-grid {
+          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        }
+      }
+      @media (max-width: 820px) {
+        body {
+          padding: 10px;
+        }
+        .home-wrap {
+          min-height: calc(100dvh - 20px);
+        }
+        .home-shell {
+          border-radius: 24px;
+        }
+        .home-header {
+          padding: 14px;
+          min-height: 0;
+        }
+        .brand {
+          min-width: 0;
+        }
+        .brand-title {
+          font-size: 20px;
+        }
+        .brand-title span {
+          font-size: 9px;
+        }
+        .brand-mark {
+          font-size: 34px;
+        }
+        .wallet {
+          min-width: 0;
+          padding: 8px 10px;
+        }
+        .wallet-icon,
+        .wallet-plus {
+          width: 36px;
+          height: 36px;
+        }
+        .wallet b {
+          font-size: 16px;
+        }
+        .wallet small {
+          font-size: 10px;
+        }
+        .home-main {
+          overflow: auto;
+          display: block;
+        }
+        .hero {
+          padding: 28px 22px;
+        }
+        h1 {
+          font-size: 42px;
+        }
+        .hero p {
+          font-size: 15px;
+        }
+        .games-section {
+          margin: 16px 14px 18px;
+          padding: 18px 14px;
+          display: block;
+          overflow: visible;
+        }
+        .game-scroll {
+          max-height: none;
+          overflow: visible;
+          padding: 12px 4px 6px;
+        }
+        .games-grid {
+          grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+          gap: 12px;
+        }
+        .game-tile {
+          min-height: 150px;
+          border-radius: 18px;
+        }
+        .game-icon {
+          font-size: 42px;
+        }
+        .game-tile b {
+          font-size: 13px;
+        }
+        .game-tile span {
+          font-size: 10px;
+        }
+        .section-head h2 {
+          font-size: 22px;
+        }
+        .trustbar {
+          grid-template-columns: repeat(2, 1fr);
+          padding: 12px;
+          margin: 0;
+          min-height: auto;
+        }
+      }
+      @media (max-width: 520px) {
+        .home-header {
+          grid-template-columns: 1fr;
+          justify-items: stretch;
+        }
+        .brand {
+          justify-content: center;
+        }
+        .wallet {
+          justify-content: center;
+        }
+        .wallet-plus {
+          display: none;
+        }
+        .home-nav {
+          justify-content: flex-start;
+        }
+        .hero {
+          text-align: center;
+          padding: 24px 16px;
+        }
+        .cta-row {
+          justify-content: center;
+        }
+        h1 {
+          font-size: 34px;
+        }
+        .hero p {
+          font-size: 14px;
+        }
+        .games-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+        .game-tile {
+          min-height: 132px;
+          padding: 10px;
+        }
+        .game-icon {
+          font-size: 36px;
+        }
+        .trustbar {
+          grid-template-columns: 1fr;
+        }
+        .trust-item {
+          justify-content: center;
+          text-align: center;
+        }
+        .trust-item span {
+          white-space: normal;
+        }
+      }
+      @media (min-width: 821px) {
+        .home-wrap {
+          max-height: calc(100dvh - clamp(28px, 4vw, 56px));
+        }
+      }
+
+      @media (max-height: 760px) and (min-width: 821px) {
+        .home-wrap {
+          min-height: 0;
+        }
+        .hero {
+          min-height: 220px;
+          padding: 30px 46px;
+        }
+        .games-section {
+          margin: 18px 30px 20px;
+          padding: 18px;
+        }
+        .game-tile {
+          min-height: 160px;
+        }
+        .trustbar {
+          min-height: 72px;
+          padding: 10px 16px;
+        }
+        .trust-item {
+          height: 50px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="home-wrap">
+      <div class="home-shell">
+        <header class="home-header">
+          <a href="index.html" class="brand" aria-label="Royal Deluxe Casino">
+            <div class="brand-mark">👑</div>
+            <div class="brand-title">ROYAL<br />DELUXE<span>CASINO</span></div>
+          </a>
+          <nav class="home-nav" aria-label="Casino Navigation">
+            <a class="active" href="index.html">🏠 Home</a>
+            <a href="tower.html">🏰 Tower</a>
+            <a href="plinko.html">🟡 Plinko</a>
+            <a href="crossroad.html">🐔 Cross Road</a>
+            <a href="solitaire.html">♠️ Solitär</a>
+          </nav>
+          <div class="wallet">
+            <div class="wallet-icon">€</div>
+            <div>
+              <small>Guthaben</small><b class="shared-bankroll">1000 €</b>
+            </div>
+            <button class="wallet-plus" type="button" onclick="resetBankroll()">
+              +
+            </button>
+          </div>
+        </header>
+
+        <main class="home-main">
+          <section class="hero">
+            <div class="hero-content">
+              <div class="eyebrow">👑 Willkommen zurück</div>
+              <h1>Royal Deluxe <span>Casino</span></h1>
+              <p>
+                Dein modernes Casino-Erlebnis mit gemeinsamem Guthaben,
+                schnellen Spielen und einem edlen Royal-Design.
+              </p>
+              <div class="cta-row">
+                <a class="cta primary" href="#games">▶ Jetzt spielen</a>
+                <a class="cta ghost" href="plinko.html">🟡 Plinko starten</a>
+              </div>
+            </div>
+            <div class="hero-card" aria-hidden="true">
+              <div>
+                <div class="big-icon">🎰</div>
+                <b>Royal Deluxe</b>
+                <span>Premium Casino UI</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="games-section" id="games">
+            <div class="section-head">
+              <h2>🃏 Wähle dein Spiel</h2>
+              <p>
+                Alle Spiele bleiben sauber verlinkt und nutzen dein gemeinsames
+                Guthaben.
+              </p>
+            </div>
+            <div class="game-scroll">
+              <div class="games-grid">
+                <a class="game-tile blue" href="blackjack.html"
+                  ><div class="game-icon">🃏</div>
+                  <b>Blackjack</b><span>1-Spieler</span></a
+                >
+                <a class="game-tile red" href="dice.html"
+                  ><div class="game-icon">🎲</div>
+                  <b>Dice</b><span>Würfelspiel</span></a
+                >
+                <a class="game-tile gold" href="tower.html"
+                  ><div class="game-icon">🏰</div>
+                  <b>Tower Crash</b><span>Multiplikator</span></a
+                >
+                <a class="game-tile green" href="crossroad.html"
+                  ><div class="game-icon">🐔</div>
+                  <b>Cross Road</b><span>Chicken Run</span></a
+                >
+                <a class="game-tile purple" href="plinko.html"
+                  ><div class="game-icon">🟡</div>
+                  <b>Plinko</b><span>Multi Ball</span></a
+                >
+                <a class="game-tile blue" href="rocket.html"
+                  ><div class="game-icon">🚀</div>
+                  <b>Rocket Blast</b><span>Crash Game</span></a
+                >
+                <a class="game-tile gold" href="roulette.html"
+                  ><div class="game-icon">🎡</div>
+                  <b>Roulette</b><span>Royal Wheel</span></a
+                >
+                <a class="game-tile blue" href="poker.html"
+                  ><div class="game-icon">♣️</div>
+                  <b>Poker</b><span>Hold'em</span></a
+                >
+                <a class="game-tile purple" href="solitaire.html"
+                  ><div class="game-icon">♠️</div>
+                  <b>Solitär XL</b><span>Klassiker</span></a
+                >
+                <a class="game-tile blue" href="slots.html"
+                  ><div class="game-icon">🎰</div>
+                  <b>Slots</b><span>Klassiker</span></a
+                >
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <section class="trustbar">
+        <div class="trust-item">
+          <i>🛡️</i>
+          <div><b>Fair Play</b><span>Lokale Spielwerte</span></div>
+        </div>
+        <div class="trust-item">
+          <i>🔒</i>
+          <div><b>Bank-System</b><span>Gemeinsames Guthaben</span></div>
+        </div>
+        <div class="trust-item">
+          <i>⚡</i>
+          <div><b>Schnelles Routing</b><span>Alle Spiele verlinkt</span></div>
+        </div>
+        <div class="trust-item">
+          <i>💎</i>
+          <div><b>Royal UI</b><span>Modernes Design</span></div>
+        </div>
+      </section>
+    </div>
+  <script>document.addEventListener('mouseover',e=>{if(e.target.closest('.game-tile,.cta,.home-nav a')) window.casinoSound&&casinoSound.play('hover');});
+document.addEventListener('click',e=>{if(e.target.closest('.game-tile,.cta,.home-nav a,.wallet-plus')) window.casinoSound&&casinoSound.play('click');});
+</script>
+
+<script>
+(function(){
+  document.addEventListener('pointerdown',function(){ if(window.casinoSound) casinoSound.unlock(); },{passive:true});
+})();
+</script>
+
+
+<script>
+/* Direct local sounds - works like the slot sounds, no external files needed */
+(function(){
+  if(window.__royalDirectSoundReady) return;
+  window.__royalDirectSoundReady = true;
+
+  let audioCtx = null;
+  let soundEnabled = localStorage.getItem('royal_direct_sound') !== 'off';
+
+  function ctx(){
+    if(!soundEnabled) return null;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      if(!audioCtx) audioCtx = new AC();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }catch(e){ return null; }
+  }
+
+  function unlock(){
+    const c = ctx();
+    if(!c) return;
+    try{
+      const o = c.createOscillator();
+      const g = c.createGain();
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(c.destination);
+      o.start();
+      o.stop(c.currentTime + 0.01);
+    }catch(e){}
+  }
+
+  function tone(freq=440,duration=.08,type='sine',gain=.05,delay=0){
+    if(!soundEnabled) return;
+    setTimeout(()=>{
+      const c = ctx();
+      if(!c) return;
+      try{
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, c.currentTime);
+        g.gain.setValueAtTime(gain, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + duration);
+        o.connect(g); g.connect(c.destination);
+        o.start(c.currentTime);
+        o.stop(c.currentTime + duration + .03);
+      }catch(e){}
+    }, delay);
+  }
+
+  const sounds = {
+    click(){ tone(520,.045,'sine',.055); },
+    hover(){ tone(680,.025,'sine',.025); },
+    bet(){ tone(330,.06,'triangle',.07); tone(460,.05,'triangle',.05,45); },
+    win(){ tone(520,.09,'sine',.08); tone(660,.09,'sine',.07,85); tone(880,.12,'sine',.065,175); },
+    lose(){ tone(240,.12,'triangle',.055); tone(145,.16,'triangle',.042,95); },
+    cashout(){ tone(720,.08,'sine',.08); tone(980,.12,'sine',.07,95); },
+    card(){ tone(500,.06,'triangle',.06); },
+    chip(){ tone(300,.05,'square',.05); tone(420,.05,'square',.04,45); },
+    spin(){ tone(220,.05,'square',.04); },
+    reelStop(){ tone(420,.07,'triangle',.065); },
+    rocket(){ tone(135,.06,'sawtooth',.04); },
+    crash(){ tone(120,.22,'sawtooth',.09); tone(70,.30,'sawtooth',.065,90); },
+    roulette(){ tone(260,.04,'triangle',.04); },
+    ball(){ tone(780,.04,'sine',.05); },
+    plinko(){ tone(620,.04,'sine',.05); },
+    chicken(){ tone(740,.055,'square',.045); tone(920,.045,'square',.030,55); },
+    dice(){ tone(180,.05,'square',.05); tone(260,.05,'square',.04,55); tone(340,.05,'square',.035,110); },
+    free(){ tone(440,.08,'triangle',.085); tone(620,.08,'triangle',.075,85); tone(840,.09,'triangle',.07,170); tone(1180,.1,'triangle',.065,255); },
+    error(){ tone(170,.12,'sawtooth',.06); tone(115,.16,'sawtooth',.045,90); }
+  };
+
+  window.directSound = function(name){
+    unlock();
+    (sounds[name] || sounds.click)();
+  };
+
+  window.toggleDirectSound = function(){
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('royal_direct_sound', soundEnabled ? 'on' : 'off');
+    updateSoundButton();
+    if(soundEnabled) directSound('click');
+  };
+
+  function updateSoundButton(){
+    document.querySelectorAll('[data-sound-toggle]').forEach(btn=>{
+      btn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
+      btn.classList.toggle('sound-off', !soundEnabled);
+      btn.setAttribute('aria-pressed', String(soundEnabled));
+    });
+  }
+
+  function addButton(){
+    const header = document.querySelector('.casino-header,.home-header,.topbar');
+    if(!header || document.querySelector('[data-sound-toggle]')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .global-sound-toggle{
+        height:44px;padding:0 15px;border-radius:999px;
+        border:1px solid rgba(229,193,88,.34);
+        background:rgba(229,193,88,.11);color:#fff0a3;
+        font:900 12px/1 Segoe UI,Arial,sans-serif;
+        letter-spacing:.7px;text-transform:uppercase;cursor:pointer;white-space:nowrap;
+      }
+      .global-sound-toggle.sound-off{color:rgba(255,255,255,.62);background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.12)}
+    `;
+    document.head.appendChild(style);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'global-sound-toggle';
+    btn.setAttribute('data-sound-toggle','true');
+    btn.onclick = toggleDirectSound;
+
+    const wallet = header.querySelector('.wallet');
+    if(wallet) header.insertBefore(btn, wallet);
+    else header.appendChild(btn);
+    updateSoundButton();
+  }
+
+  document.addEventListener('pointerdown', unlock, {passive:true});
+  document.addEventListener('keydown', unlock);
+  document.addEventListener('DOMContentLoaded', addButton);
+
+  document.addEventListener('click', e=>{
+    if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a,.wallet-plus')){
+      directSound('click');
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+document.addEventListener('mouseover',e=>{if(e.target.closest('.game-tile,.home-nav a,.cta')) directSound&&directSound('hover');});
+</script>
+
+</body>
+</html>

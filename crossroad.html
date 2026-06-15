@@ -3,131 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Cross Road</title>
+<title>Cross Road - Royal Deluxe Casino</title>
 <link rel="stylesheet" href="styles.css">
-<script src="casino-utils.js"></script>
+<script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
+document.addEventListener('click',e=>{const t=(e.target.textContent||'').toLowerCase(); if(t.includes('weiter')||t.includes('go')||t.includes('move')) window.casinoSound&&casinoSound.play('chicken');});
+</script>
 <style>
-  body{background:radial-gradient(circle at 50% 8%,#9ec8d6 0%,#31505d 28%,#172934 54%,#081016 100%)}
-  .cross-shell{max-width:980px;margin:auto;position:relative;overflow:hidden;background:linear-gradient(145deg,#263d49,#0e1920);border:2px solid #c9a45e;box-shadow:0 26px 60px rgba(0,0,0,.58),0 0 34px rgba(201,164,94,.15)}
-  .cross-shell:before{content:"ROYAL CROSSING";position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:4px;color:#f1ddaf;opacity:.74;font-weight:900}
-  .cross-title{font-size:38px;margin-top:12px;background:linear-gradient(#f7e4b3,#d3aa61,#8e6523);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
-  .cross-help{text-align:center;color:rgba(255,255,255,.64);font-size:13px;margin:10px auto 0;max-width:780px;letter-spacing:.2px}
-  .status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px auto;max-width:820px}.status-grid .counter-display{text-align:center;border-radius:16px}
-  .seg{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px auto 0}.seg button.active{background:linear-gradient(#d8bb55,#9c7620);color:#181008;border-color:#ffe9a4}
+:root{
+  --cr-bg:#060812;--cr-panel:#0d1424;--cr-gold:#e5c158;--cr-gold-2:#fff0a3;--cr-text:#f8f5ed;--cr-muted:rgba(248,245,237,.66);--cr-border:rgba(229,193,88,.28);--cr-green:#37b46b;--cr-red:#c64d4d;--cr-blue:#52c7e8;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%;overflow-x:hidden}
+body{
+  margin:0;padding:clamp(10px,1.8vw,24px);color:var(--cr-text);font-family:Segoe UI,Arial,sans-serif;user-select:none;
+  background:radial-gradient(circle at 15% 5%,rgba(229,193,88,.17),transparent 30%),radial-gradient(circle at 84% 8%,rgba(102,74,255,.15),transparent 30%),radial-gradient(circle at 50% 100%,rgba(26,122,91,.22),transparent 35%),linear-gradient(145deg,#050711,#0a101d 48%,#05070d 100%)!important;
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:44px 44px;opacity:.42;z-index:-1}
 
-  .cross-board{position:relative;max-width:860px;height:440px;margin:18px auto 8px;padding:18px;border-radius:28px;background:linear-gradient(180deg,#101c21,#162a31 58%,#0d1519 100%);border:2px solid rgba(201,164,94,.26);box-shadow:inset 0 0 30px rgba(0,0,0,.55),0 0 18px rgba(201,164,94,.08);overflow:hidden}
-  .cross-board:before{content:"";position:absolute;inset:12px;border-radius:22px;border:1px solid rgba(241,221,175,.06);pointer-events:none;z-index:20}
-  .cross-board:after{content:"FINISH";position:absolute;right:24px;top:26px;bottom:26px;width:38px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:4px;font-size:12px;font-weight:950;color:#1d1206;background:linear-gradient(180deg,#f7e4b3,#d3aa61);border-radius:999px;box-shadow:0 8px 18px rgba(0,0,0,.28);z-index:9}
-  .map{position:absolute;inset:18px;display:grid;grid-template-columns:84px repeat(9,1fr);gap:8px;z-index:2}
-  .lane{position:relative;border-radius:18px;overflow:hidden;min-width:0;background:linear-gradient(180deg,#323941,#171d23);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 0 14px rgba(0,0,0,.38)}
-  .lane.start{background:linear-gradient(180deg,#43b16a,#1e6d3a);border-color:rgba(142,240,170,.55)}
-  .lane.safe{background:linear-gradient(180deg,#367447,#174629);border-color:rgba(142,240,170,.22)}
-  .lane.current{outline:2px solid rgba(229,193,88,.88);box-shadow:0 0 20px rgba(229,193,88,.22),inset 0 0 14px rgba(0,0,0,.35)}
-  .lane.road:after{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;transform:translateX(-50%);background:repeating-linear-gradient(180deg,rgba(255,255,255,.42) 0 28px,transparent 28px 52px);opacity:.5}
-  .lane.water{background:linear-gradient(180deg,#2a6f87,#123948);border-color:rgba(132,213,233,.18)}
-  .lane.water:after{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.09) 0 2px,transparent 2px 18px);opacity:.35;animation:waterMove 2.8s linear infinite}
-  @keyframes waterMove{from{transform:translateY(0)}to{transform:translateY(24px)}}
-  .lane-mult{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:6;font-size:12px;font-weight:950;color:#1d1206;background:linear-gradient(180deg,#f7e4b3,#d3aa61);border-radius:999px;padding:5px 8px;min-width:54px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.28)}
+.cross-app{width:min(1440px,100%);margin:0 auto;min-height:calc(100dvh - clamp(20px,3.6vw,48px));max-height:calc(100dvh - clamp(20px,3.6vw,48px));display:grid;grid-template-rows:auto minmax(0,1fr);border:1px solid var(--cr-border);border-radius:32px;overflow:hidden;background:linear-gradient(180deg,rgba(11,17,30,.96),rgba(6,10,18,.98));box-shadow:0 30px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+.casino-header{min-height:94px;padding:18px 24px;display:grid;grid-template-columns:auto minmax(280px,1fr) auto;gap:20px;align-items:center;background:rgba(4,8,15,.72);border-bottom:1px solid rgba(229,193,88,.18);backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:13px;min-width:190px;color:var(--cr-text);text-decoration:none}.brand-mark{font-size:42px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}.brand-title{font-family:Georgia,serif;font-size:25px;line-height:.9;font-weight:900;letter-spacing:1px;color:var(--cr-gold-2)}.brand-title span{display:block;margin-top:8px;text-align:center;font-size:11px;letter-spacing:4px;color:var(--cr-gold)}
+.casino-nav{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;overflow-x:auto;scrollbar-width:none;padding:4px}.casino-nav::-webkit-scrollbar{display:none}.casino-nav a{flex:0 0 auto;color:rgba(255,255,255,.74);text-decoration:none;font-size:13px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;padding:12px 17px;border-radius:999px;border:1px solid transparent;transition:.18s ease}.casino-nav a.active,.casino-nav a:hover{color:var(--cr-gold-2);background:rgba(229,193,88,.11);border-color:rgba(229,193,88,.34)}
+.wallet{display:flex;align-items:center;gap:13px;padding:11px 13px 11px 16px;border-radius:20px;background:rgba(0,0,0,.32);border:1px solid rgba(229,193,88,.26);min-width:220px}.wallet-icon,.wallet-plus{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#201405;background:linear-gradient(#fff0a3,#d5a43b);font-size:23px;font-weight:950}.wallet small{display:block;color:rgba(255,255,255,.58);font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:11px}.wallet b{display:block;font-size:20px;margin-top:2px;white-space:nowrap}.wallet-plus{border:none;border-radius:13px;padding:0;cursor:pointer;margin-left:auto}
 
-  .chicken{position:absolute;left:0;top:50%;font-size:48px;z-index:14;filter:drop-shadow(0 8px 10px rgba(0,0,0,.42));transform:translate(-50%,-50%);transition:transform .16s ease;will-change:left,top,transform}
-  .chicken.hop{transform:translate(-50%,-62%) scale(1.08) rotate(-4deg)}
-  .chicken.walk{animation:chickenRun .18s ease-in-out infinite alternate}
-  @keyframes chickenRun{from{transform:translate(-50%,-53%) rotate(-5deg) scale(1.04)}to{transform:translate(-50%,-61%) rotate(5deg) scale(1.10)}}
-  .chicken.crash{animation:crashWobble .62s ease both}
-  .chicken.win{animation:winDance .75s ease infinite alternate}
-  @keyframes crashWobble{0%{transform:translate(-50%,-50%) rotate(0)}25%{transform:translate(-50%,-72%) rotate(-20deg)}55%{transform:translate(-50%,-44%) rotate(18deg)}100%{transform:translate(-50%,-50%) rotate(0) scale(.9);filter:grayscale(.4) drop-shadow(0 8px 10px rgba(0,0,0,.42))}}
-  @keyframes winDance{from{transform:translate(-50%,-52%) rotate(-6deg) scale(1.04)}to{transform:translate(-50%,-60%) rotate(6deg) scale(1.10)}}
+.cross-main{min-height:0;display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;padding:18px;overflow:hidden}
+.side-panel,.game-panel{min-height:0;border:1px solid rgba(229,193,88,.24);border-radius:28px;background:linear-gradient(180deg,rgba(17,27,45,.82),rgba(5,9,18,.90));box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 55px rgba(0,0,0,.28);overflow:hidden}
+.side-panel{padding:22px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.game-panel{padding:20px;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto;gap:14px;overflow:hidden}
+.game-eyebrow{color:var(--cr-gold);font-size:12px;font-weight:950;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}.game-title{font-family:Georgia,serif;font-size:clamp(42px,4vw,58px);line-height:.92;margin:0;color:#fff}.game-title span{display:block;color:var(--cr-gold)}.side-copy{color:rgba(255,255,255,.72);line-height:1.55;margin:14px 0 0;font-size:14px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat-card{padding:15px;border-radius:20px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08)}.stat-card small{display:block;color:var(--cr-muted);font-weight:900;text-transform:uppercase;letter-spacing:1px;font-size:11px}.stat-card b{display:block;margin-top:6px;color:var(--cr-gold-2);font-size:24px}
+.quick-bet-card{position:relative;overflow:hidden;padding:16px;border-radius:24px;background:linear-gradient(180deg,rgba(17,27,45,.78),rgba(3,7,14,.72));border:1px solid rgba(229,193,88,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 14px 28px rgba(0,0,0,.22)}.quick-bet-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,rgba(229,193,88,.14),transparent 48%);pointer-events:none}.quick-bet-card>*{position:relative;z-index:1}.bet-display{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:14px}.bet-amount{font-size:42px;line-height:1;font-weight:950;color:#fff;text-shadow:0 6px 18px rgba(0,0,0,.35)}.bet-amount span{color:var(--cr-gold);font-size:.68em;margin-right:2px}.bet-mode-pill{border:1px solid rgba(229,193,88,.26);background:rgba(0,0,0,.26);border-radius:999px;padding:9px 12px;color:var(--cr-gold-2);font-weight:900;font-size:12px;text-transform:uppercase;white-space:nowrap}.preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}.preset{min-height:68px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;font-weight:950;display:grid;place-items:center;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease,box-shadow .15s ease;text-transform:none;letter-spacing:0;padding:8px}.preset:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(229,193,88,.45);background:rgba(229,193,88,.08)}.preset.active{border-color:rgba(229,193,88,.65);box-shadow:0 0 0 3px rgba(229,193,88,.14),0 10px 22px rgba(0,0,0,.28);background:rgba(229,193,88,.12)}.preset b{display:block;color:var(--cr-gold-2);font-size:18px}.preset small{display:block;color:var(--cr-muted);font-size:11px;margin-top:3px;text-transform:uppercase;letter-spacing:.7px}.slider-wrap{padding:14px;border-radius:18px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08)}.slider-wrap input[type=range]{width:100%;accent-color:#e5c158}.range-labels{display:flex;justify-content:space-between;margin-top:7px;color:var(--cr-muted);font-size:12px;font-weight:800}.bet-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.bet-action{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.055);color:#fff;border-radius:14px;padding:11px 8px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:.3px}.bet-action.red{background:rgba(184,68,68,.22);border-color:rgba(184,68,68,.35)}.bet-action.green{background:rgba(55,180,107,.22);border-color:rgba(55,180,107,.35)}.bet-action:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.12)}.bet-action:disabled,.preset:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.7)}
 
-  .vehicle{position:absolute;left:50%;top:-72px;transform:translateX(-50%);font-size:34px;z-index:5;filter:drop-shadow(0 6px 8px rgba(0,0,0,.38));animation:driveDown linear infinite;will-change:top}
-  .vehicle.up{top:calc(100% + 72px);animation-name:driveUp}
-  @keyframes driveDown{from{top:-72px}to{top:calc(100% + 72px)}}
-  @keyframes driveUp{from{top:calc(100% + 72px)}to{top:-72px}}
-  .vehicle.fast{filter:drop-shadow(0 8px 10px rgba(0,0,0,.45)) blur(.2px)}
-  .vehicle.hit{animation:none!important;top:50%!important;transform:translate(-50%,-50%) scale(1.16);z-index:16}
+.setting-panel{display:grid;gap:12px}.setting-panel h3{margin:0;color:var(--cr-gold-2);font-size:16px;text-transform:uppercase;letter-spacing:1px}.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;justify-content:initial}.seg button{min-height:52px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);color:#fff;text-transform:none}.seg button.active{background:rgba(229,193,88,.13);border-color:rgba(229,193,88,.6);color:var(--cr-gold-2);box-shadow:0 0 0 3px rgba(229,193,88,.12)}
 
-  .water-log{
-    position:absolute;
-    left:50%;
-    top:-96px;
-    transform:translateX(-50%);
-    z-index:5;
-    min-width:42px;
-    padding:8px 5px;
-    border-radius:999px;
-    font-size:30px;
-    line-height:1;
-    text-align:center;
-    letter-spacing:-10px;
-    color:#8a5526;
-    background:linear-gradient(180deg,#b97938,#6b3d18);
-    border:1px solid rgba(255,224,160,.24);
-    box-shadow:inset 0 2px 5px rgba(255,255,255,.18), inset 0 -8px 10px rgba(0,0,0,.2), 0 6px 10px rgba(0,0,0,.32);
-    animation:floatDown linear infinite;
-    will-change:top,transform;
-  }
-  .water-log:before,.water-log:after{content:"";position:absolute;left:8px;right:8px;height:2px;border-radius:999px;background:rgba(70,34,12,.32)}
-  .water-log:before{top:10px}
-  .water-log:after{bottom:10px}
-  .water-log.up{top:calc(100% + 96px);animation-name:floatUp}
-  .water-log.long{min-width:54px}
-  .water-log.xlong{min-width:68px}
-  @keyframes floatDown{from{top:-96px;transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}to{top:calc(100% + 96px);transform:translateX(-50%) rotate(-2deg)}}
-  @keyframes floatUp{from{top:calc(100% + 96px);transform:translateX(-50%) rotate(2deg)}50%{transform:translateX(-50%) rotate(-2deg)}to{top:-96px;transform:translateX(-50%) rotate(2deg)}}
-  .water-splash{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:46px;z-index:17;animation:sparkPop .48s ease both;pointer-events:none}
-
-  .spark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:52px;z-index:17;animation:sparkPop .48s ease both;pointer-events:none}
-  @keyframes sparkPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(0)}45%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(14deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(.72) rotate(-10deg)}}
-  .dust{position:absolute;left:0;top:50%;width:14px;height:14px;border-radius:999px;background:rgba(241,221,175,.55);z-index:12;animation:dust .52s ease-out forwards;pointer-events:none}
-  @keyframes dust{to{opacity:0;transform:translate(-18px,-20px) scale(2.2)}}
-  .cross-history{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:820px;margin:10px auto 0}.cross-history span{font-size:12px;font-weight:900;border-radius:999px;padding:5px 9px;background:rgba(0,0,0,.32);border:1px solid rgba(229,193,88,.18);color:#f0cc77}.cross-history .loss{color:#ff9b9b;border-color:rgba(255,120,120,.34)}.cross-history .win{color:#93f0ae;border-color:rgba(147,240,174,.34)}
-  @media(max-height:820px){.cross-board{height:350px}.chicken{font-size:40px}.cross-title{font-size:34px}#msg{font-size:18px;margin:8px 0}.vehicle{font-size:28px}.water-log{font-size:26px}.lane-mult{font-size:10px;min-width:46px}}
-  @media(max-width:760px){.cross-board{height:350px;padding:12px}.map{inset:12px;grid-template-columns:58px repeat(9,1fr);gap:5px}.lane{border-radius:14px}.lane-mult{font-size:9px;min-width:40px;padding:4px 5px}.chicken{font-size:36px}.vehicle{font-size:26px}.water-log{font-size:24px}.cross-board:after{display:none}}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.table-head h2{margin:0;color:var(--cr-gold-2);font-size:25px;text-transform:uppercase;letter-spacing:1px}.rule-pill{padding:9px 13px;border-radius:999px;border:1px solid rgba(229,193,88,.26);background:rgba(0,0,0,.28);color:var(--cr-gold);font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+.status-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.status-box{padding:12px;border-radius:18px;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.08);text-align:center}.status-box small{display:block;color:var(--cr-muted);font-weight:900;text-transform:uppercase;letter-spacing:1px;font-size:10px}.status-box b{display:block;margin-top:5px;color:var(--cr-gold-2);font-size:18px}
+.cross-stage{min-height:0;height:100%;border-radius:30px;padding:20px;background:radial-gradient(circle at 50% 8%,rgba(229,193,88,.10),transparent 34%),linear-gradient(180deg,rgba(9,17,30,.98),rgba(3,7,14,.99));border:2px solid rgba(229,193,88,.24);box-shadow:inset 0 0 70px rgba(0,0,0,.46),0 24px 50px rgba(0,0,0,.35);overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr)}
+.cross-help{text-align:center;color:rgba(255,255,255,.64);font-size:13px;margin:0 0 12px;letter-spacing:.2px}
+.cross-board{position:relative;width:100%;height:100%;min-height:430px;margin:0 auto;padding:18px;border-radius:28px;background:linear-gradient(180deg,#101c21,#162a31 58%,#0d1519 100%);border:2px solid rgba(201,164,94,.26);box-shadow:inset 0 0 30px rgba(0,0,0,.55),0 0 18px rgba(201,164,94,.08);overflow:hidden}
+.cross-board:before{content:"";position:absolute;inset:12px;border-radius:22px;border:1px solid rgba(241,221,175,.06);pointer-events:none;z-index:20}
+.cross-board:after{content:"FINISH";position:absolute;right:24px;top:26px;bottom:26px;width:38px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:4px;font-size:12px;font-weight:950;color:#1d1206;background:linear-gradient(180deg,#f7e4b3,#d3aa61);border-radius:999px;box-shadow:0 8px 18px rgba(0,0,0,.28);z-index:9}
+.map{position:absolute;inset:18px;display:grid;grid-template-columns:84px repeat(9,1fr);gap:8px;z-index:2}
+.lane{position:relative;border-radius:18px;overflow:hidden;min-width:0;background:linear-gradient(180deg,#323941,#171d23);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 0 14px rgba(0,0,0,.38)}
+.lane.start{background:linear-gradient(180deg,#43b16a,#1e6d3a);border-color:rgba(142,240,170,.55)}.lane.safe{background:linear-gradient(180deg,#367447,#174629);border-color:rgba(142,240,170,.22)}.lane.current{outline:2px solid rgba(229,193,88,.88);box-shadow:0 0 20px rgba(229,193,88,.22),inset 0 0 14px rgba(0,0,0,.35)}.lane.dead{background:linear-gradient(180deg,#a84242,#551818)!important;border-color:#ff8d8d!important;box-shadow:0 0 22px rgba(198,77,77,.42),inset 0 0 18px rgba(0,0,0,.38)!important}.lane.dead:after{opacity:.18!important}
+.lane.road:after{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;transform:translateX(-50%);background:repeating-linear-gradient(180deg,rgba(255,255,255,.42) 0 28px,transparent 28px 52px);opacity:.5}
+.lane.water{background:linear-gradient(180deg,#2a6f87,#123948);border-color:rgba(132,213,233,.18)}.lane.water:after{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.09) 0 2px,transparent 2px 18px);opacity:.35;animation:waterMove 2.8s linear infinite}@keyframes waterMove{from{transform:translateY(0)}to{transform:translateY(24px)}}
+.lane-mult{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:6;font-size:12px;font-weight:950;color:#1d1206;background:linear-gradient(180deg,#f7e4b3,#d3aa61);border-radius:999px;padding:5px 8px;min-width:54px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.28)}
+.chicken{position:absolute;left:0;top:50%;font-size:48px;z-index:14;filter:drop-shadow(0 8px 10px rgba(0,0,0,.42));transform:translate(-50%,-50%);transition:transform .16s ease;will-change:left,top,transform}.chicken.hop{transform:translate(-50%,-62%) scale(1.08) rotate(-4deg)}.chicken.walk{animation:chickenRun .18s ease-in-out infinite alternate}@keyframes chickenRun{from{transform:translate(-50%,-53%) rotate(-5deg) scale(1.04)}to{transform:translate(-50%,-61%) rotate(5deg) scale(1.10)}}.chicken.crash{animation:crashWobble .62s ease both}.chicken.win{animation:winDance .75s ease infinite alternate}@keyframes crashWobble{0%{transform:translate(-50%,-50%) rotate(0)}25%{transform:translate(-50%,-72%) rotate(-20deg)}55%{transform:translate(-50%,-44%) rotate(18deg)}100%{transform:translate(-50%,-50%) rotate(0) scale(.9);filter:grayscale(.4) drop-shadow(0 8px 10px rgba(0,0,0,.42))}}@keyframes winDance{from{transform:translate(-50%,-52%) rotate(-6deg) scale(1.04)}to{transform:translate(-50%,-60%) rotate(6deg) scale(1.10)}}
+.vehicle{position:absolute;left:50%;top:-72px;transform:translateX(-50%);font-size:34px;z-index:5;filter:drop-shadow(0 6px 8px rgba(0,0,0,.38));animation:driveDown linear infinite;will-change:top}.vehicle.up{top:calc(100% + 72px);animation-name:driveUp}@keyframes driveDown{from{top:-72px}to{top:calc(100% + 72px)}}@keyframes driveUp{from{top:calc(100% + 72px)}to{top:-72px}}.vehicle.fast{filter:drop-shadow(0 8px 10px rgba(0,0,0,.45)) blur(.2px)}.vehicle.hit{animation:none!important;top:50%!important;transform:translate(-50%,-50%) scale(1.16);z-index:16}
+.water-log{position:absolute;left:50%;top:-96px;transform:translateX(-50%);z-index:5;min-width:42px;padding:8px 5px;border-radius:999px;font-size:30px;line-height:1;text-align:center;letter-spacing:-10px;color:#8a5526;background:linear-gradient(180deg,#b97938,#6b3d18);border:1px solid rgba(255,224,160,.24);box-shadow:inset 0 2px 5px rgba(255,255,255,.18), inset 0 -8px 10px rgba(0,0,0,.2), 0 6px 10px rgba(0,0,0,.32);animation:floatDown linear infinite;will-change:top,transform}.water-log:before,.water-log:after{content:"";position:absolute;left:8px;right:8px;height:2px;border-radius:999px;background:rgba(70,34,12,.32)}.water-log:before{top:10px}.water-log:after{bottom:10px}.water-log.up{top:calc(100% + 96px);animation-name:floatUp}.water-log.long{min-width:54px}.water-log.xlong{min-width:68px}@keyframes floatDown{from{top:-96px;transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}to{top:calc(100% + 96px);transform:translateX(-50%) rotate(-2deg)}}@keyframes floatUp{from{top:calc(100% + 96px);transform:translateX(-50%) rotate(2deg)}50%{transform:translateX(-50%) rotate(-2deg)}to{top:-96px;transform:translateX(-50%) rotate(2deg)}}.water-splash{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:46px;z-index:17;animation:sparkPop .48s ease both;pointer-events:none}
+.spark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:52px;z-index:17;animation:sparkPop .48s ease both;pointer-events:none}@keyframes sparkPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(0)}45%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(14deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(.72) rotate(-10deg)}}
+.dust{position:absolute;left:0;top:50%;width:14px;height:14px;border-radius:999px;background:rgba(241,221,175,.55);z-index:12;animation:dust .52s ease-out forwards;pointer-events:none}@keyframes dust{to{opacity:0;transform:translate(-18px,-20px) scale(2.2)}}
+.cross-history{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:820px;margin:0 auto}.cross-history span{font-size:12px;font-weight:900;border-radius:999px;padding:5px 9px;background:rgba(0,0,0,.32);border:1px solid rgba(229,193,88,.18);color:#f0cc77}.cross-history .loss{color:#ff9b9b;border-color:rgba(255,120,120,.34)}.cross-history .win{color:#93f0ae;border-color:rgba(147,240,174,.34)}
+.message{margin:0 auto;width:100%;border-radius:20px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.08);color:#ffd966}.controls{margin:0;gap:10px}.controls button{min-width:160px}.betbox{display:none!important}
+@media(max-width:1120px){.casino-header{grid-template-columns:1fr auto;gap:14px}.casino-nav{grid-column:1/-1;justify-content:flex-start;order:3}.cross-main{grid-template-columns:1fr;overflow:auto}.side-panel{display:grid;grid-template-columns:1fr 1fr;align-items:start}.quick-bet-card,.setting-panel{grid-column:auto}}
+@media(max-width:760px){body{padding:10px}.cross-app{border-radius:24px;max-height:none}.casino-header{grid-template-columns:1fr;justify-items:stretch;padding:14px;min-height:0}.brand{justify-content:center;min-width:0}.wallet{justify-content:center;min-width:0}.wallet-plus{display:none}.casino-nav{justify-content:flex-start}.brand-title{font-size:20px}.brand-mark{font-size:34px}.cross-main{padding:14px;gap:14px;overflow:auto}.side-panel,.game-panel{border-radius:22px;padding:16px}.side-panel{display:flex}.game-title,.side-copy{text-align:center}.stat-grid,.status-strip{grid-template-columns:1fr}.seg{grid-template-columns:1fr}.preset-grid{grid-template-columns:1fr}.bet-actions{grid-template-columns:repeat(2,1fr)}.table-head{justify-content:center;text-align:center}.cross-stage{padding:12px}.cross-board{min-height:350px;padding:12px}.map{inset:12px;grid-template-columns:58px repeat(9,1fr);gap:5px}.lane{border-radius:14px}.lane-mult{font-size:9px;min-width:40px;padding:4px 5px}.chicken{font-size:36px}.vehicle{font-size:26px}.water-log{font-size:24px}.cross-board:after{display:none}.controls button{flex:1 1 160px}}
+@media(max-height:760px) and (min-width:900px){.cross-main{padding:14px;gap:14px}.side-panel,.game-panel{padding:16px}.game-title{font-size:38px}.stat-card{padding:11px}.cross-board{min-height:330px}.water-log{font-size:26px}.vehicle{font-size:28px}}
 </style>
 </head>
 <body>
-<main class="page">
-  <div class="topbar">
-    <button class="danger" onclick="goLobby()">🏰 Lobby</button>
-    <div class="counter-display">Bank: <span class="shared-bankroll">1000 €</span></div>
-    <div class="counter-display">Einsatz: <span id="betOut">10 €</span></div>
-    <div class="counter-display">Möglicher Gewinn: <span id="potentialOut">0 €</span></div>
-  </div>
-
-  <section class="panel cross-shell">
-    <h1 class="title cross-title">🐔 Cross Road</h1>
-    <div class="betbox">
-      <label for="betSlider">Einsatz</label>
-      <b id="betDisplay">10 €</b>
-      <input id="betSlider" type="range">
-    </div>
-    <div class="seg" id="riskBtns">
-      <button class="active" data-risk="easy" type="button">Sicher</button>
-      <button data-risk="normal" type="button">Normal</button>
-      <button data-risk="hard" type="button">Riskant</button>
-    </div>
-    <div class="cross-help">Das Chicken startet links und läuft nach rechts. Jede sichere Spur erhöht den Multiplikator. Cashout, bevor Auto oder Wasser dich erwischt.</div>
-
-    <div class="status-grid">
-      <div class="counter-display">Schritt: <span id="levelOut">0 / 9</span></div>
-      <div class="counter-display">Multiplikator: <span id="multOut">1.00x</span></div>
-      <div class="counter-display">Status: <span id="stateOut">bereit</span></div>
-    </div>
-
-    <div class="cross-board" id="board">
-      <div class="map" id="map"></div>
-      <div class="chicken" id="chicken">🐔</div>
-    </div>
-    <div class="cross-history" id="history"></div>
-    <div id="msg" class="message"></div>
-    <div class="controls">
-      <button class="success" id="startBtn" type="button">Start</button>
-      <button class="primary" id="stepBtn" type="button" disabled>Weiter nach rechts</button>
-      <button class="success" id="cashBtn" type="button" disabled>Cashout</button>
-    </div>
-  </section>
-</main>
-
+<div class="cross-app">
+  <header class="casino-header">
+    <a href="index.html" class="brand" aria-label="Royal Deluxe Casino"><div class="brand-mark">👑</div><div class="brand-title">ROYAL<br>DELUXE<span>CASINO</span></div></a>
+    <nav class="casino-nav" aria-label="Casino Navigation">
+      <a href="index.html">🏠 Home</a><a href="tower.html">🏰 Tower</a><a href="plinko.html">🟡 Plinko</a><a class="active" href="crossroad.html">🐔 Cross Road</a><a href="solitaire.html">♠️ Solitär</a>
+    </nav>
+    <div class="wallet"><div class="wallet-icon">€</div><div><small>Guthaben</small><b class="shared-bankroll">1000 €</b></div><button class="wallet-plus" type="button" onclick="resetBankroll()">+</button></div>
+  </header>
+  <main class="cross-main">
+    <aside class="side-panel">
+      <div><div class="game-eyebrow">🐔 Royal Crossing Game</div><h1 class="game-title">Cross<span>Road</span></h1><p class="side-copy">Laufe mit dem Chicken von links nach rechts. Jede sichere Spur erhöht den Multiplikator.</p></div>
+      <div class="stat-grid"><div class="stat-card"><small>Aktueller Einsatz</small><b id="betOut">50 €</b></div><div class="stat-card"><small>Möglicher Gewinn</small><b id="potentialOut">0 €</b></div></div>
+      <div class="quick-bet-card" id="quickBetCard">
+        <div class="bet-display"><div class="bet-amount"><span>€</span><b id="betDisplay">50</b></div><div class="bet-mode-pill">Preset Mode</div></div>
+        <div class="preset-grid" id="presetBets"><button class="preset" data-set="10" type="button"><div><b>10 €</b><small>Small</small></div></button><button class="preset active" data-set="50" type="button"><div><b>50 €</b><small>Standard</small></div></button><button class="preset" data-set="100" type="button"><div><b>100 €</b><small>High</small></div></button></div>
+        <div class="slider-wrap"><input id="betSlider" type="range"><div class="range-labels"><span>Minimal</span><span>Maximal</span></div></div>
+        <div class="bet-actions" id="betActions"><button class="bet-action red" data-action="reset" type="button">Reset</button><button class="bet-action" data-action="minus" type="button">-10</button><button class="bet-action" data-action="plus" type="button">+10</button><button class="bet-action green" data-action="allin" type="button">All In</button></div>
+      </div>
+      <div class="setting-panel">
+        <h3>Risiko</h3>
+        <div class="seg" id="riskBtns">
+          <button class="active" data-risk="easy" type="button">Sicher</button>
+          <button data-risk="normal" type="button">Normal</button>
+          <button data-risk="hard" type="button">Riskant</button>
+        </div>
+      </div>
+    </aside>
+    <section class="game-panel">
+      <div class="table-head"><h2>Royal Crossing</h2><div class="rule-pill">Autos & Wasser-Logs</div></div>
+      <div class="status-strip">
+        <div class="status-box"><small>Schritt</small><b id="levelOut">0 / 9</b></div>
+        <div class="status-box"><small>Multiplikator</small><b id="multOut">1.00x</b></div>
+        <div class="status-box"><small>Status</small><b id="stateOut">bereit</b></div>
+      </div>
+      <div class="cross-stage">
+        <div class="cross-help">Starte die Runde, gehe Spur für Spur nach rechts und cashout, bevor Auto oder Wasser dich erwischt.</div>
+        <div class="cross-board" id="board">
+          <div class="map" id="map"></div>
+          <div class="chicken" id="chicken">🐔</div>
+        </div>
+      </div>
+      <div class="cross-history" id="history"></div>
+      <div id="msg" class="message"></div>
+      <div class="controls"><button class="success" id="startBtn" type="button">Start</button><button class="primary" id="stepBtn" type="button" disabled>Weiter nach rechts</button><button class="success" id="cashBtn" type="button" disabled>Cashout</button></div>
+    </section>
+  </main>
+</div>
 <script>
+
 let getBet;
 let risk = 'easy';
 let activeBet = 0;
@@ -147,6 +130,7 @@ const board = document.getElementById('board');
 const chicken = document.getElementById('chicken');
 const msg = document.getElementById('msg');
 let ambientTimers = [];
+let deathLane = -1;
 
 function currentMult(){ return level <= 0 ? 1 : settings[risk].mult[level - 1]; }
 function potential(){ return Math.floor(activeBet * currentMult()); }
@@ -204,7 +188,7 @@ function animateChickenTo(targetX, duration = 720){
 function clearLaneVehicles(laneIndex){
   const lane = map.querySelector(`[data-lane="${laneIndex}"]`);
   if (!lane) return;
-  lane.querySelectorAll('.vehicle').forEach(v => v.remove());
+  lane.querySelectorAll('.vehicle,.water-log').forEach(v => v.remove());
 }
 function renderBoard(){
   stopAmbientTraffic();
@@ -225,7 +209,8 @@ function updateVisuals(){
   [...map.children].forEach(lane => {
     const i = Number(lane.dataset.lane);
     lane.classList.toggle('safe', i <= level && i !== 0);
-    lane.classList.toggle('current', inRound && i === level + 1);
+    lane.classList.toggle('current', inRound && i === level + 1 && i !== deathLane);
+    lane.classList.toggle('dead', i === deathLane);
   });
   chicken.style.left = laneCenterX(level) + 'px';
   chicken.style.top = '50%';
@@ -238,6 +223,7 @@ function setButtons(){
   document.getElementById('stepBtn').disabled = !inRound || busy || level >= maxLevel;
   document.getElementById('cashBtn').disabled = !inRound || busy || level <= 0;
   document.querySelectorAll('#riskBtns button').forEach(b => b.disabled = inRound || busy);
+  document.querySelectorAll('#presetBets button, #betActions button').forEach(b => b.disabled = inRound || busy);
   const slider = document.getElementById('betSlider');
   if (slider) slider.disabled = inRound || busy;
 }
@@ -253,6 +239,7 @@ function startGame(){
   activeBet = bet;
   changeCash(-activeBet);
   level = 0;
+  deathLane = -1;
   inRound = true;
   busy = false;
   msg.textContent = 'Das Chicken startet links. Nächster Schritt nach rechts?';
@@ -381,6 +368,9 @@ async function nextStep(){
   await animateChickenTo(laneCenterX(target), 760);
 
   if (!safe) {
+    level = target;
+    deathLane = target;
+    updateVisuals();
     await crossingVehicle(target, true);
     const lost = activeBet;
     inRound = false; busy = false;
@@ -390,7 +380,7 @@ async function nextStep(){
     activeBet = 0;
     updateVisuals(); setButtons();
     startAmbientTraffic();
-    try { recordGame('Cross Road', -lost); } catch(e) {}
+    try { window.casinoSound&&casinoSound.play('cashout'); recordGame('Cross Road', -lost); } catch(e) {}
     return;
   }
 
@@ -415,11 +405,47 @@ function cashout(){
   chicken.classList.add('win');
   inRound = false; activeBet = 0;
   updateVisuals(); setButtons();
-  try { recordGame('Cross Road', profit); } catch(e) {}
+  try { window.casinoSound&&casinoSound.play('cashout'); recordGame('Cross Road', profit); } catch(e) {}
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  getBet = createBetSlider({ inputId:'betSlider', displayId:'betDisplay', min:1, max:500, value:10, onChange:v => { document.getElementById('betOut').textContent = money(v); } });
+  getBet = createBetSlider({ inputId:'betSlider', displayId:'betDisplay', min:1, max:500, value:50, onChange:v => { 
+    document.getElementById('betOut').textContent = money(v);
+    const bd = document.getElementById('betDisplay');
+    if (bd) bd.textContent = Math.floor(v);
+    updatePresetActive(v);
+  } });
+
+  const betSlider = document.getElementById('betSlider');
+  const setBetValue = value => {
+    const min = Number(betSlider.min || 1);
+    const max = Number(betSlider.max || 500);
+    betSlider.value = String(Math.max(min, Math.min(max, Math.floor(value))));
+    betSlider.dispatchEvent(new Event('input'));
+  };
+
+  const presets = document.getElementById('presetBets');
+  if (presets) {
+    presets.addEventListener('click', event => {
+      const btn = event.target.closest('button[data-set]');
+      if (!btn || inRound || busy) return;
+      setBetValue(Number(btn.dataset.set));
+    });
+  }
+
+  const actions = document.getElementById('betActions');
+  if (actions) {
+    actions.addEventListener('click', event => {
+      const btn = event.target.closest('button[data-action]');
+      if (!btn || inRound || busy) return;
+      let v = Number(betSlider.value || 0);
+      if (btn.dataset.action === 'reset') v = 50;
+      if (btn.dataset.action === 'minus') v -= 10;
+      if (btn.dataset.action === 'plus') v += 10;
+      if (btn.dataset.action === 'allin') v = getCash();
+      setBetValue(v);
+    });
+  }
   document.getElementById('startBtn').addEventListener('click', startGame);
   document.getElementById('stepBtn').addEventListener('click', nextStep);
   document.getElementById('cashBtn').addEventListener('click', cashout);
@@ -431,6 +457,167 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBoard(); setButtons();
 });
 window.addEventListener('resize', updateVisuals);
+
+function updatePresetActive(value){
+  document.querySelectorAll('#presetBets button[data-set]').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.set) === Math.floor(Number(value)));
+  });
+}
+
 </script>
+
+<script>
+(function(){
+  document.addEventListener('pointerdown',function(){ if(window.casinoSound) casinoSound.unlock(); },{passive:true});
+})();
+</script>
+
+
+<script>
+/* Direct local sounds - works like the slot sounds, no external files needed */
+(function(){
+  if(window.__royalDirectSoundReady) return;
+  window.__royalDirectSoundReady = true;
+
+  let audioCtx = null;
+  let soundEnabled = localStorage.getItem('royal_direct_sound') !== 'off';
+
+  function ctx(){
+    if(!soundEnabled) return null;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      if(!audioCtx) audioCtx = new AC();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }catch(e){ return null; }
+  }
+
+  function unlock(){
+    const c = ctx();
+    if(!c) return;
+    try{
+      const o = c.createOscillator();
+      const g = c.createGain();
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(c.destination);
+      o.start();
+      o.stop(c.currentTime + 0.01);
+    }catch(e){}
+  }
+
+  function tone(freq=440,duration=.08,type='sine',gain=.05,delay=0){
+    if(!soundEnabled) return;
+    setTimeout(()=>{
+      const c = ctx();
+      if(!c) return;
+      try{
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, c.currentTime);
+        g.gain.setValueAtTime(gain, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + duration);
+        o.connect(g); g.connect(c.destination);
+        o.start(c.currentTime);
+        o.stop(c.currentTime + duration + .03);
+      }catch(e){}
+    }, delay);
+  }
+
+  const sounds = {
+    click(){ tone(520,.045,'sine',.055); },
+    hover(){ tone(680,.025,'sine',.025); },
+    bet(){ tone(330,.06,'triangle',.07); tone(460,.05,'triangle',.05,45); },
+    win(){ tone(520,.09,'sine',.08); tone(660,.09,'sine',.07,85); tone(880,.12,'sine',.065,175); },
+    lose(){ tone(240,.12,'triangle',.055); tone(145,.16,'triangle',.042,95); },
+    cashout(){ tone(720,.08,'sine',.08); tone(980,.12,'sine',.07,95); },
+    card(){ tone(500,.06,'triangle',.06); },
+    chip(){ tone(300,.05,'square',.05); tone(420,.05,'square',.04,45); },
+    spin(){ tone(220,.05,'square',.04); },
+    reelStop(){ tone(420,.07,'triangle',.065); },
+    rocket(){ tone(135,.06,'sawtooth',.04); },
+    crash(){ tone(120,.22,'sawtooth',.09); tone(70,.30,'sawtooth',.065,90); },
+    roulette(){ tone(260,.04,'triangle',.04); },
+    ball(){ tone(780,.04,'sine',.05); },
+    plinko(){ tone(620,.04,'sine',.05); },
+    chicken(){ tone(740,.055,'square',.045); tone(920,.045,'square',.030,55); },
+    dice(){ tone(180,.05,'square',.05); tone(260,.05,'square',.04,55); tone(340,.05,'square',.035,110); },
+    free(){ tone(440,.08,'triangle',.085); tone(620,.08,'triangle',.075,85); tone(840,.09,'triangle',.07,170); tone(1180,.1,'triangle',.065,255); },
+    error(){ tone(170,.12,'sawtooth',.06); tone(115,.16,'sawtooth',.045,90); }
+  };
+
+  window.directSound = function(name){
+    unlock();
+    (sounds[name] || sounds.click)();
+  };
+
+  window.toggleDirectSound = function(){
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('royal_direct_sound', soundEnabled ? 'on' : 'off');
+    updateSoundButton();
+    if(soundEnabled) directSound('click');
+  };
+
+  function updateSoundButton(){
+    document.querySelectorAll('[data-sound-toggle]').forEach(btn=>{
+      btn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
+      btn.classList.toggle('sound-off', !soundEnabled);
+      btn.setAttribute('aria-pressed', String(soundEnabled));
+    });
+  }
+
+  function addButton(){
+    const header = document.querySelector('.casino-header,.home-header,.topbar');
+    if(!header || document.querySelector('[data-sound-toggle]')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .global-sound-toggle{
+        height:44px;padding:0 15px;border-radius:999px;
+        border:1px solid rgba(229,193,88,.34);
+        background:rgba(229,193,88,.11);color:#fff0a3;
+        font:900 12px/1 Segoe UI,Arial,sans-serif;
+        letter-spacing:.7px;text-transform:uppercase;cursor:pointer;white-space:nowrap;
+      }
+      .global-sound-toggle.sound-off{color:rgba(255,255,255,.62);background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.12)}
+    `;
+    document.head.appendChild(style);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'global-sound-toggle';
+    btn.setAttribute('data-sound-toggle','true');
+    btn.onclick = toggleDirectSound;
+
+    const wallet = header.querySelector('.wallet');
+    if(wallet) header.insertBefore(btn, wallet);
+    else header.appendChild(btn);
+    updateSoundButton();
+  }
+
+  document.addEventListener('pointerdown', unlock, {passive:true});
+  document.addEventListener('keydown', unlock);
+  document.addEventListener('DOMContentLoaded', addButton);
+
+  document.addEventListener('click', e=>{
+    if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a,.wallet-plus')){
+      directSound('click');
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* crossroad direct sound hooks */
+document.addEventListener('click',e=>{
+  const txt=(e.target.textContent||'').toLowerCase();
+  if(txt.includes('start')) directSound&&directSound('bet');
+  if(txt.includes('weiter')||txt.includes('move')||txt.includes('go')||txt.includes('step')) directSound&&directSound('chicken');
+  if(txt.includes('cash')) directSound&&directSound('cashout');
+});
+</script>
+
 </body>
 </html>
