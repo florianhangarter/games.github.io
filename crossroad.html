@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cross Road - Royal Deluxe Casino</title>
 <link rel="stylesheet" href="styles.css">
-<script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
-document.addEventListener('click',e=>{const t=(e.target.textContent||'').toLowerCase(); if(t.includes('weiter')||t.includes('go')||t.includes('move')) window.casinoSound&&casinoSound.play('chicken');});
-</script>
+<link rel="stylesheet" href="mobile.css">
+<script src="casino-utils.js"></script>
 <style>
 :root{
   --cr-bg:#060812;--cr-panel:#0d1424;--cr-gold:#e5c158;--cr-gold-2:#fff0a3;--cr-text:#f8f5ed;--cr-muted:rgba(248,245,237,.66);--cr-border:rgba(229,193,88,.28);--cr-green:#37b46b;--cr-red:#c64d4d;--cr-blue:#52c7e8;
@@ -60,6 +59,15 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 @media(max-width:760px){body{padding:10px}.cross-app{border-radius:24px;max-height:none}.casino-header{grid-template-columns:1fr;justify-items:stretch;padding:14px;min-height:0}.brand{justify-content:center;min-width:0}.wallet{justify-content:center;min-width:0}.wallet-plus{display:none}.casino-nav{justify-content:flex-start}.brand-title{font-size:20px}.brand-mark{font-size:34px}.cross-main{padding:14px;gap:14px;overflow:auto}.side-panel,.game-panel{border-radius:22px;padding:16px}.side-panel{display:flex}.game-title,.side-copy{text-align:center}.stat-grid,.status-strip{grid-template-columns:1fr}.seg{grid-template-columns:1fr}.preset-grid{grid-template-columns:1fr}.bet-actions{grid-template-columns:repeat(2,1fr)}.table-head{justify-content:center;text-align:center}.cross-stage{padding:12px}.cross-board{min-height:350px;padding:12px}.map{inset:12px;grid-template-columns:58px repeat(9,1fr);gap:5px}.lane{border-radius:14px}.lane-mult{font-size:9px;min-width:40px;padding:4px 5px}.chicken{font-size:36px}.vehicle{font-size:26px}.water-log{font-size:24px}.cross-board:after{display:none}.controls button{flex:1 1 160px}}
 @media(max-height:760px) and (min-width:900px){.cross-main{padding:14px;gap:14px}.side-panel,.game-panel{padding:16px}.game-title{font-size:38px}.stat-card{padding:11px}.cross-board{min-height:330px}.water-log{font-size:26px}.vehicle{font-size:28px}}
 </style>
+
+<style id="mobile-emergency-fix">
+@media(max-width:1180px){
+  html,body{overflow-y:auto!important;max-height:none!important}
+  [class$="-app"],.home-shell{max-height:none!important;height:auto!important;overflow:visible!important}
+  .side-panel,.game-panel{overflow:visible!important}
+}
+</style>
+
 </head>
 <body>
 <div class="cross-app">
@@ -380,7 +388,7 @@ async function nextStep(){
     activeBet = 0;
     updateVisuals(); setButtons();
     startAmbientTraffic();
-    try { window.casinoSound&&casinoSound.play('cashout'); recordGame('Cross Road', -lost); } catch(e) {}
+    try { window.casinoSound&&casinoSound.play('cashout'); playCustomWinSound(); recordGame('Cross Road', -lost); } catch(e) {}
     return;
   }
 
@@ -619,5 +627,59 @@ document.addEventListener('click',e=>{
 });
 </script>
 
+
+<script>
+/* Global Custom Winning Sound für dieses Spiel */
+let customWinSoundUnlocked = false;
+
+function unlockCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio || customWinSoundUnlocked) return;
+
+  try{
+    audio.load();
+    audio.volume = 0.01;
+    const p = audio.play();
+
+    if(p && typeof p.then === "function"){
+      p.then(()=>{
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 1;
+        customWinSoundUnlocked = true;
+      }).catch(()=>{
+        audio.volume = 1;
+      });
+    }else{
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 1;
+      customWinSoundUnlocked = true;
+    }
+  }catch(e){
+    audio.volume = 1;
+  }
+}
+
+function playCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio) return;
+
+  try{
+    audio.volume = 1;
+    audio.currentTime = 0;
+    const p = audio.play();
+    if(p && typeof p.catch === "function"){
+      p.catch(()=>unlockCustomWinSound());
+    }
+  }catch(e){}
+}
+
+document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
+document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
+document.addEventListener("click", unlockCustomWinSound, {passive:true});
+</script>
+
+<audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
 </body>
 </html>

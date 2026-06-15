@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Classic Slots - Royal Deluxe Casino</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
-</script>
+<link rel="stylesheet" href="mobile.css">
+    <script src="casino-utils.js"></script>
     <style>
       :root {
         --sl-bg: #060812;
@@ -981,7 +981,16 @@
         }
       }
     </style>
-  </head>
+  
+<style id="mobile-emergency-fix">
+@media(max-width:1180px){
+  html,body{overflow-y:auto!important;max-height:none!important}
+  [class$="-app"],.home-shell{max-height:none!important;height:auto!important;overflow:visible!important}
+  .side-panel,.game-panel{overflow:visible!important}
+}
+</style>
+
+</head>
   <body>
     <div class="slot-app">
       <header class="casino-header">
@@ -1362,7 +1371,7 @@
       function playStop(i) {
         playTone(420 + i * 80, 0.06, "triangle", 0.04);
       }
-      function playWin() {
+      function playWin(){ playCustomWinSound();
         [520, 660, 820, 1040].forEach((f, i) =>
           setTimeout(() => playTone(f, 0.09, "sine", 0.055), i * 90),
         );
@@ -1694,5 +1703,59 @@
 })();
 </script>
 
+
+<script>
+/* Global Custom Winning Sound für dieses Spiel */
+let customWinSoundUnlocked = false;
+
+function unlockCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio || customWinSoundUnlocked) return;
+
+  try{
+    audio.load();
+    audio.volume = 0.01;
+    const p = audio.play();
+
+    if(p && typeof p.then === "function"){
+      p.then(()=>{
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 1;
+        customWinSoundUnlocked = true;
+      }).catch(()=>{
+        audio.volume = 1;
+      });
+    }else{
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 1;
+      customWinSoundUnlocked = true;
+    }
+  }catch(e){
+    audio.volume = 1;
+  }
+}
+
+function playCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio) return;
+
+  try{
+    audio.volume = 1;
+    audio.currentTime = 0;
+    const p = audio.play();
+    if(p && typeof p.catch === "function"){
+      p.catch(()=>unlockCustomWinSound());
+    }
+  }catch(e){}
+}
+
+document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
+document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
+document.addEventListener("click", unlockCustomWinSound, {passive:true});
+</script>
+
+<audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
 </body>
 </html>

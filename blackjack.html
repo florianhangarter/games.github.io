@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Blackjack - Royal Deluxe Casino</title>
 <link rel="stylesheet" href="styles.css">
-<script src="casino-utils.js">document.addEventListener('click',e=>{if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a')) window.casinoSound&&casinoSound.play('click');});
-</script>
+<link rel="stylesheet" href="mobile.css">
+<script src="casino-utils.js"></script>
 <style>
 :root{
   --bj-bg:#060812;
@@ -274,6 +274,15 @@ body:before{
   .bj-main{padding:14px;gap:14px}.side-panel,.game-panel{padding:16px}.blackjack-table{min-height:410px;padding:16px}.bj-area{min-height:122px;padding:10px}.bj-area .hand-zone{min-height:86px}.game-title{font-size:36px}.stat-card{padding:11px}.chip-rack .chip-btn{width:46px;height:46px}.blackjack-table:after{display:none}.table-arc{bottom:62px;height:120px}
 }
 </style>
+
+<style id="mobile-emergency-fix">
+@media(max-width:1180px){
+  html,body{overflow-y:auto!important;max-height:none!important}
+  [class$="-app"],.home-shell{max-height:none!important;height:auto!important;overflow:visible!important}
+  .side-panel,.game-panel{overflow:visible!important}
+}
+</style>
+
 </head>
 <body>
 <div class="bj-app">
@@ -401,7 +410,7 @@ function deal(){ window.casinoSound&&casinoSound.play('card');const bet=getBet()
 function hit(){ window.casinoSound&&casinoSound.play('card');player.push(deck.pop());if(score(player)>21)return finish('Bust! Du verlierst.',-roundBet);render();}
 function doubleDown(){if(state!=='playing'||player.length!==2)return;if(!canAfford(roundBet))return toast('Nicht genug Guthaben zum Verdoppeln.','bad');changeCash(-roundBet);roundBet*=2;betOut.textContent=money(roundBet);player.push(deck.pop());if(score(player)>21)return finish('Double Down Bust! Du verlierst.',-roundBet);render(false);stand();}
 function stand(){ window.casinoSound&&casinoSound.play('click');while(score(dealer)<17)dealer.push(deck.pop());const ps=score(player),ds=score(dealer),bet=roundBet;if(ds>21||ps>ds)finish(`Gewonnen! +${money(bet*2)}`,bet);else if(ps===ds){changeCash(bet);finish('Push - Einsatz zurück.',0,true)}else finish('Dealer gewinnt.',-bet);}
-function finish(text,profit,push=false){if(!push&&profit>0)changeCash(roundBet*2);state='done';msg.textContent=text;window.casinoSound&&casinoSound.play('win'); recordGame('Blackjack',profit);render(false)}
+function finish(text,profit,push=false){if(!push&&profit>0)changeCash(roundBet*2);state='done';msg.textContent=text;window.casinoSound&&casinoSound.play('win'); playCustomWinSound(); playCustomWinSound(); recordGame('Blackjack',profit);render(false)}
 </script>
 
 <script>
@@ -555,6 +564,89 @@ document.addEventListener('click',e=>{
   if(txt.includes('hit')||txt.includes('karte')) directSound&&directSound('card');
   if(txt.includes('stand')||txt.includes('double')||txt.includes('split')) directSound&&directSound('chip');
 });
+</script>
+
+
+<script>
+/* Global Custom Winning Sound für dieses Spiel */
+let customWinSoundUnlocked = false;
+
+function unlockCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio || customWinSoundUnlocked) return;
+
+  try{
+    audio.load();
+    audio.volume = 0.01;
+    const p = audio.play();
+
+    if(p && typeof p.then === "function"){
+      p.then(()=>{
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 1;
+        customWinSoundUnlocked = true;
+      }).catch(()=>{
+        audio.volume = 1;
+      });
+    }else{
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 1;
+      customWinSoundUnlocked = true;
+    }
+  }catch(e){
+    audio.volume = 1;
+  }
+}
+
+function playCustomWinSound(){
+  const audio = document.getElementById("customWinSound");
+  if(!audio) return;
+
+  try{
+    audio.volume = 1;
+    audio.currentTime = 0;
+    const p = audio.play();
+    if(p && typeof p.catch === "function"){
+      p.catch(()=>unlockCustomWinSound());
+    }
+  }catch(e){}
+}
+
+document.addEventListener("pointerdown", unlockCustomWinSound, {passive:true});
+document.addEventListener("touchstart", unlockCustomWinSound, {passive:true});
+document.addEventListener("click", unlockCustomWinSound, {passive:true});
+</script>
+
+<audio id="customWinSound" preload="auto" src="sounds/mixkit-retro-arcade-casino-notification-211.wav"></audio>
+
+<script>
+/* Blackjack Winning-Sound Fallback */
+(function(){
+  if(window.__blackjackCustomWinObserver) return;
+  window.__blackjackCustomWinObserver = true;
+
+  function checkBlackjackWinText(){
+    const text = document.body ? document.body.innerText.toLowerCase() : "";
+    if(
+      text.includes("gewonnen") ||
+      text.includes("blackjack!") ||
+      text.includes("spieler gewinnt") ||
+      text.includes("du gewinnst")
+    ){
+      playCustomWinSound();
+    }
+  }
+
+  document.addEventListener("click", function(e){
+    const t = (e.target.textContent || "").toLowerCase();
+    if(t.includes("stand") || t.includes("hit") || t.includes("deal") || t.includes("start")){
+      setTimeout(checkBlackjackWinText, 700);
+      setTimeout(checkBlackjackWinText, 1400);
+    }
+  });
+})();
 </script>
 
 </body>
