@@ -753,192 +753,191 @@
         }
       }
     </style>
-  
-<style id="index-mobile-games-fix">
-/* Index Mobile/iPad Fix: Spiele sichtbar und bedienbar */
-@media (max-width: 900px) {
-  html,
-  body {
-    min-height: 100%;
-    height: auto !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-  }
 
-  body {
-    padding: 8px !important;
-  }
+    <style id="index-mobile-games-fix">
+      /* Index Mobile/iPad Fix: Spiele sichtbar und bedienbar */
+      @media (max-width: 900px) {
+        html,
+        body {
+          min-height: 100%;
+          height: auto !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+        }
 
-  .home-wrap {
-    height: auto !important;
-    min-height: 100dvh !important;
-    max-height: none !important;
-    display: block !important;
-    overflow: visible !important;
-  }
+        body {
+          padding: 8px !important;
+        }
 
-  .home-shell {
-    height: auto !important;
-    min-height: auto !important;
-    max-height: none !important;
-    display: block !important;
-    overflow: visible !important;
-    border-radius: 22px !important;
-  }
+        .home-wrap {
+          height: auto !important;
+          min-height: 100dvh !important;
+          max-height: none !important;
+          display: block !important;
+          overflow: visible !important;
+        }
 
-  .home-main {
-    height: auto !important;
-    min-height: auto !important;
-    max-height: none !important;
-    display: block !important;
-    overflow: visible !important;
-  }
+        .home-shell {
+          height: auto !important;
+          min-height: auto !important;
+          max-height: none !important;
+          display: block !important;
+          overflow: visible !important;
+          border-radius: 22px !important;
+        }
 
-  .home-header {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-    padding: 14px !important;
-    min-height: 0 !important;
-  }
+        .home-main {
+          height: auto !important;
+          min-height: auto !important;
+          max-height: none !important;
+          display: block !important;
+          overflow: visible !important;
+        }
 
-  .brand {
-    justify-content: center !important;
-    min-width: 0 !important;
-  }
+        .home-header {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          gap: 12px !important;
+          padding: 14px !important;
+          min-height: 0 !important;
+        }
 
-  .home-nav {
-    order: 2 !important;
-    width: 100% !important;
-    justify-content: flex-start !important;
-    overflow-x: auto !important;
-    white-space: nowrap !important;
-    -webkit-overflow-scrolling: touch;
-  }
+        .brand {
+          justify-content: center !important;
+          min-width: 0 !important;
+        }
 
-  .wallet {
-    order: 3 !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    justify-content: center !important;
-  }
+        .home-nav {
+          order: 2 !important;
+          width: 100% !important;
+          justify-content: flex-start !important;
+          overflow-x: auto !important;
+          white-space: nowrap !important;
+          -webkit-overflow-scrolling: touch;
+        }
 
-  .hero {
-    display: block !important;
-    min-height: auto !important;
-    padding: 22px 16px !important;
-    text-align: center !important;
-    overflow: visible !important;
-  }
+        .wallet {
+          order: 3 !important;
+          width: 100% !important;
+          min-width: 0 !important;
+          justify-content: center !important;
+        }
 
-  .hero-card {
-    display: none !important;
-  }
+        .hero {
+          display: block !important;
+          min-height: auto !important;
+          padding: 22px 16px !important;
+          text-align: center !important;
+          overflow: visible !important;
+        }
 
-  h1 {
-    font-size: clamp(32px, 10vw, 44px) !important;
-  }
+        .hero-card {
+          display: none !important;
+        }
 
-  .hero p {
-    font-size: 14px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
+        h1 {
+          font-size: clamp(32px, 10vw, 44px) !important;
+        }
 
-  .cta-row {
-    justify-content: center !important;
-  }
+        .hero p {
+          font-size: 14px !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
 
-  .games-section {
-    height: auto !important;
-    min-height: auto !important;
-    max-height: none !important;
-    margin: 12px 10px 16px !important;
-    padding: 14px 10px 16px !important;
-    display: block !important;
-    overflow: visible !important;
-  }
+        .cta-row {
+          justify-content: center !important;
+        }
 
-  .game-scroll {
-    height: auto !important;
-    min-height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    padding: 10px 4px 4px !important;
-  }
+        .games-section {
+          height: auto !important;
+          min-height: auto !important;
+          max-height: none !important;
+          margin: 12px 10px 16px !important;
+          padding: 14px 10px 16px !important;
+          display: block !important;
+          overflow: visible !important;
+        }
 
-  .games-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-    overflow: visible !important;
-  }
+        .game-scroll {
+          height: auto !important;
+          min-height: auto !important;
+          max-height: none !important;
+          overflow: visible !important;
+          padding: 10px 4px 4px !important;
+        }
 
-  .game-tile {
-    min-height: 128px !important;
-    height: auto !important;
-    padding: 12px 8px !important;
-    border-radius: 18px !important;
-    gap: 8px !important;
-  }
+        .games-grid {
+          display: grid !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          gap: 10px !important;
+          overflow: visible !important;
+        }
 
-  .game-icon {
-    font-size: 34px !important;
-  }
+        .game-tile {
+          min-height: 128px !important;
+          height: auto !important;
+          padding: 12px 8px !important;
+          border-radius: 18px !important;
+          gap: 8px !important;
+        }
 
-  .game-tile b {
-    font-size: 12px !important;
-    line-height: 1.2 !important;
-  }
+        .game-icon {
+          font-size: 34px !important;
+        }
 
-  .game-tile span {
-    font-size: 9px !important;
-    line-height: 1.2 !important;
-  }
+        .game-tile b {
+          font-size: 12px !important;
+          line-height: 1.2 !important;
+        }
 
-  .trustbar {
-    height: auto !important;
-    min-height: auto !important;
-    margin-top: 12px !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-    overflow: visible !important;
-  }
-}
+        .game-tile span {
+          font-size: 9px !important;
+          line-height: 1.2 !important;
+        }
 
-@media (min-width: 901px) and (max-width: 1180px) {
-  html,
-  body {
-    overflow-y: auto !important;
-  }
+        .trustbar {
+          height: auto !important;
+          min-height: auto !important;
+          margin-top: 12px !important;
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          gap: 8px !important;
+          overflow: visible !important;
+        }
+      }
 
-  .home-wrap {
-    height: auto !important;
-    min-height: 100dvh !important;
-    max-height: none !important;
-  }
+      @media (min-width: 901px) and (max-width: 1180px) {
+        html,
+        body {
+          overflow-y: auto !important;
+        }
 
-  .home-shell,
-  .home-main,
-  .games-section,
-  .game-scroll {
-    max-height: none !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
+        .home-wrap {
+          height: auto !important;
+          min-height: 100dvh !important;
+          max-height: none !important;
+        }
 
-  .games-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
+        .home-shell,
+        .home-main,
+        .games-section,
+        .game-scroll {
+          max-height: none !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
 
-  .game-tile {
-    min-height: 150px !important;
-  }
-}
-</style>
+        .games-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
 
-</head>
+        .game-tile {
+          min-height: 150px !important;
+        }
+      }
+    </style>
+  </head>
   <body>
     <div class="home-wrap">
       <div class="home-shell">
@@ -1038,6 +1037,14 @@
                   ><div class="game-icon">🎰</div>
                   <b>Slots</b><span>Klassiker</span></a
                 >
+                <a class="game-tile blue" href="mines.html"
+                  ><div class="game-icon">💣</div>
+                  <b>Mines</b><span>Minen</span></a
+                >
+                <a class="game-tile blue" href="keno.html"
+                  ><div class="game-icon">🎱</div>
+                  <b>Keno</b><span>Lotto</span></a
+                >
               </div>
             </div>
           </section>
@@ -1063,117 +1070,199 @@
         </div>
       </section>
     </div>
-  <script>document.addEventListener('mouseover',e=>{if(e.target.closest('.game-tile,.cta,.home-nav a')) window.casinoSound&&casinoSound.play('hover');});
-document.addEventListener('click',e=>{if(e.target.closest('.game-tile,.cta,.home-nav a,.wallet-plus')) window.casinoSound&&casinoSound.play('click');});
-</script>
+    <script>
+      document.addEventListener("mouseover", (e) => {
+        if (e.target.closest(".game-tile,.cta,.home-nav a"))
+          window.casinoSound && casinoSound.play("hover");
+      });
+      document.addEventListener("click", (e) => {
+        if (e.target.closest(".game-tile,.cta,.home-nav a,.wallet-plus"))
+          window.casinoSound && casinoSound.play("click");
+      });
+    </script>
 
-<script>
-(function(){
-  document.addEventListener('pointerdown',function(){ if(window.casinoSound) casinoSound.unlock(); },{passive:true});
-})();
-</script>
+    <script>
+      (function () {
+        document.addEventListener(
+          "pointerdown",
+          function () {
+            if (window.casinoSound) casinoSound.unlock();
+          },
+          { passive: true },
+        );
+      })();
+    </script>
 
+    <script>
+      /* Direct local sounds - works like the slot sounds, no external files needed */
+      (function () {
+        if (window.__royalDirectSoundReady) return;
+        window.__royalDirectSoundReady = true;
 
-<script>
-/* Direct local sounds - works like the slot sounds, no external files needed */
-(function(){
-  if(window.__royalDirectSoundReady) return;
-  window.__royalDirectSoundReady = true;
+        let audioCtx = null;
+        let soundEnabled = localStorage.getItem("royal_direct_sound") !== "off";
 
-  let audioCtx = null;
-  let soundEnabled = localStorage.getItem('royal_direct_sound') !== 'off';
+        function ctx() {
+          if (!soundEnabled) return null;
+          try {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            if (!audioCtx) audioCtx = new AC();
+            if (audioCtx.state === "suspended") audioCtx.resume();
+            return audioCtx;
+          } catch (e) {
+            return null;
+          }
+        }
 
-  function ctx(){
-    if(!soundEnabled) return null;
-    try{
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if(!AC) return null;
-      if(!audioCtx) audioCtx = new AC();
-      if(audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }catch(e){ return null; }
-  }
+        function unlock() {
+          const c = ctx();
+          if (!c) return;
+          try {
+            const o = c.createOscillator();
+            const g = c.createGain();
+            g.gain.value = 0.0001;
+            o.connect(g);
+            g.connect(c.destination);
+            o.start();
+            o.stop(c.currentTime + 0.01);
+          } catch (e) {}
+        }
 
-  function unlock(){
-    const c = ctx();
-    if(!c) return;
-    try{
-      const o = c.createOscillator();
-      const g = c.createGain();
-      g.gain.value = 0.0001;
-      o.connect(g); g.connect(c.destination);
-      o.start();
-      o.stop(c.currentTime + 0.01);
-    }catch(e){}
-  }
+        function tone(
+          freq = 440,
+          duration = 0.08,
+          type = "sine",
+          gain = 0.05,
+          delay = 0,
+        ) {
+          if (!soundEnabled) return;
+          setTimeout(() => {
+            const c = ctx();
+            if (!c) return;
+            try {
+              const o = c.createOscillator();
+              const g = c.createGain();
+              o.type = type;
+              o.frequency.setValueAtTime(freq, c.currentTime);
+              g.gain.setValueAtTime(gain, c.currentTime);
+              g.gain.exponentialRampToValueAtTime(
+                0.0001,
+                c.currentTime + duration,
+              );
+              o.connect(g);
+              g.connect(c.destination);
+              o.start(c.currentTime);
+              o.stop(c.currentTime + duration + 0.03);
+            } catch (e) {}
+          }, delay);
+        }
 
-  function tone(freq=440,duration=.08,type='sine',gain=.05,delay=0){
-    if(!soundEnabled) return;
-    setTimeout(()=>{
-      const c = ctx();
-      if(!c) return;
-      try{
-        const o = c.createOscillator();
-        const g = c.createGain();
-        o.type = type;
-        o.frequency.setValueAtTime(freq, c.currentTime);
-        g.gain.setValueAtTime(gain, c.currentTime);
-        g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + duration);
-        o.connect(g); g.connect(c.destination);
-        o.start(c.currentTime);
-        o.stop(c.currentTime + duration + .03);
-      }catch(e){}
-    }, delay);
-  }
+        const sounds = {
+          click() {
+            tone(520, 0.045, "sine", 0.055);
+          },
+          hover() {
+            tone(680, 0.025, "sine", 0.025);
+          },
+          bet() {
+            tone(330, 0.06, "triangle", 0.07);
+            tone(460, 0.05, "triangle", 0.05, 45);
+          },
+          win() {
+            tone(520, 0.09, "sine", 0.08);
+            tone(660, 0.09, "sine", 0.07, 85);
+            tone(880, 0.12, "sine", 0.065, 175);
+          },
+          lose() {
+            tone(240, 0.12, "triangle", 0.055);
+            tone(145, 0.16, "triangle", 0.042, 95);
+          },
+          cashout() {
+            tone(720, 0.08, "sine", 0.08);
+            tone(980, 0.12, "sine", 0.07, 95);
+          },
+          card() {
+            tone(500, 0.06, "triangle", 0.06);
+          },
+          chip() {
+            tone(300, 0.05, "square", 0.05);
+            tone(420, 0.05, "square", 0.04, 45);
+          },
+          spin() {
+            tone(220, 0.05, "square", 0.04);
+          },
+          reelStop() {
+            tone(420, 0.07, "triangle", 0.065);
+          },
+          rocket() {
+            tone(135, 0.06, "sawtooth", 0.04);
+          },
+          crash() {
+            tone(120, 0.22, "sawtooth", 0.09);
+            tone(70, 0.3, "sawtooth", 0.065, 90);
+          },
+          roulette() {
+            tone(260, 0.04, "triangle", 0.04);
+          },
+          ball() {
+            tone(780, 0.04, "sine", 0.05);
+          },
+          plinko() {
+            tone(620, 0.04, "sine", 0.05);
+          },
+          chicken() {
+            tone(740, 0.055, "square", 0.045);
+            tone(920, 0.045, "square", 0.03, 55);
+          },
+          dice() {
+            tone(180, 0.05, "square", 0.05);
+            tone(260, 0.05, "square", 0.04, 55);
+            tone(340, 0.05, "square", 0.035, 110);
+          },
+          free() {
+            tone(440, 0.08, "triangle", 0.085);
+            tone(620, 0.08, "triangle", 0.075, 85);
+            tone(840, 0.09, "triangle", 0.07, 170);
+            tone(1180, 0.1, "triangle", 0.065, 255);
+          },
+          error() {
+            tone(170, 0.12, "sawtooth", 0.06);
+            tone(115, 0.16, "sawtooth", 0.045, 90);
+          },
+        };
 
-  const sounds = {
-    click(){ tone(520,.045,'sine',.055); },
-    hover(){ tone(680,.025,'sine',.025); },
-    bet(){ tone(330,.06,'triangle',.07); tone(460,.05,'triangle',.05,45); },
-    win(){ tone(520,.09,'sine',.08); tone(660,.09,'sine',.07,85); tone(880,.12,'sine',.065,175); },
-    lose(){ tone(240,.12,'triangle',.055); tone(145,.16,'triangle',.042,95); },
-    cashout(){ tone(720,.08,'sine',.08); tone(980,.12,'sine',.07,95); },
-    card(){ tone(500,.06,'triangle',.06); },
-    chip(){ tone(300,.05,'square',.05); tone(420,.05,'square',.04,45); },
-    spin(){ tone(220,.05,'square',.04); },
-    reelStop(){ tone(420,.07,'triangle',.065); },
-    rocket(){ tone(135,.06,'sawtooth',.04); },
-    crash(){ tone(120,.22,'sawtooth',.09); tone(70,.30,'sawtooth',.065,90); },
-    roulette(){ tone(260,.04,'triangle',.04); },
-    ball(){ tone(780,.04,'sine',.05); },
-    plinko(){ tone(620,.04,'sine',.05); },
-    chicken(){ tone(740,.055,'square',.045); tone(920,.045,'square',.030,55); },
-    dice(){ tone(180,.05,'square',.05); tone(260,.05,'square',.04,55); tone(340,.05,'square',.035,110); },
-    free(){ tone(440,.08,'triangle',.085); tone(620,.08,'triangle',.075,85); tone(840,.09,'triangle',.07,170); tone(1180,.1,'triangle',.065,255); },
-    error(){ tone(170,.12,'sawtooth',.06); tone(115,.16,'sawtooth',.045,90); }
-  };
+        window.directSound = function (name) {
+          unlock();
+          (sounds[name] || sounds.click)();
+        };
 
-  window.directSound = function(name){
-    unlock();
-    (sounds[name] || sounds.click)();
-  };
+        window.toggleDirectSound = function () {
+          soundEnabled = !soundEnabled;
+          localStorage.setItem(
+            "royal_direct_sound",
+            soundEnabled ? "on" : "off",
+          );
+          updateSoundButton();
+          if (soundEnabled) directSound("click");
+        };
 
-  window.toggleDirectSound = function(){
-    soundEnabled = !soundEnabled;
-    localStorage.setItem('royal_direct_sound', soundEnabled ? 'on' : 'off');
-    updateSoundButton();
-    if(soundEnabled) directSound('click');
-  };
+        function updateSoundButton() {
+          document.querySelectorAll("[data-sound-toggle]").forEach((btn) => {
+            btn.textContent = soundEnabled ? "🔊 Sound" : "🔇 Sound";
+            btn.classList.toggle("sound-off", !soundEnabled);
+            btn.setAttribute("aria-pressed", String(soundEnabled));
+          });
+        }
 
-  function updateSoundButton(){
-    document.querySelectorAll('[data-sound-toggle]').forEach(btn=>{
-      btn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
-      btn.classList.toggle('sound-off', !soundEnabled);
-      btn.setAttribute('aria-pressed', String(soundEnabled));
-    });
-  }
+        function addButton() {
+          const header = document.querySelector(
+            ".casino-header,.home-header,.topbar",
+          );
+          if (!header || document.querySelector("[data-sound-toggle]")) return;
 
-  function addButton(){
-    const header = document.querySelector('.casino-header,.home-header,.topbar');
-    if(!header || document.querySelector('[data-sound-toggle]')) return;
-
-    const style = document.createElement('style');
-    style.textContent = `
+          const style = document.createElement("style");
+          style.textContent = `
       .global-sound-toggle{
         height:44px;padding:0 15px;border-radius:999px;
         border:1px solid rgba(229,193,88,.34);
@@ -1183,36 +1272,45 @@ document.addEventListener('click',e=>{if(e.target.closest('.game-tile,.cta,.home
       }
       .global-sound-toggle.sound-off{color:rgba(255,255,255,.62);background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.12)}
     `;
-    document.head.appendChild(style);
+          document.head.appendChild(style);
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'global-sound-toggle';
-    btn.setAttribute('data-sound-toggle','true');
-    btn.onclick = toggleDirectSound;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "global-sound-toggle";
+          btn.setAttribute("data-sound-toggle", "true");
+          btn.onclick = toggleDirectSound;
 
-    const wallet = header.querySelector('.wallet');
-    if(wallet) header.insertBefore(btn, wallet);
-    else header.appendChild(btn);
-    updateSoundButton();
-  }
+          const wallet = header.querySelector(".wallet");
+          if (wallet) header.insertBefore(btn, wallet);
+          else header.appendChild(btn);
+          updateSoundButton();
+        }
 
-  document.addEventListener('pointerdown', unlock, {passive:true});
-  document.addEventListener('keydown', unlock);
-  document.addEventListener('DOMContentLoaded', addButton);
+        document.addEventListener("pointerdown", unlock, { passive: true });
+        document.addEventListener("keydown", unlock);
+        document.addEventListener("DOMContentLoaded", addButton);
 
-  document.addEventListener('click', e=>{
-    if(e.target.closest('button,.game-tile,.cta,.casino-nav a,.home-nav a,.wallet-plus')){
-      directSound('click');
-    }
-  }, true);
-})();
-</script>
+        document.addEventListener(
+          "click",
+          (e) => {
+            if (
+              e.target.closest(
+                "button,.game-tile,.cta,.casino-nav a,.home-nav a,.wallet-plus",
+              )
+            ) {
+              directSound("click");
+            }
+          },
+          true,
+        );
+      })();
+    </script>
 
-
-<script>
-document.addEventListener('mouseover',e=>{if(e.target.closest('.game-tile,.home-nav a,.cta')) directSound&&directSound('hover');});
-</script>
-
-</body>
+    <script>
+      document.addEventListener("mouseover", (e) => {
+        if (e.target.closest(".game-tile,.home-nav a,.cta"))
+          directSound && directSound("hover");
+      });
+    </script>
+  </body>
 </html>
