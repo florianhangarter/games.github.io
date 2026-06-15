@@ -35,6 +35,43 @@
 }
 </style>
 
+
+<style id="dice-visible-pips-fix">
+/* Sichtbare Würfelpunkte statt Emoji, damit es auf Handy/Tablet/Browsern sauber angezeigt wird */
+.dice{
+  width:100%;
+  height:100%;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(3,1fr);
+  gap:0;
+  padding:18px;
+  font-size:0!important;
+  filter:none!important;
+  color:#111!important;
+}
+.dice .pip{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#111;
+  align-self:center;
+  justify-self:center;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.18),0 1px 1px rgba(0,0,0,.25);
+}
+.dice .pip.empty{
+  opacity:0;
+}
+@media(max-width:760px){
+  .dice{padding:13px}
+  .dice .pip{width:14px;height:14px}
+}
+@media(max-height:760px) and (min-width:900px){
+  .dice{padding:13px}
+  .dice .pip{width:14px;height:14px}
+}
+</style>
+
 </head>
 <body>
 <div class="dice-app">
@@ -75,7 +112,7 @@
     <section class="game-panel">
       <div class="table-head"><h2>Premium Dice Table</h2><div class="rule-pill">Sofortiger Wurf</div></div>
       <div class="dice-table">
-        <div class="dice-area"><div class="dice-stage"><div class="die-shell"><div id="d1" class="dice">⚀</div></div><div class="die-shell"><div id="d2" class="dice">⚀</div></div></div></div>
+        <div class="dice-area"><div class="dice-stage"><div class="die-shell"><div id="d1" class="dice"></div></div><div class="die-shell"><div id="d2" class="dice"></div></div></div></div>
         <div class="result-strip"><div class="result-box"><small>Summe</small><b id="sumOut">2</b></div><div class="result-box"><small>Gewinnchance</small><b id="choiceOut">High</b></div><div class="result-box"><small>Multiplikator</small><b id="multOut">2x</b></div></div>
       </div>
       <div id="msg" class="message"></div>
@@ -85,7 +122,17 @@
 </div>
 <script>
 let getBet, choice='high', rolling=false;
-const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+function diceFace(value){
+  const layouts = {
+    1:[0,0,0,0,1,0,0,0,0],
+    2:[1,0,0,0,0,0,0,0,1],
+    3:[1,0,0,0,1,0,0,0,1],
+    4:[1,0,1,0,0,0,1,0,1],
+    5:[1,0,1,0,1,0,1,0,1],
+    6:[1,0,1,1,0,1,1,0,1]
+  };
+  return layouts[value].map(v=>`<span class="pip ${v?'':'empty'}"></span>`).join('');
+}
 const labels={high:['High','2x'],low:['Low','2x'],even:['Gerade','1.8x'],odd:['Ungerade','1.8x'],double:['Pasch','5x'],seven:['Genau 7','4x']};
 const d1=document.getElementById('d1'), d2=document.getElementById('d2'), msg=document.getElementById('msg');
 document.addEventListener('DOMContentLoaded',()=>{
@@ -97,6 +144,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('choices').addEventListener('click',e=>{const b=e.target.closest('button[data-choice]');if(!b||rolling)return;choice=b.dataset.choice;document.querySelectorAll('#choices .choice-btn').forEach(x=>x.classList.toggle('active',x===b));updateChoiceInfo();});
   document.getElementById('rollBtn').addEventListener('click',rollDice);
   updateChoiceInfo();
+  d1.innerHTML=diceFace(1);
+  d2.innerHTML=diceFace(1);
 });
 function setBetValue(value){const slider=document.getElementById('betSlider');const min=Number(slider.min||1),max=Number(slider.max||500);slider.value=Math.max(min,Math.min(max,Math.floor(Number(value)||min)));slider.dispatchEvent(new Event('input'));}
 function updatePresetActive(value){document.querySelectorAll('#presetBets .preset').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.set)===Number(value)));}
@@ -107,8 +156,8 @@ function rollDice(){ window.casinoSound&&casinoSound.play('dice');
   const bet=getBet();
   if(!canAfford(bet))return toast('Nicht genug Guthaben.','bad');
   rolling=true;setControlsDisabled(true);window.casinoSound&&casinoSound.play('bet'); changeCash(-bet);msg.textContent='Die Würfel rollen...';d1.classList.add('rolling');d2.classList.add('rolling');
-  const spin=setInterval(()=>{d1.textContent=faces[Math.floor(Math.random()*6)];d2.textContent=faces[Math.floor(Math.random()*6)];},80);
-  setTimeout(()=>{clearInterval(spin);const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6),sum=a+b;d1.classList.remove('rolling');d2.classList.remove('rolling');d1.textContent=faces[a-1];d2.textContent=faces[b-1];sumOut.textContent=sum;let mult=0;if(choice==='high'&&sum>=8)mult=2;if(choice==='low'&&sum<=6)mult=2;if(choice==='even'&&sum%2===0)mult=1.8;if(choice==='odd'&&sum%2===1)mult=1.8;if(choice==='double'&&a===b)mult=5;if(choice==='seven'&&sum===7)mult=4;if(mult){const win=Math.floor(bet*mult);changeCash(win);msg.textContent=`${sum}! Gewinn: ${money(win)} 🎉`;window.casinoSound&&casinoSound.play('win'); playCustomWinSound(); playCustomWinSound(); recordGame('Dice',win-bet);}else{msg.textContent=`${sum}. Leider verloren.`;recordGame('Dice',-bet);}rolling=false;setControlsDisabled(false);},1150);
+  const spin=setInterval(()=>{d1.innerHTML=diceFace(1+Math.floor(Math.random()*6));d2.innerHTML=diceFace(1+Math.floor(Math.random()*6));},80);
+  setTimeout(()=>{clearInterval(spin);const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6),sum=a+b;d1.classList.remove('rolling');d2.classList.remove('rolling');d1.innerHTML=diceFace(a);d2.innerHTML=diceFace(b);sumOut.textContent=sum;let mult=0;if(choice==='high'&&sum>=8)mult=2;if(choice==='low'&&sum<=6)mult=2;if(choice==='even'&&sum%2===0)mult=1.8;if(choice==='odd'&&sum%2===1)mult=1.8;if(choice==='double'&&a===b)mult=5;if(choice==='seven'&&sum===7)mult=4;if(mult){const win=Math.floor(bet*mult);changeCash(win);msg.textContent=`${sum}! Gewinn: ${money(win)} 🎉`;window.casinoSound&&casinoSound.play('win'); playCustomWinSound(); recordGame('Dice',win-bet);}else{msg.textContent=`${sum}. Leider verloren.`;recordGame('Dice',-bet);}rolling=false;setControlsDisabled(false);},1150);
 }
 </script>
 
