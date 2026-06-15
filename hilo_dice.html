@@ -865,169 +865,283 @@
       }
     </style>
   
-<style id="royal-mobile-final-fix">
-/* FINAL MOBILE / TABLET FIX */
+
+<style id="royal-mobile-hard-fix-v2">
+/* HARD FIX: iPad / Tablet / Handy */
 @media (max-width: 1180px){
   html,body{
     width:100%!important;
+    min-width:0!important;
     min-height:100%!important;
+    height:auto!important;
     max-height:none!important;
     overflow-x:hidden!important;
     overflow-y:auto!important;
     -webkit-overflow-scrolling:touch!important;
   }
   body{
-    padding:10px!important;
+    padding:8px!important;
   }
+
   .hilo-app{
     width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
     min-height:100dvh!important;
     max-height:none!important;
-    height:auto!important;
+    display:block!important;
     overflow:visible!important;
-    border-radius:24px!important;
+    border-radius:20px!important;
   }
+
   .casino-header{
+    position:relative!important;
     min-height:0!important;
+    height:auto!important;
+    display:grid!important;
     grid-template-columns:1fr!important;
-    gap:12px!important;
-    padding:14px!important;
+    gap:10px!important;
+    padding:10px!important;
   }
   .brand{
-    justify-content:center!important;
     min-width:0!important;
+    justify-content:center!important;
   }
+  .brand-mark{font-size:30px!important}
+  .brand-title{font-size:18px!important}
   .wallet{
-    min-width:0!important;
     width:100%!important;
+    min-width:0!important;
     justify-content:center!important;
+    padding:8px 10px!important;
   }
-  .wallet-plus{
-    display:none!important;
-  }
+  .wallet-icon{width:34px!important;height:34px!important;font-size:18px!important}
+  .wallet b{font-size:17px!important}
+  .wallet-plus{display:none!important}
   .casino-nav{
     width:100%!important;
+    max-width:100%!important;
     justify-content:flex-start!important;
     overflow-x:auto!important;
-    padding-bottom:6px!important;
+    gap:6px!important;
+    padding:2px 0 6px!important;
   }
+  .casino-nav a{
+    font-size:11px!important;
+    padding:9px 11px!important;
+  }
+
   .hilo-main{
     display:flex!important;
     flex-direction:column!important;
-    height:auto!important;
+    width:100%!important;
     min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
     overflow:visible!important;
-    padding:12px!important;
-    gap:12px!important;
+    padding:8px!important;
+    gap:10px!important;
   }
-  .side-panel,
+
+  /* Spiel zuerst anzeigen, Einstellungen darunter */
   .game-panel{
+    order:1!important;
+  }
+  .side-panel{
+    order:2!important;
+  }
+
+  .side-panel,.game-panel{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:10px!important;
+    border-radius:18px!important;
+  }
+
+  .side-panel{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:10px!important;
+  }
+  .side-panel > div:first-child{
+    display:none!important;
+  }
+
+  .game-panel{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:10px!important;
+  }
+
+  .table-head{
+    justify-content:center!important;
+    text-align:center!important;
+    gap:8px!important;
+  }
+  .table-head h2{
+    font-size:18px!important;
+  }
+  .rule-pill{
+    font-size:10px!important;
+    padding:7px 10px!important;
+  }
+
+  .hilo-live{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .live-box{
+    padding:8px!important;
+    border-radius:14px!important;
+  }
+  .live-box small{
+    font-size:9px!important;
+  }
+  .live-box b{
+    font-size:15px!important;
+  }
+
+  .hilo-stage{
     width:100%!important;
     height:auto!important;
     min-height:0!important;
     max-height:none!important;
     overflow:visible!important;
-    padding:14px!important;
-    border-radius:22px!important;
-  }
-  .side-panel{
-    display:flex!important;
-    flex-direction:column!important;
-  }
-  .game-title,
-  .side-copy{
-    text-align:center!important;
-  }
-  .stat-grid,
-  .hilo-live{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  }
-  .quick-bet-card{
-    overflow:visible!important;
-  }
-  .preset-grid{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  }
-  .preset{
-    min-height:58px!important;
-  }
-  .bet-actions{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  }
-  .mode-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  }
-  .hilo-stage{
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
-    padding:12px!important;
+    padding:8px!important;
+    border-radius:18px!important;
+    display:block!important;
   }
   .dice-card{
     width:100%!important;
     max-width:100%!important;
-    padding:14px!important;
-    border-radius:24px!important;
+    min-width:0!important;
+    padding:10px!important;
+    border-radius:18px!important;
   }
   .roll-display{
-    min-height:130px!important;
-    margin-bottom:12px!important;
+    min-height:96px!important;
+    margin-bottom:10px!important;
+    border-radius:18px!important;
   }
   .roll-number{
-    font-size:clamp(52px,16vw,96px)!important;
+    font-size:clamp(46px,15vw,78px)!important;
+    line-height:1!important;
   }
   .threshold-wrap{
-    padding:14px!important;
+    padding:10px!important;
+    border-radius:16px!important;
     overflow:visible!important;
   }
   .threshold-head{
-    gap:8px!important;
-    font-size:10px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    text-align:center!important;
+    gap:4px!important;
+    font-size:9px!important;
+    line-height:1.25!important;
+    margin-bottom:4px!important;
   }
   .dice-slider-box{
     padding-top:34px!important;
-    padding-bottom:42px!important;
+    padding-bottom:38px!important;
   }
   .dice-marker{
-    min-width:48px!important;
-    height:24px!important;
-    font-size:10px!important;
+    min-width:42px!important;
+    height:22px!important;
+    font-size:9px!important;
+    padding:0 5px!important;
   }
   .dice-marker.roll{
     bottom:18px!important;
   }
+  .scale{
+    font-size:10px!important;
+  }
+
   .message{
-    min-height:46px!important;
-    padding:10px!important;
-    font-size:13px!important;
+    min-height:42px!important;
+    padding:8px!important;
+    font-size:12px!important;
+    line-height:1.35!important;
+    border-radius:14px!important;
   }
   .controls{
     display:flex!important;
     flex-wrap:wrap!important;
+    gap:8px!important;
   }
   .controls button{
-    min-height:52px!important;
-    flex:1 1 150px!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:50px!important;
+    flex:1 1 100%!important;
+  }
+
+  .quick-bet-card{
+    padding:10px!important;
+    border-radius:18px!important;
+    overflow:visible!important;
+  }
+  .bet-display{
+    grid-template-columns:1fr auto!important;
+    gap:8px!important;
+    margin-bottom:10px!important;
+  }
+  .bet-amount{
+    font-size:32px!important;
+  }
+  .bet-mode-pill{
+    font-size:10px!important;
+    padding:7px 9px!important;
+  }
+  .preset-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+    margin-bottom:10px!important;
+  }
+  .preset{
+    min-height:48px!important;
+    border-radius:14px!important;
+  }
+  .preset b{font-size:14px!important}
+  .preset small{font-size:9px!important}
+  .slider-wrap{
+    padding:10px!important;
+  }
+  .bet-actions{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  .bet-action{
+    padding:9px 4px!important;
+    font-size:11px!important;
+  }
+  .mode-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .mode-grid button{
+    min-height:46px!important;
+  }
+  .stat-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .stat-card{
+    padding:10px!important;
+  }
+  .stat-card b{
+    font-size:17px!important;
   }
 }
-@media (max-width: 520px){
-  body{padding:6px!important}
-  .hilo-app{border-radius:18px!important}
-  .casino-header{padding:10px!important}
-  .brand-title{font-size:18px!important}
-  .brand-mark{font-size:30px!important}
-  .hilo-main{padding:8px!important}
-  .side-panel,.game-panel{padding:10px!important;border-radius:18px!important}
-  .game-title{font-size:36px!important}
-  .side-copy{font-size:13px!important}
-  .stat-grid,.hilo-live{grid-template-columns:1fr 1fr!important;gap:8px!important}
-  .live-box,.stat-card{padding:10px!important}
-  .live-box b,.stat-card b{font-size:16px!important}
+@media (max-width: 420px){
   .preset-grid{grid-template-columns:1fr!important}
-  .bet-display{grid-template-columns:1fr!important;text-align:center!important}
-  .bet-mode-pill{justify-self:center!important}
-  .roll-display{min-height:110px!important}
-  .threshold-head{flex-direction:column!important;text-align:center!important}
+  .bet-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .hilo-live{grid-template-columns:1fr 1fr!important}
 }
 </style>
 
